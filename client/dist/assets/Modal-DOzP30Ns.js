@@ -1,0 +1,11 @@
+import{c as d,X as c}from"./index-DMKsFePJ.js";import{j as e}from"./vendor-motion-Db8QOGPE.js";import{r as m}from"./vendor-react-CBuxoe4C.js";/**
+ * @license lucide-react v0.383.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const f=d("Search",[["circle",{cx:"11",cy:"11",r:"8",key:"4ej97u"}],["path",{d:"m21 21-4.3-4.3",key:"1qie3q"}]]);/**
+ * @license lucide-react v0.383.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const u=d("Trash2",[["path",{d:"M3 6h18",key:"d0wm0j"}],["path",{d:"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6",key:"4alrt4"}],["path",{d:"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2",key:"v07s0e"}],["line",{x1:"10",x2:"10",y1:"11",y2:"17",key:"1uufr5"}],["line",{x1:"14",x2:"14",y1:"11",y2:"17",key:"xtxkd"}]]),v=({isOpen:a,onClose:t,title:o,subtitle:r,children:i,maxWidth:l="2xl"})=>{if(m.useEffect(()=>{const s=x=>{x.key==="Escape"&&t()};return a&&(document.body.style.overflow="hidden",window.addEventListener("keydown",s)),()=>{document.body.style.overflow="unset",window.removeEventListener("keydown",s)}},[a,t]),!a)return null;const n={sm:"max-w-sm",md:"max-w-md",lg:"max-w-lg",xl:"max-w-xl","2xl":"max-w-2xl","4xl":"max-w-4xl"}[l];return e.jsxs("div",{className:"fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto",children:[e.jsx("div",{className:"fixed inset-0 bg-dark/75 backdrop-blur-md transition-opacity animate-in fade-in duration-200",onClick:t}),e.jsxs("div",{className:`relative w-full ${n} bg-white rounded-3xl shadow-2xl border border-dark/10 overflow-hidden z-10 my-auto animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]`,children:[e.jsxs("div",{className:"flex items-center justify-between p-6 bg-dark text-white border-b border-white/10",children:[e.jsxs("div",{children:[e.jsx("h2",{className:"font-display text-xl font-bold",children:o}),r&&e.jsx("p",{className:"text-xs text-gray-400 mt-0.5",children:r})]}),e.jsx("button",{onClick:t,className:"p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-colors","aria-label":"Close modal",children:e.jsx(c,{className:"w-5 h-5"})})]}),e.jsx("div",{className:"p-6 overflow-y-auto space-y-4",children:i})]})]})};export{v as M,f as S,u as T};

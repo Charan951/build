@@ -20,6 +20,7 @@ export default defineConfig({
           'vendor-react': ['react', 'react-dom', 'react-router-dom', 'react-helmet-async'],
           'vendor-three': ['three', '@react-three/fiber', '@react-three/drei'],
           'vendor-motion': ['framer-motion', '@studio-freight/lenis'],
+          'vendor-socket': ['socket.io-client'],
         },
       },
     },

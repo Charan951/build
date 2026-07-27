@@ -11,6 +11,8 @@ export interface ILead extends Document {
   status: 'new' | 'contacted' | 'in_progress' | 'closed';
   source?: string;
   ipAddress?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const LeadSchema: Schema = new Schema(

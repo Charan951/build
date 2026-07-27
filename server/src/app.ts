@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import mongoSanitize from 'express-mongo-sanitize';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes';
 import projectRoutes from './routes/projectRoutes';
@@ -20,7 +21,7 @@ dotenv.config();
 const app: Application = express();
 
 // Security Middlewares
-app.use(helmet({ contentSecurityPolicy: false })); // Allowed for R3F Canvas and Cloudinary media
+app.use(helmet({ contentSecurityPolicy: false })); // Allowed for R3F Canvas, WebSockets, and Cloudinary media
 app.use(
   cors({
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
@@ -30,6 +31,7 @@ app.use(
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+app.use(mongoSanitize()); // Prevent MongoDB Operator Injection ($gt, $ne, etc.)
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);

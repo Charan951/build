@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Lead from '../models/Lead';
+import { notifyAdmins } from '../services/socketService';
 
 export const createLead = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -7,6 +8,17 @@ export const createLead = async (req: Request, res: Response): Promise<void> => 
       ...req.body,
       ipAddress: req.ip || req.socket.remoteAddress,
     });
+
+    // Trigger real-time socket alert to logged in admin users
+    notifyAdmins('new_lead_received', {
+      id: lead._id,
+      name: lead.name,
+      email: lead.email,
+      projectType: lead.projectType,
+      budgetRange: lead.budgetRange,
+      createdAt: lead.createdAt,
+    });
+
     res.status(201).json({
       success: true,
       message: 'Thank you for reaching out! Our engineering team will contact you within 24 hours.',

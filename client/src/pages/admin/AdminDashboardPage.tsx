@@ -4,14 +4,17 @@ import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
-import { FolderGit2, Cpu, FileText, Inbox, LogOut, Plus, RefreshCw, Sparkles, DollarSign, Settings as SettingsIcon } from 'lucide-react';
+import { FolderGit2, Cpu, FileText, Inbox, LogOut, Plus, RefreshCw, Sparkles, DollarSign, Settings as SettingsIcon, Bell } from 'lucide-react';
+import { useSocket } from '../../hooks/useSocket';
 
 export const AdminDashboardPage: React.FC = () => {
   const [stats, setStats] = useState({ projects: 0, services: 0, blogs: 0, leads: 0 });
   const [recentLeads, setRecentLeads] = useState<any[]>([]);
+  const [liveNotification, setLiveNotification] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const token = localStorage.getItem('adminToken');
+  const { subscribe, isConnected } = useSocket({ token });
 
   useEffect(() => {
     if (!token) {
@@ -38,6 +41,20 @@ export const AdminDashboardPage: React.FC = () => {
       .catch(() => {});
   }, [token, navigate]);
 
+  // Subscribe to real-time lead notification socket event
+  useEffect(() => {
+    const unsubscribe = subscribe('new_lead_received', (newLead: any) => {
+      setLiveNotification(`New Lead Received: ${newLead.name} (${newLead.projectType})`);
+      setStats((prev) => ({ ...prev, leads: prev.leads + 1 }));
+      setRecentLeads((prev) => [newLead, ...prev.slice(0, 4)]);
+
+      // Auto dismiss live notification after 6 seconds
+      setTimeout(() => setLiveNotification(null), 6000);
+    });
+
+    return () => unsubscribe();
+  }, [subscribe]);
+
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     navigate('/login');
@@ -47,12 +64,29 @@ export const AdminDashboardPage: React.FC = () => {
     <div className="pt-28 pb-16 max-w-7xl mx-auto px-6 space-y-12">
       <SEOHead title="Admin Dashboard | Build Your Thoughts Headless CMS" />
 
+      {/* Live Socket Toast Banner */}
+      {liveNotification && (
+        <div className="p-4 rounded-2xl bg-lime-400 text-dark font-bold text-sm flex items-center justify-between shadow-2xl animate-bounce">
+          <div className="flex items-center gap-3">
+            <Bell className="w-5 h-5 text-dark animate-pulse" />
+            <span>{liveNotification}</span>
+          </div>
+          <Badge variant="dark">Real-Time Event</Badge>
+        </div>
+      )}
+
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-dark text-white p-8 rounded-card border border-white/10">
         <div>
-          <Badge variant="lime" className="mb-2">Headless CMS Engine</Badge>
+          <div className="flex items-center gap-3 mb-2">
+            <Badge variant="lime">Headless CMS Engine</Badge>
+            <span className="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-white/10 text-gray-300">
+              <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+              {isConnected ? 'Socket Active' : 'Connecting WS...'}
+            </span>
+          </div>
           <h1 className="font-display text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-gray-400 text-xs mt-1">Manage website content, case studies, blogs, and contact inquiries.</p>
+          <p className="text-gray-400 text-xs mt-1">Manage website content, case studies, blogs, and contact inquiries in real time.</p>
         </div>
         <Button variant="ghost" onClick={handleLogout} className="text-white hover:text-rose-400 gap-2">
           <LogOut className="w-4 h-4" /> Logout

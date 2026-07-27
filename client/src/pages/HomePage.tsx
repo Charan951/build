@@ -115,6 +115,7 @@ export const HomePage: React.FC = () => {
   const { scrollYProgress } = useScroll({
     target: marqueeRef,
     offset: ['start end', 'end start'],
+    layoutEffect: false,
   });
 
   // Upper line moves LEFT on scroll down (5% -> -30%), RIGHT on scroll up

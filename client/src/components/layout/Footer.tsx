@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Github, Twitter, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
+import { Sparkles, Mail, Phone, MapPin, Instagram, Linkedin, Facebook, Twitter } from 'lucide-react';
 import { apiFetch } from '../../services/api';
 
 export const Footer: React.FC = () => {
@@ -11,6 +11,8 @@ export const Footer: React.FC = () => {
     githubUrl: 'https://github.com',
     twitterUrl: 'https://twitter.com',
     linkedinUrl: 'https://linkedin.com',
+    instagramUrl: 'https://instagram.com',
+    facebookUrl: 'https://facebook.com',
   });
 
   useEffect(() => {
@@ -24,15 +26,24 @@ export const Footer: React.FC = () => {
             githubUrl: data.data.githubUrl || 'https://github.com',
             twitterUrl: data.data.twitterUrl || 'https://twitter.com',
             linkedinUrl: data.data.linkedinUrl || 'https://linkedin.com',
+            instagramUrl: data.data.instagramUrl || 'https://instagram.com',
+            facebookUrl: data.data.facebookUrl || 'https://facebook.com',
           });
         }
       })
       .catch(() => {});
   }, []);
 
+  const socialLinks = [
+    { name: 'Instagram', icon: Instagram, href: settings.instagramUrl || 'https://instagram.com' },
+    { name: 'LinkedIn', icon: Linkedin, href: settings.linkedinUrl || 'https://linkedin.com' },
+    { name: 'Facebook', icon: Facebook, href: settings.facebookUrl || 'https://facebook.com' },
+    { name: 'Twitter', icon: Twitter, href: settings.twitterUrl || 'https://twitter.com' },
+  ];
+
   return (
     <footer className="bg-dark text-white pt-12 md:pt-24 pb-12 px-6 border-t border-white/10 rounded-t-[40px] mt-12 md:mt-24">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-12 mb-12 md:mb-16">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-16">
         {/* Brand Column */}
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center gap-3">
@@ -46,37 +57,25 @@ export const Footer: React.FC = () => {
           <p className="text-gray-400 max-w-sm text-base leading-relaxed">
             Transforming ideas into intelligent enterprise digital experiences through high-performance engineering and world-class 3D motion design.
           </p>
-          <div className="flex items-center gap-4">
-            {settings.githubUrl && (
-              <a
-                href={settings.githubUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 hover:text-primary hover:border-primary transition-all"
-              >
-                <Github className="w-5 h-5" />
-              </a>
-            )}
-            {settings.twitterUrl && (
-              <a
-                href={settings.twitterUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 hover:text-primary hover:border-primary transition-all"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-            )}
-            {settings.linkedinUrl && (
-              <a
-                href={settings.linkedinUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 hover:text-primary hover:border-primary transition-all"
-              >
-                <Linkedin className="w-5 h-5" />
-              </a>
-            )}
+
+          {/* Latest Social Links (Instagram, LinkedIn, Facebook, Twitter) */}
+          <div className="flex items-center gap-3 pt-2">
+            {socialLinks.map((item) => {
+              const Icon = item.icon;
+              return (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={item.name}
+                  aria-label={item.name}
+                  className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 hover:text-primary hover:border-primary hover:bg-primary/10 hover:scale-110 transition-all duration-300 shadow-sm"
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              );
+            })}
           </div>
         </div>
 
@@ -90,18 +89,6 @@ export const Footer: React.FC = () => {
             <li><Link to="/projects" className="hover:text-primary transition-colors">Projects</Link></li>
             <li><Link to="/blogs" className="hover:text-primary transition-colors">Technical Blogs</Link></li>
             <li><Link to="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
-          </ul>
-        </div>
-
-        {/* Services Column */}
-        <div>
-          <h4 className="font-display text-lg font-bold text-white mb-4 md:mb-6">Services</h4>
-          <ul className="space-y-3 text-gray-400 text-sm">
-            <li><Link to="/services" className="hover:text-primary transition-colors">Enterprise Software</Link></li>
-            <li><Link to="/services" className="hover:text-primary transition-colors">AI & Machine Learning</Link></li>
-            <li><Link to="/services" className="hover:text-primary transition-colors">Mobile App Engineering</Link></li>
-            <li><Link to="/services" className="hover:text-primary transition-colors">Cloud Architecture</Link></li>
-            <li><Link to="/services" className="hover:text-primary transition-colors">UI/UX & 3D Design</Link></li>
           </ul>
         </div>
 
@@ -148,10 +135,7 @@ export const Footer: React.FC = () => {
             <div className="flex items-center gap-10 shrink-0">
               {[1, 2, 3, 4].map((i) => (
                 <React.Fragment key={i}>
-                  <span
-                    className="font-display text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight opacity-75 group-hover:opacity-100 transition-opacity"
-                    style={{ WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.4)', color: 'transparent' }}
-                  >
+                  <span className="font-display text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight text-primary transition-colors">
                     CALL FOR PROJECT
                   </span>
                   <span className="font-display text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white group-hover:text-primary transition-colors">
@@ -164,10 +148,7 @@ export const Footer: React.FC = () => {
             <div className="flex items-center gap-10 shrink-0">
               {[1, 2, 3, 4].map((i) => (
                 <React.Fragment key={i}>
-                  <span
-                    className="font-display text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight opacity-75 group-hover:opacity-100 transition-opacity"
-                    style={{ WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.4)', color: 'transparent' }}
-                  >
+                  <span className="font-display text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight text-primary transition-colors">
                     CALL FOR PROJECT
                   </span>
                   <span className="font-display text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white group-hover:text-primary transition-colors">

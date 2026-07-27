@@ -31,7 +31,7 @@ export const ProjectsPage: React.FC = () => {
 
       <SectionHeader
         badge="Portfolio"
-        title="Flagship Projects & Engineering Impact"
+        title="Our Projects"
         subtitle="Explore how we have engineered scalable digital solutions across Fintech, Healthcare AI, and SaaS."
       />
 

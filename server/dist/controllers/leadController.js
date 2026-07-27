@@ -5,11 +5,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteLead = exports.updateLeadStatus = exports.getLeads = exports.createLead = void 0;
 const Lead_1 = __importDefault(require("../models/Lead"));
+const socketService_1 = require("../services/socketService");
 const createLead = async (req, res) => {
     try {
         const lead = await Lead_1.default.create({
             ...req.body,
             ipAddress: req.ip || req.socket.remoteAddress,
+        });
+        // Trigger real-time socket alert to logged in admin users
+        (0, socketService_1.notifyAdmins)('new_lead_received', {
+            id: lead._id,
+            name: lead.name,
+            email: lead.email,
+            projectType: lead.projectType,
+            budgetRange: lead.budgetRange,
+            createdAt: lead.createdAt,
         });
         res.status(201).json({
             success: true,

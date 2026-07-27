@@ -8,6 +8,8 @@ const DEFAULT_SETTINGS = {
   githubUrl: 'https://github.com',
   twitterUrl: 'https://twitter.com',
   linkedinUrl: 'https://linkedin.com',
+  instagramUrl: 'https://instagram.com',
+  facebookUrl: 'https://facebook.com',
 };
 
 export const getSettings = async (req: Request, res: Response): Promise<void> => {
@@ -25,7 +27,7 @@ export const getSettings = async (req: Request, res: Response): Promise<void> =>
 
 export const updateSettings = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { address, phone, email, githubUrl, twitterUrl, linkedinUrl } = req.body;
+    const { address, phone, email, githubUrl, twitterUrl, linkedinUrl, instagramUrl, facebookUrl } = req.body;
     let settings = await Settings.findOne();
     
     if (settings) {
@@ -35,6 +37,8 @@ export const updateSettings = async (req: Request, res: Response): Promise<void>
       if (githubUrl !== undefined) settings.githubUrl = githubUrl;
       if (twitterUrl !== undefined) settings.twitterUrl = twitterUrl;
       if (linkedinUrl !== undefined) settings.linkedinUrl = linkedinUrl;
+      if (instagramUrl !== undefined) settings.instagramUrl = instagramUrl;
+      if (facebookUrl !== undefined) settings.facebookUrl = facebookUrl;
       await settings.save();
     } else {
       settings = await Settings.create({
@@ -44,6 +48,8 @@ export const updateSettings = async (req: Request, res: Response): Promise<void>
         githubUrl: githubUrl || DEFAULT_SETTINGS.githubUrl,
         twitterUrl: twitterUrl || DEFAULT_SETTINGS.twitterUrl,
         linkedinUrl: linkedinUrl || DEFAULT_SETTINGS.linkedinUrl,
+        instagramUrl: instagramUrl || DEFAULT_SETTINGS.instagramUrl,
+        facebookUrl: facebookUrl || DEFAULT_SETTINGS.facebookUrl,
       });
     }
 

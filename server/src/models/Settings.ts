@@ -7,6 +7,8 @@ export interface ISettings extends Document {
   githubUrl?: string;
   twitterUrl?: string;
   linkedinUrl?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
 }
 
 const SettingsSchema: Schema = new Schema(
@@ -17,6 +19,8 @@ const SettingsSchema: Schema = new Schema(
     githubUrl: { type: String, default: 'https://github.com' },
     twitterUrl: { type: String, default: 'https://twitter.com' },
     linkedinUrl: { type: String, default: 'https://linkedin.com' },
+    instagramUrl: { type: String, default: 'https://instagram.com' },
+    facebookUrl: { type: String, default: 'https://facebook.com' },
   },
   { timestamps: true }
 );

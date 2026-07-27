@@ -3,7 +3,9 @@ import { SEOHead } from '../components/seo/SEOHead';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { ShieldCheck, Award, Target, Users } from 'lucide-react';
+import { ScrollGridShowcase } from '../components/ui/ScrollGridShowcase';
+import { ReviewsSection } from '../components/ui/ReviewsSection';
+import { ShieldCheck, Award, Target, Users, Cpu, Code2, Cloud, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export const AboutPage: React.FC = () => {
   const values = [
@@ -13,36 +15,85 @@ export const AboutPage: React.FC = () => {
     { title: 'Long-Term Partnership', desc: 'We operate as an extension of your CTO team from MVP build to global scaling.', icon: Users },
   ];
 
+  const highlights = [
+    { icon: Cpu, label: 'High-Throughput Architecture', desc: 'Microservices handling sub-10ms response times at 50,000+ transactions per second.' },
+    { icon: Code2, label: 'Modern Full-Stack Stack', desc: 'React 19, TypeScript, Node.js, Express, MongoDB Atlas, and TailwindCSS.' },
+    { icon: Cloud, label: 'Cloud Native & DevOps', desc: 'Automated CI/CD pipelines, Docker containerization, and AWS infrastructure.' },
+  ];
+
   return (
     <div className="pt-32 max-w-7xl mx-auto px-6 space-y-24">
-      <SEOHead title="About Build Your Thoughts | Enterprise Digital Agency" />
+      <SEOHead title="About Build Your Thoughts | India's Premium Digital Engineering" />
 
+      {/* Main Section Header */}
       <SectionHeader
         badge="About Build Your Thoughts"
-        title="India's Premium Digital Engineering & Headless CMS Agency"
-        subtitle="We build high-availability software platforms and 3D web applications for founders and global enterprises."
+        title="India's Premium Digital Engineering"
+        subtitle="We engineer high-availability software platforms, intelligent microservices, and 3D web applications for visionary founders and enterprise leaders."
       />
 
+      {/* Rich Story & Stats Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div className="space-y-6">
-          <Badge variant="lime">Our Story</Badge>
-          <h2 className="font-display text-4xl font-bold text-dark">
-            Transforming Ideas Into Scalable Products Since 2026
+          <Badge variant="lime">Our Story & Mission</Badge>
+          <h2 className="font-display text-3xl md:text-4xl font-extrabold text-dark leading-tight">
+            Architecting Scalable Enterprise Products Delivered in Record 5 Days
           </h2>
-          <p className="text-slateText text-lg leading-relaxed">
-            Build Your Thoughts was created to eliminate bloated, slow legacy software agency models. We combine high-performance Node.js microservices with React 19 visual design, Three.js 3D scenes, and fully manageable headless CMS engines.
+          <p className="text-slateText text-base md:text-lg leading-relaxed">
+            Build Your Thoughts was established to eliminate slow, bloated legacy agency models. We combine high-performance backend architecture with React 19 visual design, Three.js 3D scenes, and headless backend infrastructure.
           </p>
+
+          <div className="space-y-3 pt-2">
+            {highlights.map((h, idx) => {
+              const Icon = h.icon;
+              return (
+                <div key={idx} className="flex items-start gap-3.5 bg-slate-50 border border-slate-200/80 p-4 rounded-2xl">
+                  <div className="w-9 h-9 rounded-xl bg-dark text-primary flex items-center justify-center shrink-0 mt-0.5">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-display text-sm font-bold text-dark">{h.label}</h4>
+                    <p className="text-xs text-slateText leading-relaxed">{h.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <div className="rounded-card overflow-hidden shadow-hover border border-dark/10 h-80">
-          <img
-            src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
-            alt="Engineering Team"
-            className="w-full h-full object-cover"
-          />
+
+        {/* Hero Visual Card */}
+        <div className="space-y-6">
+          <div className="rounded-3xl overflow-hidden shadow-2xl border border-dark/10 h-80 relative group">
+            <img
+              src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
+              alt="Engineering Team"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent p-6 flex flex-col justify-end">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">High Precision Engineering</span>
+              <p className="font-display text-lg font-bold text-white">Kota & Hyderabad Digital Innovation Hub</p>
+            </div>
+          </div>
+
+          {/* Quick Metrics Bar */}
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="bg-dark text-white p-4 rounded-2xl border border-white/10">
+              <p className="font-display text-2xl md:text-3xl font-black text-primary">100+</p>
+              <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Apps Built</p>
+            </div>
+            <div className="bg-dark text-white p-4 rounded-2xl border border-white/10">
+              <p className="font-display text-2xl md:text-3xl font-black text-primary">5 Days</p>
+              <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Avg Delivery</p>
+            </div>
+            <div className="bg-dark text-white p-4 rounded-2xl border border-white/10">
+              <p className="font-display text-2xl md:text-3xl font-black text-primary">99.99%</p>
+              <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Uptime SLA</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Core Values */}
+      {/* Core Values / Engineering Principles */}
       <section className="space-y-12">
         <SectionHeader badge="Values" title="Our Core Engineering Principles" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -59,6 +110,16 @@ export const AboutPage: React.FC = () => {
             );
           })}
         </div>
+      </section>
+
+      {/* Scroll-Driven Motion Image Grid Showcase (Positioned after Our Core Engineering Principles) */}
+      <section className="pt-6">
+        <ScrollGridShowcase />
+      </section>
+
+      {/* Client Reviews Section */}
+      <section>
+        <ReviewsSection />
       </section>
     </div>
   );

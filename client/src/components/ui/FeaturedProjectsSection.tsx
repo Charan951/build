@@ -127,27 +127,15 @@ export const FeaturedProjectsSection: React.FC<FeaturedProjectsSectionProps> = (
               marginBottom: idx === displayProjects.length - 1 ? '0px' : '44px',
             }}
           >
-            {/* Header Badge & Stack Indicator */}
-            <div className="relative h-48 overflow-hidden bg-slate-900">
-              <img
-                src={proj.heroImage}
-                alt={proj.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-dark/80 via-transparent to-black/20" />
-              
-              <div className="absolute top-4 left-4 flex items-center gap-2">
-                <Badge variant="dark">{proj.category}</Badge>
-              </div>
-
-              {/* Mobile Card Index Indicator */}
-              <div className="absolute top-4 right-4 bg-dark/80 backdrop-blur-md text-primary text-xs font-mono font-bold px-2.5 py-1 rounded-full border border-primary/30">
-                0{idx + 1} / 0{displayProjects.length}
-              </div>
-            </div>
-
             {/* Card Content Body */}
             <div className="p-5 space-y-4 bg-white">
+              <div className="flex items-center justify-between">
+                <Badge variant="dark">{proj.category}</Badge>
+                <span className="text-xs font-mono font-bold text-gray-400">
+                  0{idx + 1} / 0{displayProjects.length}
+                </span>
+              </div>
+
               <div className="space-y-1">
                 <h3 className="font-display text-lg font-extrabold text-dark group-hover:text-primary transition-colors leading-snug line-clamp-1">
                   {proj.title}
@@ -176,45 +164,39 @@ export const FeaturedProjectsSection: React.FC<FeaturedProjectsSectionProps> = (
                 </p>
               </div>
 
-              {/* Links Row */}
-              <div className="flex items-center justify-between pt-1">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  {proj.playStoreUrl && (
-                    <a
-                      href={proj.playStoreUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-dark flex items-center gap-1 transition-all"
-                    >
-                      <Smartphone className="w-3 h-3" /> Play Store
-                    </a>
-                  )}
-                  {proj.appStoreUrl && (
-                    <a
-                      href={proj.appStoreUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-dark flex items-center gap-1 transition-all"
-                    >
-                      <Smartphone className="w-3 h-3" /> App Store
-                    </a>
-                  )}
+              {/* Horizontal Single Line 3 Links Row */}
+              <div className="flex flex-row items-center gap-1.5 w-full pt-1 flex-nowrap">
+                {proj.playStoreUrl && (
                   <a
-                    href={proj.websiteUrl || 'https://www.buildyourthougths.in/'}
+                    href={proj.playStoreUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="px-2 py-1 rounded-lg bg-lime-50 text-dark border border-lime-200 hover:bg-lime-100 text-[10px] font-bold flex items-center gap-1 transition-all"
+                    className="flex-1 min-w-0 px-2 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-dark flex items-center justify-center gap-1 transition-all whitespace-nowrap"
                   >
-                    <Globe className="w-3 h-3 text-primary" /> Live Demo
+                    <Smartphone className="w-3 h-3 shrink-0" /> <span className="truncate">Google Play</span>
                   </a>
-                </div>
-
-                <div className="w-7 h-7 rounded-full bg-dark text-white flex items-center justify-center group-hover:bg-primary group-hover:text-dark transition-colors">
-                  <ArrowUpRight className="w-4 h-4" />
-                </div>
+                )}
+                {proj.appStoreUrl && (
+                  <a
+                    href={proj.appStoreUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex-1 min-w-0 px-2 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-dark flex items-center justify-center gap-1 transition-all whitespace-nowrap"
+                  >
+                    <Smartphone className="w-3 h-3 shrink-0" /> <span className="truncate">App Store</span>
+                  </a>
+                )}
+                <a
+                  href={proj.websiteUrl || 'https://www.buildyourthougths.in/'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex-1 min-w-0 px-2 py-1.5 rounded-xl bg-lime-50 text-dark border border-lime-300 hover:bg-lime-100 text-[10px] font-bold flex items-center justify-center gap-1 transition-all whitespace-nowrap"
+                >
+                  <Globe className="w-3 h-3 text-primary shrink-0" /> <span className="truncate">Website</span>
+                </a>
               </div>
             </div>
           </motion.div>
@@ -231,20 +213,16 @@ export const FeaturedProjectsSection: React.FC<FeaturedProjectsSectionProps> = (
             onClick={() => navigate(`/projects/${proj.slug}`)}
             className="block h-full cursor-pointer group"
           >
-            <Card className="p-0 overflow-hidden flex flex-col justify-between h-full rounded-3xl border border-slate-200/90 hover:shadow-xl transition-all duration-300">
-              <div className="relative h-52 overflow-hidden">
-                <img
-                  src={proj.heroImage}
-                  alt={proj.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-4 left-4">
-                  <Badge variant="dark">{proj.category}</Badge>
-                </div>
-              </div>
-
-              <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+            <Card className="p-6 flex flex-col justify-between h-full rounded-3xl border border-slate-200/90 hover:shadow-xl transition-all duration-300 space-y-4">
+              <div className="space-y-4 flex-1 flex flex-col justify-between">
                 <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Badge variant="dark">{proj.category}</Badge>
+                    <div className="w-7 h-7 rounded-full bg-dark text-white flex items-center justify-center group-hover:bg-primary group-hover:text-dark transition-colors">
+                      <ArrowUpRight className="w-4 h-4" />
+                    </div>
+                  </div>
+
                   <div className="space-y-1">
                     <h3 className="font-display text-xl font-extrabold text-dark group-hover:text-primary transition-colors line-clamp-1">
                       {proj.title}
@@ -273,16 +251,17 @@ export const FeaturedProjectsSection: React.FC<FeaturedProjectsSectionProps> = (
                   </div>
                 </div>
 
-                <div className="flex flex-row items-center gap-2 pt-2 flex-wrap">
+                {/* Single Line Horizontal 3 Links Row */}
+                <div className="flex flex-row items-center gap-2 pt-2 w-full flex-nowrap">
                   {proj.playStoreUrl && (
                     <a
                       href={proj.playStoreUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-dark text-[11px] font-bold text-dark flex items-center gap-1 shadow-sm hover:shadow transition-all shrink-0"
+                      className="flex-1 min-w-0 px-2.5 py-2 rounded-xl bg-white border border-slate-200 hover:border-dark text-[11px] font-bold text-dark flex items-center justify-center gap-1 shadow-sm hover:shadow transition-all whitespace-nowrap"
                     >
-                      <Smartphone className="w-3.5 h-3.5" /> Google Play <ExternalLink className="w-3 h-3 text-gray-400" />
+                      <Smartphone className="w-3.5 h-3.5 shrink-0" /> <span className="truncate">Google Play</span> <ExternalLink className="w-3 h-3 text-gray-400 shrink-0" />
                     </a>
                   )}
 
@@ -292,9 +271,9 @@ export const FeaturedProjectsSection: React.FC<FeaturedProjectsSectionProps> = (
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-dark text-[11px] font-bold text-dark flex items-center gap-1 shadow-sm hover:shadow transition-all shrink-0"
+                      className="flex-1 min-w-0 px-2.5 py-2 rounded-xl bg-white border border-slate-200 hover:border-dark text-[11px] font-bold text-dark flex items-center justify-center gap-1 shadow-sm hover:shadow transition-all whitespace-nowrap"
                     >
-                      <Smartphone className="w-3.5 h-3.5" /> App Store <ExternalLink className="w-3 h-3 text-gray-400" />
+                      <Smartphone className="w-3.5 h-3.5 shrink-0" /> <span className="truncate">App Store</span> <ExternalLink className="w-3 h-3 text-gray-400 shrink-0" />
                     </a>
                   )}
 
@@ -303,9 +282,9 @@ export const FeaturedProjectsSection: React.FC<FeaturedProjectsSectionProps> = (
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-primary text-[11px] font-bold text-dark flex items-center gap-1 shadow-sm hover:shadow transition-all shrink-0"
+                    className="flex-1 min-w-0 px-2.5 py-2 rounded-xl bg-white border border-slate-200 hover:border-primary text-[11px] font-bold text-dark flex items-center justify-center gap-1 shadow-sm hover:shadow transition-all whitespace-nowrap"
                   >
-                    <Globe className="w-3.5 h-3.5 text-primary" /> Website <ExternalLink className="w-3 h-3 text-gray-400" />
+                    <Globe className="w-3.5 h-3.5 text-primary shrink-0" /> <span className="truncate">Website</span> <ExternalLink className="w-3 h-3 text-gray-400 shrink-0" />
                   </a>
                 </div>
               </div>

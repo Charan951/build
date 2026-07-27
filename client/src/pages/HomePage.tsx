@@ -358,9 +358,12 @@ export const HomePage: React.FC = () => {
         </AutoScrollMarqueeRow>
       </section>
 
-      {/* SECTION 5: Why Build Your Thoughts Section */}
-      <section className="max-w-7xl mx-auto px-6 space-y-12">
+      {/* SECTION 5: Why Build Your Thoughts Auto-Scrolling Carousel Section */}
+      <section className="max-w-7xl mx-auto px-6 space-y-10">
         <div className="text-center space-y-3">
+          <span className="text-xs font-black uppercase tracking-widest text-[#65A30D] px-3 py-1 rounded-full bg-[#65A30D]/10 border border-[#65A30D]/20 inline-block">
+            Why Choose Us
+          </span>
           <h2 className="font-display text-3xl md:text-5xl font-black text-dark tracking-tight">
             Why Build Your Thoughts?
           </h2>
@@ -369,47 +372,51 @@ export const HomePage: React.FC = () => {
           </p>
         </div>
 
-        {/* 4 Core Value Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="p-6 bg-white hover:border-primary transition-all duration-300 shadow-sm border border-slate-200/80 rounded-3xl space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
-              <Zap className="w-6 h-6" />
-            </div>
-            <h3 className="font-display text-xl font-extrabold text-dark">Lightning Fast Delivery</h3>
-            <p className="text-sm text-slateText leading-relaxed">
-              Build Your Thoughts delivers complete digital solutions in 5 days — website, admin panel, Android & iOS apps.
-            </p>
-          </Card>
+        {/* Auto-Scroll Continuous Marquee Track */}
+        <div className="overflow-hidden py-4 -mx-6 px-6">
+          <AutoScrollMarqueeRow baseVelocity={-0.03} className="py-2">
+            <div className="flex gap-6">
+              <Card className="w-[300px] md:w-[340px] p-6 bg-white hover:border-primary transition-all duration-300 shadow-sm border border-slate-200/80 rounded-3xl space-y-4 shrink-0 whitespace-normal">
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                  <Zap className="w-6 h-6" />
+                </div>
+                <h3 className="font-display text-xl font-extrabold text-dark">Lightning Fast Delivery</h3>
+                <p className="text-sm text-slateText leading-relaxed">
+                  Build Your Thoughts delivers complete digital solutions in 5 days — website, admin panel, Android & iOS apps.
+                </p>
+              </Card>
 
-          <Card className="p-6 bg-white hover:border-primary transition-all duration-300 shadow-sm border border-slate-200/80 rounded-3xl space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <h3 className="font-display text-xl font-extrabold text-dark">Trusted by 100+ Businesses</h3>
-            <p className="text-sm text-slateText leading-relaxed">
-              Build Your Thoughts is your most trusted app development partner for high-growth enterprises and startups.
-            </p>
-          </Card>
+              <Card className="w-[300px] md:w-[340px] p-6 bg-white hover:border-primary transition-all duration-300 shadow-sm border border-slate-200/80 rounded-3xl space-y-4 shrink-0 whitespace-normal">
+                <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <h3 className="font-display text-xl font-extrabold text-dark">Trusted by 100+ Businesses</h3>
+                <p className="text-sm text-slateText leading-relaxed">
+                  Build Your Thoughts is your most trusted app development partner for high-growth enterprises and startups.
+                </p>
+              </Card>
 
-          <Card className="p-6 bg-white hover:border-primary transition-all duration-300 shadow-sm border border-slate-200/80 rounded-3xl space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <TrendingUp className="w-6 h-6" />
-            </div>
-            <h3 className="font-display text-xl font-extrabold text-dark">Scalable Architecture</h3>
-            <p className="text-sm text-slateText leading-relaxed">
-              Build Your Thoughts builds with modern cloud tech that seamlessly scales with your business from day one.
-            </p>
-          </Card>
+              <Card className="w-[300px] md:w-[340px] p-6 bg-white hover:border-primary transition-all duration-300 shadow-sm border border-slate-200/80 rounded-3xl space-y-4 shrink-0 whitespace-normal">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6" />
+                </div>
+                <h3 className="font-display text-xl font-extrabold text-dark">Scalable Architecture</h3>
+                <p className="text-sm text-slateText leading-relaxed">
+                  Build Your Thoughts builds with modern cloud tech that seamlessly scales with your business from day one.
+                </p>
+              </Card>
 
-          <Card className="p-6 bg-white hover:border-primary transition-all duration-300 shadow-sm border border-slate-200/80 rounded-3xl space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-              <Users className="w-6 h-6" />
+              <Card className="w-[300px] md:w-[340px] p-6 bg-white hover:border-primary transition-all duration-300 shadow-sm border border-slate-200/80 rounded-3xl space-y-4 shrink-0 whitespace-normal">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <Users className="w-6 h-6" />
+                </div>
+                <h3 className="font-display text-xl font-extrabold text-dark">Dedicated Support</h3>
+                <p className="text-sm text-slateText leading-relaxed">
+                  Build Your Thoughts provides round-the-clock 24/7 dedicated engineering support so your business never stops.
+                </p>
+              </Card>
             </div>
-            <h3 className="font-display text-xl font-extrabold text-dark">Dedicated Support</h3>
-            <p className="text-sm text-slateText leading-relaxed">
-              Build Your Thoughts provides round-the-clock 24/7 dedicated engineering support so your business never stops.
-            </p>
-          </Card>
+          </AutoScrollMarqueeRow>
         </div>
       </section>
 
@@ -683,7 +690,9 @@ export const HomePage: React.FC = () => {
       {/* SECTION 16: Final Contact CTA Banner */}
       <section className="max-w-7xl mx-auto px-6">
         <div className="bg-dark text-white rounded-[40px] p-12 md:p-20 text-center space-y-8 relative overflow-hidden border border-white/10">
-          <Badge variant="lime" className="mx-auto">Let's Build Together</Badge>
+          <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-primary/20 text-primary border border-primary/40 shadow-sm mx-auto">
+            Let's Build Together
+          </span>
           <h2 className="font-display text-4xl md:text-6xl font-bold max-w-3xl mx-auto leading-tight">
             Ready to Transform Your Product Concept Into Reality?
           </h2>

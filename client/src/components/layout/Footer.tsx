@@ -31,8 +31,8 @@ export const Footer: React.FC = () => {
   }, []);
 
   return (
-    <footer className="bg-dark text-white pt-24 pb-12 px-6 border-t border-white/10 rounded-t-[40px] mt-24">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
+    <footer className="bg-dark text-white pt-12 md:pt-24 pb-12 px-6 border-t border-white/10 rounded-t-[40px] mt-12 md:mt-24">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-12 mb-12 md:mb-16">
         {/* Brand Column */}
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center gap-3">
@@ -82,7 +82,7 @@ export const Footer: React.FC = () => {
 
         {/* Quick Links Column */}
         <div>
-          <h4 className="font-display text-lg font-bold text-white mb-6">Company</h4>
+          <h4 className="font-display text-lg font-bold text-white mb-4 md:mb-6">Company</h4>
           <ul className="space-y-3 text-gray-400 text-sm">
             <li><Link to="/" className="hover:text-primary transition-colors">Home</Link></li>
             <li><Link to="/about" className="hover:text-primary transition-colors">About Us</Link></li>
@@ -95,7 +95,7 @@ export const Footer: React.FC = () => {
 
         {/* Services Column */}
         <div>
-          <h4 className="font-display text-lg font-bold text-white mb-6">Services</h4>
+          <h4 className="font-display text-lg font-bold text-white mb-4 md:mb-6">Services</h4>
           <ul className="space-y-3 text-gray-400 text-sm">
             <li><Link to="/services" className="hover:text-primary transition-colors">Enterprise Software</Link></li>
             <li><Link to="/services" className="hover:text-primary transition-colors">AI & Machine Learning</Link></li>
@@ -107,7 +107,7 @@ export const Footer: React.FC = () => {
 
         {/* Dynamic Contact Details Column */}
         <div className="space-y-4">
-          <h4 className="font-display text-lg font-bold text-white mb-6">Get in Touch</h4>
+          <h4 className="font-display text-lg font-bold text-white mb-4 md:mb-6">Get in Touch</h4>
 
           <div className="space-y-4 text-sm text-gray-300">
             {/* Address */}
@@ -125,9 +125,9 @@ export const Footer: React.FC = () => {
             </div>
 
             {/* Email */}
-            <div className="flex items-center gap-3">
-              <Mail className="w-5 h-5 text-primary shrink-0" />
-              <a href={`mailto:${settings.email}`} className="text-gray-300 hover:text-primary transition-colors font-medium break-all">
+            <div className="flex items-start gap-3 min-w-0">
+              <Mail className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <a href={`mailto:${settings.email}`} className="text-gray-300 hover:text-primary transition-colors font-medium break-all min-w-0">
                 {settings.email}
               </a>
             </div>

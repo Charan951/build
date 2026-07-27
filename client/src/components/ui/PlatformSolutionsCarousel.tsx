@@ -29,7 +29,7 @@ export const PlatformSolutionsCarousel: React.FC = () => {
     if (solutions.length <= 1) return;
     timerRef.current = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % solutions.length);
-    }, 4500);
+    }, 3500);
   }, [solutions.length]);
 
   useEffect(() => {
@@ -218,7 +218,7 @@ export const PlatformSolutionsCarousel: React.FC = () => {
             sideTilt={8}
             gap={10}
             opacity={55}
-            autoplay={false}
+            autoplay={true}
             showTitle={true}
             onSlideChange={(index) => setActiveIndex(index)}
           />

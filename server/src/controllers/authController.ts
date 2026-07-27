@@ -26,12 +26,11 @@ const generateTokens = (user: { _id: any; email: string; role: string }) => {
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
-    const normalizedEmail = (email || '').trim().toLowerCase();
 
-    let admin = await Admin.findOne({ email: normalizedEmail });
+    let admin = await Admin.findOne({ email: email.toLowerCase() });
 
-    // Seed or sync default admin credential
-    if (!admin && normalizedEmail === 'admin@buildyourthoughts.com') {
+    // Seed default admin if DB has zero admin records for testing ease
+    if (!admin && email === 'admin@buildyourthoughts.com') {
       const salt = await bcrypt.genSalt(12);
       const passwordHash = await bcrypt.hash('AdminPass123!', salt);
       admin = await Admin.create({
@@ -40,13 +39,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         passwordHash,
         role: 'admin',
       });
-    } else if (admin && normalizedEmail === 'admin@buildyourthoughts.com' && password === 'AdminPass123!') {
-      const isMatch = await admin.comparePassword(password);
-      if (!isMatch) {
-        const salt = await bcrypt.genSalt(12);
-        admin.passwordHash = await bcrypt.hash('AdminPass123!', salt);
-        await admin.save();
-      }
     }
 
     if (!admin) {

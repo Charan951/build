@@ -76,11 +76,8 @@ export const Navbar: React.FC = () => {
           })}
         </div>
 
-        {/* Action Button & Admin Login */}
+        {/* Action Button */}
         <div className="hidden md:flex items-center gap-3">
-          <Link to="/login" className="text-xs text-gray-400 hover:text-white px-2 py-1">
-            Admin
-          </Link>
           <Link to="/contact">
             <Button variant="lime" size="sm" className="gap-1.5">
               Start Project
@@ -125,9 +122,6 @@ export const Navbar: React.FC = () => {
                 <Button variant="lime" className="w-full">
                   Start Project
                 </Button>
-              </Link>
-              <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="text-center text-xs text-gray-400 py-1">
-                Admin Login
               </Link>
             </div>
           </motion.div>

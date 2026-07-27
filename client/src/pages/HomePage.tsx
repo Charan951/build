@@ -241,7 +241,7 @@ export const HomePage: React.FC = () => {
               <span className="text-[#65A30D] underline decoration-primary decoration-4 font-black">in Just 5 Days</span>
             </h1>
             <p className="text-lg md:text-xl text-slateText max-w-2xl mx-auto lg:mx-0 font-sans leading-relaxed">
-              Build Your Thoughts delivers complete digital solutions that help businesses grow faster. We design and develop enterprise websites, powerful admin dashboards, Android and iOS applications, AI-powered systems, and scalable cloud solutions. From strategy and design to deployment and support, we build secure, high-performance digital products that create lasting business impact.
+              Complete MVP applications with website, admin panel, Android & iOS apps delivered in record time.
             </p>
 
           {/* Main Hero CTA Buttons (Full 100% width on mobile, auto on tablet/desktop) */}

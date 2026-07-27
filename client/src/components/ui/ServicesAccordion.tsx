@@ -160,13 +160,16 @@ const fallbackCategories: ServiceCategory[] = [
 
 export const ServicesAccordion: React.FC = () => {
   const [categories, setCategories] = useState<ServiceCategory[]>(fallbackCategories);
-  const [activeId, setActiveId] = useState<string>('02');
+  const [activeId, setActiveId] = useState<string>('01');
 
   useEffect(() => {
     apiFetch('/service-categories')
       .then((data) => {
         if (data.success && data.data.length > 0) {
           setCategories(data.data);
+          if (data.data[0]?.num) {
+            setActiveId(data.data[0].num);
+          }
         }
       })
       .catch(() => {});

@@ -229,11 +229,11 @@ export const HomePage: React.FC = () => {
   ];
 
   return (
-    <div className="pt-36 md:pt-32 space-y-20 md:space-y-28">
+    <div className="pt-24 md:pt-32 space-y-20 md:space-y-28">
       <SEOHead title="Build Your Thoughts | Enterprise Software & AI Solutions Agency" />
 
       {/* SECTION 3: Hero Section */}
-      <section className="max-w-7xl mx-auto px-6 pt-4 md:pt-0">
+      <section className="max-w-7xl mx-auto px-6 pt-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-dark leading-[1.12]">

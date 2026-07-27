@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { apiFetch } from '../../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowUpRight,
@@ -162,8 +163,7 @@ export const ServicesAccordion: React.FC = () => {
   const [activeId, setActiveId] = useState<string>('02');
 
   useEffect(() => {
-    fetch('/api/v1/service-categories')
-      .then((res) => res.json())
+    apiFetch('/service-categories')
       .then((data) => {
         if (data.success && data.data.length > 0) {
           setCategories(data.data);

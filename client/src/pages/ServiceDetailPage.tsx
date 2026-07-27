@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
+import { apiFetch } from '../services/api';
 import { SEOHead } from '../components/seo/SEOHead';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -61,8 +62,7 @@ export const ServiceDetailPage: React.FC = () => {
     setSubmitted(false);
 
     // 1. Fetch Service details by slug
-    fetch(`/api/v1/services/${activeSlug}`)
-      .then((res) => res.json())
+    apiFetch(`/services/${activeSlug}`)
       .then((data) => {
         if (data.success && data.data) {
           setService(data.data);
@@ -72,8 +72,7 @@ export const ServiceDetailPage: React.FC = () => {
       .finally(() => setLoading(false));
 
     // 2. Fetch Categories for sidebar sub-services list
-    fetch('/api/v1/service-categories')
-      .then((res) => res.json())
+    apiFetch('/service-categories')
       .then((data) => {
         if (data.success && data.data) {
           setCategories(data.data);
@@ -100,9 +99,8 @@ export const ServiceDetailPage: React.FC = () => {
     setSubmitting(true);
 
     try {
-      const res = await fetch('/api/v1/leads', {
+      const data = await apiFetch('/leads', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formName,
           email: formEmail,
@@ -112,7 +110,6 @@ export const ServiceDetailPage: React.FC = () => {
         }),
       });
 
-      const data = await res.json();
       if (data.success) {
         setSubmitted(true);
         setFormName('');

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from './Button';
 import CoverflowGallery, { CoverflowSlide } from '../originkit/coverflowgallery';
+import { apiFetch } from '../../services/api';
 
 export const PlatformSolutionsCarousel: React.FC = () => {
   const [solutions, setSolutions] = useState<any[]>([]);
@@ -11,8 +12,7 @@ export const PlatformSolutionsCarousel: React.FC = () => {
   const timerRef = useRef<any>(null);
 
   useEffect(() => {
-    fetch('/api/v1/platform-solutions')
-      .then((res) => res.json())
+    apiFetch('/platform-solutions')
       .then((data) => {
         if (data.success && data.data.length > 0) {
           setSolutions(data.data);

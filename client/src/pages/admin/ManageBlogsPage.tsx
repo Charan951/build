@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { apiFetch } from '../../services/api';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -72,8 +73,7 @@ export const ManageBlogsPage: React.FC = () => {
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/v1/blogs');
-      const data = await res.json();
+      const data = await apiFetch('/blogs');
       if (data.success) {
         setBlogs(data.data);
       }
@@ -153,18 +153,13 @@ export const ManageBlogsPage: React.FC = () => {
     };
 
     try {
-      const url = editingId ? `/api/v1/blogs/${editingId}` : '/api/v1/blogs';
+      const endpoint = editingId ? `/blogs/${editingId}` : '/blogs';
       const method = editingId ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      const data = await apiFetch(endpoint, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
 
       if (data.success) {
         setSuccessMsg(editingId ? 'Blog post updated successfully!' : 'Blog post published successfully!');
@@ -181,11 +176,9 @@ export const ManageBlogsPage: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this blog post?')) return;
     try {
-      const res = await fetch(`/api/v1/blogs/${id}`, {
+      const data = await apiFetch(`/blogs/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
       if (data.success) {
         setSuccessMsg('Blog post deleted successfully!');
         fetchBlogs();

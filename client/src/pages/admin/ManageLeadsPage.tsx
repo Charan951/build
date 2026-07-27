@@ -4,7 +4,8 @@ import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
-import { ArrowLeft, Mail, Phone, Calendar, Trash2, Eye, Search, RefreshCw, Filter, Building, User } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Calendar, Trash2, Eye, Search, RefreshCw, Building } from 'lucide-react';
+import { apiFetch } from '../../services/api';
 
 export const ManageLeadsPage: React.FC = () => {
   const [leads, setLeads] = useState<any[]>([]);
@@ -32,10 +33,7 @@ export const ManageLeadsPage: React.FC = () => {
   const fetchLeads = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/v1/leads', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const data = await apiFetch('/leads');
       if (data.success) {
         setLeads(data.data);
       }
@@ -48,15 +46,10 @@ export const ManageLeadsPage: React.FC = () => {
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
-      const res = await fetch(`/api/v1/leads/${id}/status`, {
+      const data = await apiFetch(`/leads/${id}/status`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({ status: newStatus }),
       });
-      const data = await res.json();
       if (data.success) {
         setSuccessMsg(`Status updated to "${newStatus}"!`);
         if (selectedLead && selectedLead._id === id) {
@@ -72,11 +65,9 @@ export const ManageLeadsPage: React.FC = () => {
   const handleDeleteLead = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this contact inquiry?')) return;
     try {
-      const res = await fetch(`/api/v1/leads/${id}`, {
+      const data = await apiFetch(`/leads/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
       if (data.success) {
         setSuccessMsg('Lead inquiry deleted successfully.');
         if (isViewOpen) setIsViewOpen(false);

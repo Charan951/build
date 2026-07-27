@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Save, MapPin, Phone, Mail, Globe, CheckCircle2, AlertCircle } from 'lucide-react';
-import { Button } from '../../components/ui/Button';
-import { Card } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
 import { SEOHead } from '../../components/seo/SEOHead';
+import { Card } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+import { Badge } from '../../components/ui/Badge';
+import { ArrowLeft, Save, MapPin, Phone, Mail, Globe, CheckCircle2, AlertCircle } from 'lucide-react';
+import { apiFetch } from '../../services/api';
 
 export const ManageSettingsPage: React.FC = () => {
   const [address, setAddress] = useState('Kota, Rajasthan, India');
@@ -22,8 +23,7 @@ export const ManageSettingsPage: React.FC = () => {
   const fetchSettings = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/v1/settings');
-      const data = await res.json();
+      const data = await apiFetch('/settings');
       if (data.success && data.data) {
         setAddress(data.data.address || 'Kota, Rajasthan, India');
         setPhone(data.data.phone || '+91 98765 43210');
@@ -49,15 +49,9 @@ export const ManageSettingsPage: React.FC = () => {
     setSuccessMsg('');
     setErrorMsg('');
 
-    const token = localStorage.getItem('adminToken');
-
     try {
-      const res = await fetch('/api/v1/settings', {
+      const data = await apiFetch('/settings', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           address,
           phone,
@@ -68,11 +62,10 @@ export const ManageSettingsPage: React.FC = () => {
         }),
       });
 
-      const data = await res.json();
       if (data.success) {
-        setSuccessMsg('Company details updated successfully!');
+        setSuccessMsg('Company contact info successfully saved & updated live across website!');
       } else {
-        setErrorMsg(data.message || 'Failed to update settings');
+        setErrorMsg(data.message || 'Failed to update settings.');
       }
     } catch {
       setErrorMsg('Error connecting to server.');

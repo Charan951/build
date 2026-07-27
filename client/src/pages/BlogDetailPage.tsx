@@ -4,6 +4,7 @@ import { SEOHead } from '../components/seo/SEOHead';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { ArrowLeft, Clock, Share2, Copy } from 'lucide-react';
+import { apiFetch } from '../services/api';
 
 export const BlogDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -11,8 +12,7 @@ export const BlogDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (slug) {
-      fetch(`/api/v1/blogs/${slug}`)
-        .then((res) => res.json())
+      apiFetch(`/blogs/${slug}`)
         .then((data) => {
           if (data.success) setBlog(data.data);
         })

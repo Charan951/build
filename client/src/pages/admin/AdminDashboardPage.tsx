@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { FolderGit2, Cpu, FileText, Inbox, LogOut, Plus, RefreshCw, Sparkles, DollarSign, Settings as SettingsIcon, Bell } from 'lucide-react';
 import { useSocket } from '../../hooks/useSocket';
+import { apiFetch } from '../../services/api';
 
 export const AdminDashboardPage: React.FC = () => {
   const [stats, setStats] = useState({ projects: 0, services: 0, blogs: 0, leads: 0 });
@@ -24,10 +25,10 @@ export const AdminDashboardPage: React.FC = () => {
 
     // Fetch dashboard stats
     Promise.all([
-      fetch('/api/v1/projects').then((r) => r.json()),
-      fetch('/api/v1/services').then((r) => r.json()),
-      fetch('/api/v1/blogs').then((r) => r.json()),
-      fetch('/api/v1/leads', { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
+      apiFetch('/projects'),
+      apiFetch('/services'),
+      apiFetch('/blogs'),
+      apiFetch('/leads', { token }),
     ])
       .then(([proj, srv, blg, ld]) => {
         setStats({

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { apiFetch } from '../../services/api';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -92,8 +93,7 @@ export const ManageProjectsPage: React.FC = () => {
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/v1/projects');
-      const data = await res.json();
+      const data = await apiFetch('/projects');
       if (data.success) {
         setProjects(data.data);
       }
@@ -178,18 +178,13 @@ export const ManageProjectsPage: React.FC = () => {
     };
 
     try {
-      const url = editingId ? `/api/v1/projects/${editingId}` : '/api/v1/projects';
+      const endpoint = editingId ? `/projects/${editingId}` : '/projects';
       const method = editingId ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      const data = await apiFetch(endpoint, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
 
       if (data.success) {
         setSuccessMsg(editingId ? 'Case Study updated successfully!' : 'Case Study created successfully!');
@@ -205,15 +200,10 @@ export const ManageProjectsPage: React.FC = () => {
 
   const handleToggleFeatured = async (proj: any) => {
     try {
-      const res = await fetch(`/api/v1/projects/${proj._id}`, {
+      const data = await apiFetch(`/projects/${proj._id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({ featured: !proj.featured }),
       });
-      const data = await res.json();
       if (data.success) {
         setProjects(projects.map((p) => (p._id === proj._id ? { ...p, featured: !p.featured } : p)));
       }
@@ -223,11 +213,9 @@ export const ManageProjectsPage: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) return;
     try {
-      const res = await fetch(`/api/v1/projects/${id}`, {
+      const data = await apiFetch(`/projects/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
       if (data.success) {
         setSuccessMsg('Project deleted successfully.');
         fetchProjects();

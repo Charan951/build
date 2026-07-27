@@ -5,6 +5,7 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { ArrowLeft, CheckCircle2, Quote } from 'lucide-react';
+import { apiFetch } from '../services/api';
 
 export const ProjectDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -12,8 +13,7 @@ export const ProjectDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (slug) {
-      fetch(`/api/v1/projects/${slug}`)
-        .then((res) => res.json())
+      apiFetch(`/projects/${slug}`)
         .then((data) => {
           if (data.success) setProject(data.data);
         })

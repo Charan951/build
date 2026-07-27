@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { SEOHead } from '../components/seo/SEOHead';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { FeaturedProjectsSection, ProjectItem } from '../components/ui/FeaturedProjectsSection';
+import { apiFetch } from '../services/api';
 
 export const ProjectsPage: React.FC = () => {
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   useEffect(() => {
-    fetch('/api/v1/projects')
-      .then((res) => res.json())
+    apiFetch('/projects')
       .then((data) => {
         if (data.success && data.data.length > 0) {
           setProjects(data.data);

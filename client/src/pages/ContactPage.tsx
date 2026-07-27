@@ -4,6 +4,7 @@ import { SectionHeader } from '../components/ui/SectionHeader';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { apiFetch } from '../services/api';
 
 export const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -23,8 +24,7 @@ export const ContactPage: React.FC = () => {
   });
 
   useEffect(() => {
-    fetch('/api/v1/settings')
-      .then((res) => res.json())
+    apiFetch('/settings')
       .then((data) => {
         if (data.success && data.data) {
           setSettings({
@@ -48,13 +48,10 @@ export const ContactPage: React.FC = () => {
     setErrorMsg(null);
 
     try {
-      const res = await fetch('/api/v1/leads', {
+      const data = await apiFetch('/leads', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-
-      const data = await res.json();
       if (data.success) {
         setSuccessMsg(data.message);
         setFormData({

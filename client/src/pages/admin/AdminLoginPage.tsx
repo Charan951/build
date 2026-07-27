@@ -4,10 +4,11 @@ import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Sparkles, Lock, Mail, AlertCircle } from 'lucide-react';
+import { apiFetch } from '../../services/api';
 
 export const AdminLoginPage: React.FC = () => {
-  const [email, setEmail] = useState('admin@buildyourthoughts.com');
-  const [password, setPassword] = useState('AdminPass123!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -19,13 +20,11 @@ export const AdminLoginPage: React.FC = () => {
     setErrorMsg(null);
 
     try {
-      const res = await fetch('/api/v1/auth/login', {
+      const data = await apiFetch('/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
       if (data.success) {
         localStorage.setItem('adminToken', data.accessToken);
         navigate('/dashboard');

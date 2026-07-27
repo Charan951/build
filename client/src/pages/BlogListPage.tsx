@@ -5,13 +5,13 @@ import { SectionHeader } from '../components/ui/SectionHeader';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { ArrowRight, Clock } from 'lucide-react';
+import { apiFetch } from '../services/api';
 
 export const BlogListPage: React.FC = () => {
   const [blogs, setBlogs] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/v1/blogs')
-      .then((res) => res.json())
+    apiFetch('/blogs')
       .then((data) => {
         if (data.success) setBlogs(data.data);
       })

@@ -46,6 +46,7 @@ import { PricingPlansSection } from '../components/ui/PricingPlansSection';
 import { ServicesAccordion } from '../components/ui/ServicesAccordion';
 import { FeaturedProjectsSection } from '../components/ui/FeaturedProjectsSection';
 import { HeroCanvas } from '../components/3d/HeroCanvas';
+import { apiFetch } from '../services/api';
 
 interface AutoMarqueeProps {
   children: React.ReactNode;
@@ -122,8 +123,7 @@ export const HomePage: React.FC = () => {
   const xLower = useTransform(scrollYProgress, [0, 1], ['-35%', '5%']);
 
   useEffect(() => {
-    fetch('/api/v1/projects?featured=true')
-      .then((res) => res.json())
+    apiFetch('/projects?featured=true')
       .then((data) => {
         if (data.success && data.data.length > 0) {
           setProjects(data.data);

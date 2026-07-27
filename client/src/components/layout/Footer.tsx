@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Sparkles, Github, Twitter, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
+import { apiFetch } from '../../services/api';
 
 export const Footer: React.FC = () => {
   const [settings, setSettings] = useState({
@@ -13,8 +14,7 @@ export const Footer: React.FC = () => {
   });
 
   useEffect(() => {
-    fetch('/api/v1/settings')
-      .then((res) => res.json())
+    apiFetch('/settings')
       .then((data) => {
         if (data.success && data.data) {
           setSettings({

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '../components/seo/SEOHead';
 import { SectionHeader } from '../components/ui/SectionHeader';
-import { Card } from '../components/ui/Card';
 import { ArrowUpRight, ArrowRight, ChevronRight } from 'lucide-react';
+import { apiFetch } from '../services/api';
 
 interface SubService {
   num: string;
@@ -27,8 +27,7 @@ export const ServicesPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/v1/service-categories')
-      .then((res) => res.json())
+    apiFetch('/service-categories')
       .then((data) => {
         if (data.success && data.data.length > 0) {
           setCategories(data.data);

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { apiFetch } from '../../services/api';
 import {
   ArrowLeft,
   Plus,
@@ -113,7 +114,6 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
     setErrorMsg('');
     setSuccessMsg('');
 
-    const token = localStorage.getItem('adminToken');
     const cleanedFeatures = features.filter((f) => f.trim() !== '');
 
     const payload = {
@@ -129,21 +129,16 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
     };
 
     const url = editingId
-      ? `/api/v1/platform-solutions/${editingId}`
-      : '/api/v1/platform-solutions';
+      ? `/platform-solutions/${editingId}`
+      : '/platform-solutions';
     const method = editingId ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, {
+      const data = await apiFetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
       if (data.success) {
         setSuccessMsg(
           editingId
@@ -163,13 +158,10 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this platform solution?')) return;
-    const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch(`/api/v1/platform-solutions/${id}`, {
+      const data = await apiFetch(`/platform-solutions/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
       if (data.success) {
         setSuccessMsg('Platform solution deleted successfully!');
         fetchSolutions();

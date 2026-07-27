@@ -5,13 +5,13 @@ import { CheckCircle2, Star, Sparkles, ArrowRight, Check, X } from 'lucide-react
 import { Button } from './Button';
 import { Card } from './Card';
 import { Badge } from './Badge';
+import { apiFetch } from '../../services/api';
 
 export const PricingPlansSection: React.FC = () => {
   const [plans, setPlans] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/v1/pricing-plans')
-      .then((res) => res.json())
+    apiFetch('/pricing-plans')
       .then((data) => {
         if (data.success && data.data.length > 0) {
           setPlans(data.data);

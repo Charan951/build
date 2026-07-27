@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { apiFetch } from '../../services/api';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -106,14 +107,10 @@ export const ManageServicesPage: React.FC = () => {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      let res = await fetch('/api/v1/service-categories/admin/all', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      let data = await res.json();
+      let data = await apiFetch('/service-categories/admin/all');
       
       if (!data.success || !data.data || data.data.length === 0) {
-        res = await fetch('/api/v1/service-categories');
-        data = await res.json();
+        data = await apiFetch('/service-categories');
       }
 
       if (data.success && data.data) {
@@ -130,8 +127,7 @@ export const ManageServicesPage: React.FC = () => {
 
   const fetchSingleServices = async () => {
     try {
-      const res = await fetch('/api/v1/services');
-      const data = await res.json();
+      const data = await apiFetch('/services');
       if (data.success && data.data) {
         setSingleServices(data.data);
       }
@@ -315,18 +311,13 @@ export const ManageServicesPage: React.FC = () => {
     };
 
     try {
-      const url = editingSrvId ? `/api/v1/services/${editingSrvId}` : '/api/v1/services';
+      const endpoint = editingSrvId ? `/services/${editingSrvId}` : '/services';
       const method = editingSrvId ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      const data = await apiFetch(endpoint, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
 
       if (data.success) {
         setSuccessMsg(editingSrvId ? 'Service page updated successfully!' : 'New Service page created successfully!');
@@ -335,7 +326,7 @@ export const ManageServicesPage: React.FC = () => {
       } else {
         setErrorMsg(data.message || 'Operation failed.');
       }
-    } catch (err) {
+    } catch (err: any) {
       setErrorMsg('Server connection error.');
     }
   };
@@ -343,11 +334,9 @@ export const ManageServicesPage: React.FC = () => {
   const handleDeleteServiceDetail = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this service detail page?')) return;
     try {
-      const res = await fetch(`/api/v1/services/${id}`, {
+      const data = await apiFetch(`/services/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
       if (data.success) {
         setSuccessMsg('Service page deleted.');
         fetchSingleServices();

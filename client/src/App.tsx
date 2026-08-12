@@ -1,8 +1,9 @@
 import React, { useEffect, Suspense, lazy } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Lenis from '@studio-freight/lenis';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
+import { AdminLayout } from './components/layout/AdminLayout';
 import { HomePage } from './pages/HomePage';
 import { ProgressBar } from './components/ui/ProgressBar';
 import { CustomCursor } from './components/ui/CustomCursor';
@@ -23,9 +24,24 @@ const ManageProjectsPage = lazy(() => import('./pages/admin/ManageProjectsPage')
 const ManageServicesPage = lazy(() => import('./pages/admin/ManageServicesPage').then(m => ({ default: m.ManageServicesPage })));
 const ManageBlogsPage = lazy(() => import('./pages/admin/ManageBlogsPage').then(m => ({ default: m.ManageBlogsPage })));
 const ManageLeadsPage = lazy(() => import('./pages/admin/ManageLeadsPage').then(m => ({ default: m.ManageLeadsPage })));
+const ManageProposalsPage = lazy(() => import('./pages/admin/ManageProposalsPage').then(m => ({ default: m.ManageProposalsPage })));
+const ProposalProjectDetailPage = lazy(() => import('./pages/admin/ProposalProjectDetailPage').then(m => ({ default: m.ProposalProjectDetailPage })));
 const ManagePlatformSolutionsPage = lazy(() => import('./pages/admin/ManagePlatformSolutionsPage').then(m => ({ default: m.ManagePlatformSolutionsPage })));
 const ManagePricingPlansPage = lazy(() => import('./pages/admin/ManagePricingPlansPage').then(m => ({ default: m.ManagePricingPlansPage })));
 const ManageSettingsPage = lazy(() => import('./pages/admin/ManageSettingsPage').then(m => ({ default: m.ManageSettingsPage })));
+
+// 26 Sales CRM Module Lazy Loaded Components
+const ManageClientsPage = lazy(() => import('./pages/admin/ManageClientsPage').then(m => ({ default: m.ManageClientsPage })));
+const ClientDetailPage = lazy(() => import('./pages/admin/ClientDetailPage').then(m => ({ default: m.ClientDetailPage })));
+const ClientProjectsPage = lazy(() => import('./pages/admin/ClientProjectsPage').then(m => ({ default: m.ClientProjectsPage })));
+const ProjectFormPage = lazy(() => import('./pages/admin/ProjectFormPage').then(m => ({ default: m.ProjectFormPage })));
+const ClientProjectDetailPage = lazy(() => import('./pages/admin/ProjectDetailPage').then(m => ({ default: m.ProjectDetailPage })));
+const QuotationEditorPage = lazy(() => import('./pages/admin/QuotationEditorPage').then(m => ({ default: m.QuotationEditorPage })));
+const ManageMeetingsPage = lazy(() => import('./pages/admin/ManageMeetingsPage').then(m => ({ default: m.ManageMeetingsPage })));
+const InvoiceManagerPage = lazy(() => import('./pages/admin/InvoiceManagerPage').then(m => ({ default: m.InvoiceManagerPage })));
+const ReportsAnalyticsPage = lazy(() => import('./pages/admin/ReportsAnalyticsPage').then(m => ({ default: m.ReportsAnalyticsPage })));
+const ClientPortalDashboardPage = lazy(() => import('./pages/client/ClientPortalDashboardPage').then(m => ({ default: m.ClientPortalDashboardPage })));
+const PortalProjectDetailPage = lazy(() => import('./pages/client/ClientProjectDetailPage').then(m => ({ default: m.ClientProjectDetailPage })));
 
 const PageLoader = () => (
   <div className="min-h-[60vh] flex items-center justify-center">
@@ -36,8 +52,17 @@ const PageLoader = () => (
 export const App: React.FC = () => {
   const location = useLocation();
 
+  const isAdminRoute = location.pathname.startsWith('/dashboard') || location.pathname === '/login' || location.pathname.startsWith('/portal');
+
   useEffect(() => {
-    // Initialize Lenis smooth scroll per UI_UX_4_Guidelines.md & Performance_Optimization.md
+    // Lenis smooth scroll is a marketing-site affordance only. It hijacks the native
+    // scroll container and breaks position:sticky/fixed panels, which the admin/CRM
+    // dashboard relies on for its sidebar and toolbar, so skip it on those routes.
+    if (isAdminRoute) {
+      window.scrollTo(0, 0);
+      return;
+    }
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -56,17 +81,15 @@ export const App: React.FC = () => {
     return () => {
       lenis.destroy();
     };
-  }, [location.pathname]);
-
-  const isAdminRoute = location.pathname.startsWith('/dashboard') || location.pathname === '/login';
+  }, [location.pathname, isAdminRoute]);
 
   return (
     <div className="min-h-screen flex flex-col justify-between relative selection:bg-primary selection:text-dark bg-[#FFFFFF]">
       {/* Top 3px Lime Scroll Progress Bar per UI_UX_4_Guidelines.md */}
       <ProgressBar />
 
-      {/* Desktop Custom Magnetic Cursor per UI_UX_4_Guidelines.md */}
-      <CustomCursor />
+      {/* Desktop Custom Magnetic Cursor per UI_UX_4_Guidelines.md (marketing site only) */}
+      {!isAdminRoute && <CustomCursor />}
 
       {!isAdminRoute && <Navbar />}
       <main className="flex-grow">
@@ -83,16 +106,35 @@ export const App: React.FC = () => {
             <Route path="/blogs/:slug" element={<BlogDetailPage />} />
             <Route path="/contact" element={<ContactPage />} />
 
-            {/* Admin Headless CMS Routes */}
+            {/* Admin Headless CMS & CRM Routes */}
             <Route path="/login" element={<AdminLoginPage />} />
-            <Route path="/dashboard" element={<AdminDashboardPage />} />
-            <Route path="/dashboard/projects" element={<ManageProjectsPage />} />
-            <Route path="/dashboard/services" element={<ManageServicesPage />} />
-            <Route path="/dashboard/blogs" element={<ManageBlogsPage />} />
-            <Route path="/dashboard/leads" element={<ManageLeadsPage />} />
-            <Route path="/dashboard/solutions" element={<ManagePlatformSolutionsPage />} />
-            <Route path="/dashboard/plans" element={<ManagePricingPlansPage />} />
-            <Route path="/dashboard/settings" element={<ManageSettingsPage />} />
+            <Route path="/dashboard" element={<AdminLayout />}>
+              <Route index element={<AdminDashboardPage />} />
+              <Route path="projects" element={<ManageProjectsPage />} />
+              <Route path="services" element={<ManageServicesPage />} />
+              <Route path="blogs" element={<ManageBlogsPage />} />
+              <Route path="leads" element={<ManageLeadsPage />} />
+              <Route path="proposals" element={<ManageProposalsPage />} />
+              <Route path="proposals/:id" element={<ProposalProjectDetailPage />} />
+              <Route path="solutions" element={<ManagePlatformSolutionsPage />} />
+              <Route path="plans" element={<ManagePricingPlansPage />} />
+              <Route path="settings" element={<ManageSettingsPage />} />
+
+              {/* 26 Sales CRM Module Routes */}
+              <Route path="clients" element={<ManageClientsPage />} />
+              <Route path="clients/:id" element={<ClientDetailPage />} />
+              <Route path="client-projects" element={<ClientProjectsPage />} />
+              <Route path="client-projects/new" element={<ProjectFormPage />} />
+              <Route path="client-projects/:id/edit" element={<ProjectFormPage />} />
+              <Route path="client-projects/:id" element={<ClientProjectDetailPage />} />
+              <Route path="client-projects/:id/quotations/:quotationId" element={<QuotationEditorPage />} />
+              <Route path="meetings" element={<ManageMeetingsPage />} />
+              <Route path="invoices" element={<InvoiceManagerPage />} />
+              <Route path="reports" element={<ReportsAnalyticsPage />} />
+            </Route>
+            <Route path="/portal/login" element={<Navigate to="/login" replace />} />
+            <Route path="/portal" element={<ClientPortalDashboardPage />} />
+            <Route path="/portal/projects/:id" element={<PortalProjectDetailPage />} />
           </Routes>
         </Suspense>
       </main>

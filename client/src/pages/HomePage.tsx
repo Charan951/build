@@ -47,6 +47,7 @@ import { ServicesAccordion } from '../components/ui/ServicesAccordion';
 import { FeaturedProjectsSection } from '../components/ui/FeaturedProjectsSection';
 import { HeroCanvas } from '../components/3d/HeroCanvas';
 import { apiFetch } from '../services/api';
+import { Reveal, Stagger, StaggerItem } from '../components/ui/motion';
 
 interface AutoMarqueeProps {
   children: React.ReactNode;
@@ -237,11 +238,11 @@ export const HomePage: React.FC = () => {
       <section className="max-w-7xl mx-auto px-6 pt-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-dark leading-[1.12]">
+            <h1 className="font-display text-display font-black text-dark">
               <span className="font-black">Build Your Dream App</span> <br />
               <span className="text-[#65A30D] underline decoration-primary decoration-4 font-black">in Just 5 Days</span>
             </h1>
-            <p className="text-lg md:text-xl text-slateText max-w-2xl mx-auto lg:mx-0 font-sans leading-relaxed">
+            <p className="text-bodyLg text-slateText max-w-2xl mx-auto lg:mx-0 font-sans">
               Complete MVP applications with website, admin panel, Android & iOS apps delivered in record time.
             </p>
 
@@ -365,7 +366,7 @@ export const HomePage: React.FC = () => {
           <span className="text-xs font-black uppercase tracking-widest text-[#65A30D] px-3 py-1 rounded-full bg-[#65A30D]/10 border border-[#65A30D]/20 inline-block">
             Why Choose Us
           </span>
-          <h2 className="font-display text-3xl md:text-5xl font-black text-dark tracking-tight">
+          <h2 className="font-display text-h2 font-black text-dark">
             Why Build Your Thoughts?
           </h2>
           <p className="text-base md:text-lg text-slateText max-w-2xl mx-auto">
@@ -442,7 +443,7 @@ export const HomePage: React.FC = () => {
       {/* SECTION: What You'll Get in Every Package (Placed right above Our Process) */}
       <section className="max-w-7xl mx-auto px-6 space-y-12">
         <div className="text-center space-y-3">
-          <h2 className="font-display text-3xl md:text-5xl font-black text-dark tracking-tight">
+          <h2 className="font-display text-h2 font-black text-dark">
             What You'll Get in <span className="text-primary font-black">Every Package</span>
           </h2>
           <p className="text-base md:text-lg text-slateText max-w-2xl mx-auto">
@@ -619,17 +620,17 @@ export const HomePage: React.FC = () => {
           subtitle="From initial discovery to continuous cloud deployment."
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {workflow.map((item, idx) => (
-            <div key={idx} className="p-8 rounded-card bg-white border border-dark/10 relative overflow-hidden group">
-              <span className="font-display text-5xl font-bold text-primary/40 absolute top-4 right-6 group-hover:text-primary transition-colors">
+            <StaggerItem key={idx} className="p-8 rounded-card bg-white border border-dark/10 relative overflow-hidden group">
+              <span className="font-display text-h1 font-bold text-primary/40 absolute top-4 right-6 group-hover:text-primary transition-colors">
                 {item.step}
               </span>
-              <h3 className="font-display text-2xl font-bold text-dark mb-3 relative z-10">{item.title}</h3>
-              <p className="text-slateText text-sm leading-relaxed relative z-10">{item.desc}</p>
-            </div>
+              <h3 className="font-display text-h3 font-bold text-dark mb-3 relative z-10">{item.title}</h3>
+              <p className="text-slateText text-small leading-relaxed relative z-10">{item.desc}</p>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </section>
 
       {/* SECTION 10: Featured Projects Showcase with Mobile Card Stacking Animation */}
@@ -638,17 +639,17 @@ export const HomePage: React.FC = () => {
       {/* SECTION 11: Industries */}
       <section className="max-w-7xl mx-auto px-6">
         <SectionHeader badge="Industries" title="Domains We Serve" subtitle="Specialized engineering across critical verticals." />
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        <Stagger className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
           {industries.map((ind, idx) => {
             const Icon = ind.icon;
             return (
-              <div key={idx} className="p-6 rounded-card bg-white text-center flex flex-col items-center justify-center gap-3 border border-dark/10 hover:border-primary transition-colors">
+              <StaggerItem key={idx} className="p-6 rounded-card bg-white text-center flex flex-col items-center justify-center gap-3 border border-dark/10 hover:border-primary transition-colors">
                 <Icon className="w-8 h-8 text-dark" />
-                <span className="text-sm font-bold text-dark">{ind.name}</span>
-              </div>
+                <span className="text-small font-bold text-dark">{ind.name}</span>
+              </StaggerItem>
             );
           })}
-        </div>
+        </Stagger>
       </section>
 
       {/* SECTION: Client Reviews & Testimonials Marquee */}
@@ -694,7 +695,7 @@ export const HomePage: React.FC = () => {
           <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-primary/20 text-primary border border-primary/40 shadow-sm mx-auto">
             Let's Build Together
           </span>
-          <h2 className="font-display text-4xl md:text-6xl font-bold max-w-3xl mx-auto leading-tight">
+          <h2 className="font-display text-h1 font-bold max-w-3xl mx-auto">
             Ready to Transform Your Product Concept Into Reality?
           </h2>
           <p className="text-gray-400 text-lg md:text-xl max-w-xl mx-auto font-sans">

@@ -360,7 +360,7 @@ export const ManageServicesPage: React.FC = () => {
   );
 
   return (
-    <div className="space-y-8 pb-16 pt-28 max-w-7xl mx-auto px-6">
+    <div className="space-y-8 pb-4  ">
       <SEOHead title="Manage Services & Categories - Admin CMS" />
 
       {/* Header */}
@@ -369,8 +369,6 @@ export const ManageServicesPage: React.FC = () => {
           <Link to="/dashboard" className="inline-flex items-center text-xs font-bold text-slateText hover:text-dark mb-2 gap-1">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
           </Link>
-          <h1 className="font-display text-3xl font-bold text-dark">Services & Categories CMS</h1>
-          <p className="text-slateText text-sm">Full CRUD: Create, Edit & Delete service categories, sub-services, and custom service detail pages.</p>
         </div>
 
         <div className="flex items-center gap-3">

@@ -237,7 +237,7 @@ export const ManageProjectsPage: React.FC = () => {
   });
 
   return (
-    <div className="space-y-8 pb-16 pt-28 max-w-7xl mx-auto px-6">
+    <div className="space-y-8 pb-4  ">
       <SEOHead title="Manage Projects - Admin Dashboard" />
 
       {/* Header */}
@@ -246,8 +246,6 @@ export const ManageProjectsPage: React.FC = () => {
           <Link to="/dashboard" className="inline-flex items-center text-xs font-bold text-slateText hover:text-dark mb-2 gap-1">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
           </Link>
-          <h1 className="font-display text-3xl font-bold text-dark">Projects Manager</h1>
-          <p className="text-slateText text-sm">Manage website projects and toggle which items display on the Home Page showcase.</p>
         </div>
         <Button onClick={handleOpenCreate} className="flex items-center gap-2">
           <Plus className="w-4 h-4" /> Add New Project

@@ -180,29 +180,17 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
   );
 
   return (
-    <div className="pt-28 pb-20 max-w-7xl mx-auto px-6 space-y-8">
+    <div className="pb-4 space-y-8">
       {/* Back to Dashboard */}
-      <div className="flex items-center justify-between">
-        <Link
-          to="/dashboard"
-          className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-        </Link>
-        <Badge variant="lime" className="text-dark font-bold">Admin CMS Engine</Badge>
-      </div>
+      <Link
+        to="/dashboard"
+        className="inline-flex items-center gap-2 text-sm font-bold text-slateText hover:text-dark transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+      </Link>
 
-      {/* Title & Action Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-dark/80 p-6 rounded-3xl border border-white/10 shadow-2xl">
-        <div className="space-y-1">
-          <h1 className="font-display text-2xl md:text-3xl font-black text-white">
-            Platform Solutions Manager
-          </h1>
-          <p className="text-xs text-gray-400">
-            Create, edit, and organize industry platform cards displayed in the homepage carousel.
-          </p>
-        </div>
-
+      {/* Action Bar */}
+      <div className="flex items-center justify-end">
         <Button variant="lime" onClick={handleOpenCreateModal} className="gap-2 font-bold shrink-0">
           <Plus className="w-4 h-4" /> Add Platform Solution
         </Button>

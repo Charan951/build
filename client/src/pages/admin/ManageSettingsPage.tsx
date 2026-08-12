@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Badge } from '../../components/ui/Badge';
 import { ArrowLeft, Save, MapPin, Phone, Mail, Globe, CheckCircle2, AlertCircle } from 'lucide-react';
 import { apiFetch } from '../../services/api';
 
@@ -75,21 +74,13 @@ export const ManageSettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="pt-28 pb-16 max-w-4xl mx-auto px-6 space-y-8">
+    <div className="pb-4 space-y-8">
       <SEOHead title="Manage Company Contact Details | Admin" />
 
       {/* Back Button */}
       <Link to="/admin" className="inline-flex items-center gap-2 text-sm text-slateText hover:text-dark font-medium transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to Admin Dashboard
       </Link>
-
-      <div className="flex items-center justify-between">
-        <div>
-          <Badge variant="lime" className="mb-2">Admin CMS</Badge>
-          <h1 className="font-display text-3xl font-bold text-dark">Company Contact Info</h1>
-          <p className="text-sm text-slateText">Manage your dynamic address, phone number, and email displayed across footer & contact pages.</p>
-        </div>
-      </div>
 
       {successMsg && (
         <div className="p-4 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-sm flex items-center gap-2">

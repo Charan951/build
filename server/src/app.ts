@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import mongoSanitize from 'express-mongo-sanitize';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes';
+import clientAuthRoutes from './routes/clientAuthRoutes';
 import projectRoutes from './routes/projectRoutes';
 import serviceRoutes from './routes/serviceRoutes';
 import blogRoutes from './routes/blogRoutes';
@@ -13,11 +14,18 @@ import platformSolutionRoutes from './routes/platformSolutionRoutes';
 import pricingPlanRoutes from './routes/pricingPlanRoutes';
 import serviceCategoryRoutes from './routes/serviceCategoryRoutes';
 import settingsRoutes from './routes/settingsRoutes';
+import crmRoutes from './routes/crmRoutes';
+import proposalRoutes from './routes/proposalRoutes';
+import portalRoutes from './routes/portalRoutes';
+import googleIntegrationRoutes from './routes/googleIntegrationRoutes';
 import seoRoutes from './routes/seoRoutes';
 import { corsOptions } from './config/cors';
 import { errorHandler } from './middleware/errorHandler';
 
-dotenv.config();
+// override: true so this project's .env always wins over stray shell-level env vars
+// (e.g. a global ~/.bashrc exporting same-named vars for a different project) -
+// dotenv's default behavior silently keeps whatever is already in process.env.
+dotenv.config({ override: true });
 
 const app: Application = express();
 
@@ -31,6 +39,7 @@ app.use(mongoSanitize()); // Prevent MongoDB Operator Injection ($gt, $ne, etc.)
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/client-auth', clientAuthRoutes);
 app.use('/api/v1/projects', projectRoutes);
 app.use('/api/v1/services', serviceRoutes);
 app.use('/api/v1/service-categories', serviceCategoryRoutes);
@@ -39,6 +48,10 @@ app.use('/api/v1/leads', leadRoutes);
 app.use('/api/v1/platform-solutions', platformSolutionRoutes);
 app.use('/api/v1/pricing-plans', pricingPlanRoutes);
 app.use('/api/v1/settings', settingsRoutes);
+app.use('/api/v1/crm', crmRoutes);
+app.use('/api/v1/proposals', proposalRoutes);
+app.use('/api/v1/portal', portalRoutes);
+app.use('/api/v1/integrations/google', googleIntegrationRoutes);
 app.use('/', seoRoutes);
 
 // Health check endpoint

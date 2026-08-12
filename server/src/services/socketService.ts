@@ -68,6 +68,22 @@ export const initSocketServer = (httpServer: HttpServer): Server => {
     // Join public analytics room
     socket.join('live-analytics');
 
+    // Project workspace rooms: used to signal admin <-> client portal live
+    // updates (client to-dos, meetings, progress updates) without leaking
+    // one side's data shape to the other — payloads are always sanitized by
+    // the emitting controller, sockets only carry a "something changed"
+    // signal and each side re-fetches through its own scoped REST endpoint.
+    socket.on('join_project', (projectId: string) => {
+      if (typeof projectId === 'string' && projectId.length < 64) {
+        socket.join(`project-${projectId}`);
+      }
+    });
+    socket.on('leave_project', (projectId: string) => {
+      if (typeof projectId === 'string') {
+        socket.leave(`project-${projectId}`);
+      }
+    });
+
     // Socket Level Rate Limiter Middleware
     socket.use(([event, ...args], next) => {
       const now = Date.now();
@@ -108,6 +124,21 @@ export const getSocketIO = (): Server => {
 export const notifyAdmins = (event: string, data: any): void => {
   if (io) {
     io.to('admin-notifications').emit(event, {
+      ...data,
+      timestamp: new Date().toISOString(),
+    });
+  }
+};
+
+/**
+ * Signal a project workspace room (admin viewers + the client portal) that
+ * something changed, so both sides can re-fetch through their own scoped
+ * endpoint. Never put internal-only fields in `data` — clients share this room.
+ */
+export const notifyProjectRoom = (projectId: string, event: string, data: Record<string, any> = {}): void => {
+  if (io) {
+    io.to(`project-${projectId}`).emit(event, {
+      projectId,
       ...data,
       timestamp: new Date().toISOString(),
     });

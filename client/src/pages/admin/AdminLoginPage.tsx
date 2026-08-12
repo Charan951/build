@@ -3,9 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Sparkles, Lock, Mail, AlertCircle } from 'lucide-react';
+import { Lock, Mail, AlertCircle } from 'lucide-react';
 import { apiFetch } from '../../services/api';
 
+// Single role-based login: tries the admin/team credentials first, then falls
+// back to client-portal credentials, so admins and clients share one page and
+// land in the right place (dashboard vs. portal) without picking a role.
 export const AdminLoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,17 +23,30 @@ export const AdminLoginPage: React.FC = () => {
     setErrorMsg(null);
 
     try {
-      const data = await apiFetch('/auth/login', {
+      const adminRes = await apiFetch('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
 
-      if (data.success) {
-        localStorage.setItem('adminToken', data.accessToken);
+      if (adminRes.success) {
+        localStorage.setItem('adminToken', adminRes.accessToken);
         navigate('/dashboard');
-      } else {
-        setErrorMsg(data.message || 'Login failed.');
+        return;
       }
+
+      const clientRes = await apiFetch('/client-auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+
+      if (clientRes.success) {
+        localStorage.setItem('clientToken', clientRes.accessToken);
+        localStorage.setItem('clientInfo', JSON.stringify(clientRes.client));
+        navigate('/portal');
+        return;
+      }
+
+      setErrorMsg(adminRes.message || clientRes.message || 'Invalid email or password.');
     } catch (err) {
       setErrorMsg('Server connection failed.');
     } finally {
@@ -40,15 +56,13 @@ export const AdminLoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen pt-28 pb-16 flex items-center justify-center px-6">
-      <SEOHead title="Admin Login | Build Your Thoughts Headless CMS" />
+      <SEOHead title="Login | Build Your Thoughts" />
 
       <Card className="w-full max-w-md p-10 space-y-8 bg-white border border-dark/10 shadow-2xl">
         <div className="text-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mx-auto text-dark">
-            <Sparkles className="w-6 h-6" />
-          </div>
-          <h1 className="font-display text-3xl font-bold text-dark">CMS Admin Access</h1>
-          <p className="text-xs text-slateText">Build Your Thoughts Management Portal</p>
+          <img src="/logo.svg" alt="Build Your Thoughts" className="h-10 w-auto mx-auto" />
+          <h1 className="font-display text-3xl font-bold text-dark">Sign In</h1>
+          <p className="text-xs text-slateText">Admin team &amp; client portal access — Build Your Thoughts</p>
         </div>
 
         {errorMsg && (
@@ -88,13 +102,9 @@ export const AdminLoginPage: React.FC = () => {
           </div>
 
           <Button variant="lime" type="submit" disabled={loading} className="w-full font-bold">
-            {loading ? 'Authenticating...' : 'Log In to CMS'}
+            {loading ? 'Authenticating...' : 'Log In'}
           </Button>
         </form>
-
-        <p className="text-center text-[11px] text-gray-400">
-          Default seed login: <code className="text-dark">admin@buildyourthoughts.com</code> / <code className="text-dark">AdminPass123!</code>
-        </p>
       </Card>
     </div>
   );

@@ -2,16 +2,30 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
-import { Badge } from '../../components/ui/Badge';
-import { FolderGit2, Cpu, FileText, Inbox, LogOut, Plus, RefreshCw, Sparkles, DollarSign, Settings as SettingsIcon, Bell } from 'lucide-react';
+import {
+  FolderGit2,
+  Inbox,
+  Users,
+  IndianRupee,
+  Plus,
+  Bell,
+} from 'lucide-react';
 import { useSocket } from '../../hooks/useSocket';
 import { apiFetch } from '../../services/api';
 
+const GREETINGS = ['Good morning', 'Good afternoon', 'Good evening'];
+
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return GREETINGS[0];
+  if (hour < 18) return GREETINGS[1];
+  return GREETINGS[2];
+};
+
 export const AdminDashboardPage: React.FC = () => {
-  const [stats, setStats] = useState({ projects: 0, services: 0, blogs: 0, leads: 0 });
-  const [recentLeads, setRecentLeads] = useState<any[]>([]);
+  const [stats, setStats] = useState({ projects: 0, leads: 0, clients: 0, revenue: 0 });
   const [liveNotification, setLiveNotification] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const token = localStorage.getItem('adminToken');
@@ -23,207 +37,98 @@ export const AdminDashboardPage: React.FC = () => {
       return;
     }
 
-    // Fetch dashboard stats
     Promise.all([
       apiFetch('/projects'),
-      apiFetch('/services'),
-      apiFetch('/blogs'),
       apiFetch('/leads', { token }),
+      apiFetch('/crm/analytics', { token }).catch(() => ({ success: false })),
     ])
-      .then(([proj, srv, blg, ld]) => {
+      .then(([proj, ld, analytics]) => {
         setStats({
           projects: proj.count || 0,
-          services: srv.count || 0,
-          blogs: blg.count || 0,
           leads: ld.count || 0,
+          clients: analytics.success ? analytics.data.totalClients || 0 : 0,
+          revenue: analytics.success ? analytics.data.totalRevenue || 0 : 0,
         });
-        if (ld.success) setRecentLeads(ld.data.slice(0, 5));
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [token, navigate]);
 
-  // Subscribe to real-time lead notification socket event
   useEffect(() => {
     const unsubscribe = subscribe('new_lead_received', (newLead: any) => {
-      setLiveNotification(`New Lead Received: ${newLead.name} (${newLead.projectType})`);
+      setLiveNotification(`New lead received: ${newLead.name} (${newLead.projectType})`);
       setStats((prev) => ({ ...prev, leads: prev.leads + 1 }));
-      setRecentLeads((prev) => [newLead, ...prev.slice(0, 4)]);
-
-      // Auto dismiss live notification after 6 seconds
       setTimeout(() => setLiveNotification(null), 6000);
     });
-
     return () => unsubscribe();
   }, [subscribe]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminToken');
-    navigate('/login');
-  };
+  const statTiles = [
+    { label: 'New Leads', value: stats.leads, icon: Inbox, to: '/dashboard/leads', accent: 'text-[#F97316]' },
+    { label: 'Clients', value: stats.clients, icon: Users, to: '/dashboard/clients', accent: 'text-dark' },
+    {
+      label: 'Revenue Collected',
+      value: `₹${stats.revenue.toLocaleString('en-IN')}`,
+      icon: IndianRupee,
+      to: '/dashboard/invoices',
+      accent: 'text-emerald-600',
+    },
+    { label: 'Case Studies', value: stats.projects, icon: FolderGit2, to: '/dashboard/projects', accent: 'text-dark' },
+  ];
 
   return (
-    <div className="pt-28 pb-16 max-w-7xl mx-auto px-6 space-y-12">
-      <SEOHead title="Admin Dashboard | Build Your Thoughts Headless CMS" />
+    <div className="pb-4 space-y-8">
+      <SEOHead title="Admin Dashboard | Build Your Thoughts" />
 
-      {/* Live Socket Toast Banner */}
+      {/* Live Socket Toast */}
       {liveNotification && (
-        <div className="p-4 rounded-2xl bg-lime-400 text-dark font-bold text-sm flex items-center justify-between shadow-2xl animate-bounce">
-          <div className="flex items-center gap-3">
-            <Bell className="w-5 h-5 text-dark animate-pulse" />
-            <span>{liveNotification}</span>
-          </div>
-          <Badge variant="dark">Real-Time Event</Badge>
+        <div className="fixed top-20 right-6 z-50 max-w-sm p-4 rounded-2xl bg-dark text-white flex items-start gap-3 shadow-2xl animate-in fade-in slide-in-from-top-2">
+          <Bell className="w-4.5 h-4.5 text-primary shrink-0 mt-0.5" />
+          <p className="text-xs font-semibold leading-relaxed">{liveNotification}</p>
         </div>
       )}
 
-      {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-dark text-white p-8 rounded-card border border-white/10">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <Badge variant="lime">Headless CMS Engine</Badge>
-            <span className="flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-white/10 text-gray-300">
-              <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-              {isConnected ? 'Socket Active' : 'Connecting WS...'}
+          <div className="flex items-center gap-2">
+            <h1 className="font-display text-2xl font-bold text-dark">{getGreeting()}</h1>
+            <span
+              className="flex items-center gap-1.5 text-[10px] font-mono px-2 py-0.5 rounded-full bg-dark/5 text-slateText"
+              title={isConnected ? 'Live updates connected' : 'Connecting to live updates...'}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+              {isConnected ? 'Live' : 'Connecting'}
             </span>
           </div>
-          <h1 className="font-display text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-gray-400 text-xs mt-1">Manage website content, case studies, blogs, and contact inquiries in real time.</p>
+          <p className="text-slateText text-sm mt-1">Here's what's happening across your business today.</p>
         </div>
-        <Button variant="ghost" onClick={handleLogout} className="text-white hover:text-rose-400 gap-2">
-          <LogOut className="w-4 h-4" /> Logout
-        </Button>
-      </div>
-
-      {/* Quick Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="flex items-center gap-5 p-6">
-          <div className="w-12 h-12 rounded-2xl bg-primary/20 text-dark flex items-center justify-center font-bold">
-            <FolderGit2 className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-xs text-slateText uppercase font-bold block">Case Studies</span>
-            <span className="font-display text-3xl font-bold text-dark">{stats.projects}</span>
-          </div>
-        </Card>
-
-        <Card className="flex items-center gap-5 p-6">
-          <div className="w-12 h-12 rounded-2xl bg-primary/20 text-dark flex items-center justify-center font-bold">
-            <Cpu className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-xs text-slateText uppercase font-bold block">Active Services</span>
-            <span className="font-display text-3xl font-bold text-dark">{stats.services}</span>
-          </div>
-        </Card>
-
-        <Card className="flex items-center gap-5 p-6">
-          <div className="w-12 h-12 rounded-2xl bg-primary/20 text-dark flex items-center justify-center font-bold">
-            <FileText className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-xs text-slateText uppercase font-bold block">Published Blogs</span>
-            <span className="font-display text-3xl font-bold text-dark">{stats.blogs}</span>
-          </div>
-        </Card>
-
-        <Card className="flex items-center gap-5 p-6">
-          <div className="w-12 h-12 rounded-2xl bg-primary/20 text-dark flex items-center justify-center font-bold">
-            <Inbox className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-xs text-slateText uppercase font-bold block">Total Leads</span>
-            <span className="font-display text-3xl font-bold text-dark">{stats.leads}</span>
-          </div>
-        </Card>
-      </div>
-
-      {/* CMS Module Quick Shortcuts */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
-        <Link to="/dashboard/plans">
-          <Card className="p-4 text-center hover:border-primary">
-            <DollarSign className="w-6 h-6 text-dark mx-auto mb-2" />
-            <h3 className="font-bold text-sm text-dark">Startup Plans</h3>
-            <p className="text-[11px] text-slateText mt-0.5">Pricing tiers</p>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/solutions">
-          <Card className="p-4 text-center hover:border-primary">
-            <Sparkles className="w-6 h-6 text-dark mx-auto mb-2" />
-            <h3 className="font-bold text-sm text-dark">Platform Cards</h3>
-            <p className="text-[11px] text-slateText mt-0.5">Solutions carousel</p>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/projects">
-          <Card className="p-4 text-center hover:border-primary">
-            <FolderGit2 className="w-6 h-6 text-dark mx-auto mb-2" />
-            <h3 className="font-bold text-sm text-dark">Projects</h3>
-            <p className="text-[11px] text-slateText mt-0.5">Case studies</p>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/services">
-          <Card className="p-4 text-center hover:border-primary">
-            <Cpu className="w-6 h-6 text-dark mx-auto mb-2" />
-            <h3 className="font-bold text-sm text-dark">Services</h3>
-            <p className="text-[11px] text-slateText mt-0.5">Capabilities</p>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/blogs">
-          <Card className="p-4 text-center hover:border-primary">
-            <FileText className="w-6 h-6 text-dark mx-auto mb-2" />
-            <h3 className="font-bold text-sm text-dark">Blogs</h3>
-            <p className="text-[11px] text-slateText mt-0.5">Articles</p>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/leads">
-          <Card className="p-4 text-center hover:border-primary">
-            <Inbox className="w-6 h-6 text-dark mx-auto mb-2" />
-            <h3 className="font-bold text-sm text-dark">Lead Inbox</h3>
-            <p className="text-[11px] text-slateText mt-0.5">Inquiries</p>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/settings">
-          <Card className="p-4 text-center hover:border-primary border-primary/40 bg-lime-50/20">
-            <SettingsIcon className="w-6 h-6 text-dark mx-auto mb-2" />
-            <h3 className="font-bold text-sm text-dark">Contact Info</h3>
-            <p className="text-[11px] text-slateText mt-0.5">Address & Phone</p>
-          </Card>
+        <Link
+          to="/dashboard/leads"
+          className="px-4 py-2.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark text-xs font-bold shadow-sm flex items-center gap-1.5 self-start sm:self-auto"
+        >
+          <Plus className="w-3.5 h-3.5" /> Add Lead
         </Link>
       </div>
 
-      {/* Recent Leads Feed */}
-      <Card className="p-8 space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-2xl font-bold text-dark">Recent Contact Inquiries</h2>
-          <Link to="/dashboard/leads" className="text-xs font-bold text-dark hover:text-primary">
-            View All Leads →
-          </Link>
-        </div>
-
-        {recentLeads.length === 0 ? (
-          <p className="text-sm text-slateText py-4">No contact inquiries submitted yet.</p>
-        ) : (
-          <div className="space-y-4">
-            {recentLeads.map((lead, idx) => (
-              <div key={idx} className="p-4 rounded-2xl bg-background border border-dark/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-bold text-dark text-base">{lead.name}</span>
-                    <Badge variant="lime">{lead.projectType}</Badge>
-                  </div>
-                  <p className="text-xs text-slateText mt-1">{lead.email} • {lead.company || 'Private Inquiry'} • Budget: {lead.budgetRange}</p>
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {statTiles.map((tile) => (
+          <Link key={tile.label} to={tile.to} className="block h-full">
+            <Card className="h-full min-h-[128px] p-5 flex flex-col justify-between hover:border-primary/50 transition-colors group">
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-[11px] font-bold text-slateText uppercase tracking-wide leading-tight">{tile.label}</p>
+                <div className="w-9 h-9 rounded-xl bg-background flex items-center justify-center text-dark/40 group-hover:text-dark transition-colors shrink-0">
+                  <tile.icon className="w-4.5 h-4.5" />
                 </div>
-                <Badge variant={lead.status === 'new' ? 'lime' : 'dark'}>{lead.status}</Badge>
               </div>
-            ))}
-          </div>
-        )}
-      </Card>
+              <p className={`font-display text-2xl font-bold ${tile.accent}`}>
+                {loading ? '—' : tile.value}
+              </p>
+            </Card>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Mail, Phone, MapPin, Instagram, Linkedin, Facebook, Twitter } from 'lucide-react';
+import { Mail, Phone, MapPin, Instagram, Linkedin, Facebook, Twitter } from 'lucide-react';
 import { apiFetch } from '../../services/api';
 
 export const Footer: React.FC = () => {
@@ -46,15 +46,10 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-16">
         {/* Brand Column */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-dark font-bold">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <span className="font-display font-bold text-2xl tracking-tight text-white">
-              Build Your Thoughts
-            </span>
+          <div className="bg-white rounded-xl px-3 py-2 inline-block">
+            <img src="/logo.svg" alt="Build Your Thoughts" className="h-8 w-auto" />
           </div>
-          <p className="text-gray-400 max-w-sm text-base leading-relaxed">
+          <p className="text-gray-400 text-body leading-relaxed text-measure">
             Transforming ideas into intelligent enterprise digital experiences through high-performance engineering and world-class 3D motion design.
           </p>
 
@@ -81,7 +76,7 @@ export const Footer: React.FC = () => {
 
         {/* Quick Links Column */}
         <div>
-          <h4 className="font-display text-lg font-bold text-white mb-4 md:mb-6">Company</h4>
+          <h4 className="font-display text-h5 font-semibold text-white mb-4 md:mb-6">Company</h4>
           <ul className="space-y-3 text-gray-400 text-sm">
             <li><Link to="/" className="hover:text-primary transition-colors">Home</Link></li>
             <li><Link to="/about" className="hover:text-primary transition-colors">About Us</Link></li>

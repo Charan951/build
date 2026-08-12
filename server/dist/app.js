@@ -18,6 +18,8 @@ const platformSolutionRoutes_1 = __importDefault(require("./routes/platformSolut
 const pricingPlanRoutes_1 = __importDefault(require("./routes/pricingPlanRoutes"));
 const serviceCategoryRoutes_1 = __importDefault(require("./routes/serviceCategoryRoutes"));
 const settingsRoutes_1 = __importDefault(require("./routes/settingsRoutes"));
+const crmRoutes_1 = __importDefault(require("./routes/crmRoutes"));
+const proposalRoutes_1 = __importDefault(require("./routes/proposalRoutes"));
 const seoRoutes_1 = __importDefault(require("./routes/seoRoutes"));
 const cors_2 = require("./config/cors");
 const errorHandler_1 = require("./middleware/errorHandler");
@@ -40,6 +42,8 @@ app.use('/api/v1/leads', leadRoutes_1.default);
 app.use('/api/v1/platform-solutions', platformSolutionRoutes_1.default);
 app.use('/api/v1/pricing-plans', pricingPlanRoutes_1.default);
 app.use('/api/v1/settings', settingsRoutes_1.default);
+app.use('/api/v1/crm', crmRoutes_1.default);
+app.use('/api/v1/proposals', proposalRoutes_1.default);
 app.use('/', seoRoutes_1.default);
 // Health check endpoint
 app.get('/health', (req, res) => {

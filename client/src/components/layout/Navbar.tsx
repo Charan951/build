@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ArrowUpRight, Sparkles } from 'lucide-react';
+import { Menu, X, ArrowUpRight } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 export const Navbar: React.FC = () => {
@@ -42,13 +42,10 @@ export const Navbar: React.FC = () => {
         }`}
       >
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-dark font-bold group-hover:rotate-12 transition-transform">
-            <Sparkles className="w-5 h-5" />
+        <Link to="/" className="flex items-center group">
+          <div className="bg-white rounded-xl px-3 py-1.5 group-hover:scale-105 transition-transform">
+            <img src="/logo.svg" alt="Build Your Thoughts" className="h-7 md:h-8 w-auto" />
           </div>
-          <span className="font-display font-bold text-xl tracking-tight text-white group-hover:text-primary transition-colors">
-            Build Your Thoughts
-          </span>
         </Link>
 
         {/* Desktop Nav Links */}

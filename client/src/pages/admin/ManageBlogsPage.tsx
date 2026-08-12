@@ -200,7 +200,7 @@ export const ManageBlogsPage: React.FC = () => {
   });
 
   return (
-    <div className="pt-28 pb-16 max-w-7xl mx-auto px-6 space-y-8">
+    <div className="pb-4 space-y-8">
       <SEOHead title="Manage Blogs | Headless CMS" />
 
       {/* Navigation */}
@@ -210,14 +210,9 @@ export const ManageBlogsPage: React.FC = () => {
         </Link>
       </div>
 
-      {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-dark text-white p-8 rounded-card border border-white/10">
-        <div>
-          <Badge variant="lime" className="mb-2">Technical Publications</Badge>
-          <h1 className="font-display text-3xl font-bold">Blogs Manager</h1>
-          <p className="text-xs text-gray-400 mt-1">Publish, edit, view, and manage technical articles.</p>
-        </div>
-        <Button onClick={handleOpenCreate} className="bg-primary text-dark hover:bg-white font-bold gap-2 self-start md:self-auto">
+      {/* Header */}
+      <div className="flex items-center justify-end">
+        <Button onClick={handleOpenCreate} className="flex items-center gap-2">
           <Plus className="w-4 h-4" /> Create Blog Post
         </Button>
       </div>

@@ -81,10 +81,14 @@ export const PlatformSolutionsCarousel: React.FC = () => {
   // bar, since the active index can change from something other than a
   // direct tap (autoplay tick, coverflow drag, mobile swipe).
   useEffect(() => {
-    pillRefs.current[activeIndex]?.scrollIntoView({
+    const pill = pillRefs.current[activeIndex];
+    const container = pill?.parentElement;
+    if (!pill || !container) return;
+    const target =
+      pill.offsetLeft - container.clientWidth / 2 + pill.clientWidth / 2;
+    container.scrollTo({
+      left: target,
       behavior: prefersReducedMotion ? 'auto' : 'smooth',
-      inline: 'center',
-      block: 'nearest',
     });
   }, [activeIndex, prefersReducedMotion]);
 

@@ -211,6 +211,8 @@ export class ProposalController {
                 documentTitle: template.title,
                 quotationNumber: template.title,
               },
+              branding: template.branding,
+              meta: template.meta,
             })
           : await PdfService.renderProposalPdf({
               title: template.title,
@@ -240,6 +242,8 @@ export class ProposalController {
             documentTitle: title || 'Proposal Preview',
             quotationNumber: title || 'Proposal Preview',
           },
+          branding: branding || undefined,
+          meta: meta || undefined,
         });
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'inline; filename="preview.pdf"');

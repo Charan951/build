@@ -433,6 +433,12 @@ const buildInvoiceHtmlDocument = ({ invoice, client, projectName }: InvoicePdfIn
 export interface ProjectQuotationPdfInput {
   quotation: any;
   projectName?: string;
+  // When provided (proposal templates authored on the canvas editor), the
+  // same branded header/footer bands used by renderProposalPdf are added.
+  // Left undefined by the plain project-quotation flow, which renders its
+  // own header directly as canvas elements instead.
+  branding?: IProposalBranding;
+  meta?: IProposalMeta;
 }
 
 // Must match the editor canvas: client/src/pages/admin/QuotationEditorPage.tsx PAGE_W/PAGE_H (A4 @ 96dpi).
@@ -555,6 +561,7 @@ export const PdfService = {
 
   async renderProjectQuotationPdf(input: ProjectQuotationPdfInput): Promise<Buffer> {
     const html = buildProjectQuotationHtmlDocument(input);
+    const { branding, meta, quotation } = input;
     const browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -570,7 +577,14 @@ export const PdfService = {
         width: `${CANVAS_PAGE_W}px`,
         height: `${CANVAS_PAGE_H}px`,
         printBackground: true,
-        margin: { top: '0px', bottom: '0px', left: '0px', right: '0px' },
+        displayHeaderFooter: !!branding,
+        headerTemplate: branding
+          ? buildHeaderTemplate(branding, meta || {}, quotation?.documentTitle || quotation?.quotationNumber || 'Proposal')
+          : '<span></span>',
+        footerTemplate: branding ? buildFooterTemplate(branding) : '<span></span>',
+        margin: branding
+          ? { top: '90px', bottom: '80px', left: '0px', right: '0px' }
+          : { top: '0px', bottom: '0px', left: '0px', right: '0px' },
       });
       return Buffer.from(pdfBuffer);
     } finally {

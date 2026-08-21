@@ -51,8 +51,8 @@ export interface IProposalTemplate extends Document {
 export const ProposalBrandingSchema = new Schema<IProposalBranding>(
   {
     logoUrl: { type: String, default: '', maxlength: 2048 },
-    headerGradientFrom: { type: String, default: '#4c1d95', maxlength: 20 },
-    headerGradientTo: { type: String, default: '#f97316', maxlength: 20 },
+    headerGradientFrom: { type: String, default: '#0f2a3d', maxlength: 20 },
+    headerGradientTo: { type: String, default: '#1f9d63', maxlength: 20 },
     footerAddress: {
       type: String,
       default: 'T-Hub, Plot No 1/C, Sy No 83/1, Raidurgam, Knowledge City Road,',

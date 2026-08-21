@@ -250,6 +250,9 @@ export const ProposalContentEditor: React.FC<ProposalContentEditorProps> = ({
         ref={editorRef}
         contentEditable
         suppressContentEditableWarning
+        role="textbox"
+        aria-multiline="true"
+        aria-label="Proposal document content"
         onMouseUp={handleMouseUp}
         onInput={syncFromDom}
         onBlur={syncFromDom}
@@ -312,18 +315,21 @@ export const ProposalContentEditor: React.FC<ProposalContentEditorProps> = ({
               onChange={(e) => setInstruction(e.target.value)}
               placeholder="Refine selected content with Gemini..."
               disabled={loading}
+              aria-label="Refine instruction"
+              maxLength={500}
               className="flex-1 px-2.5 py-1.5 rounded-lg bg-white/10 border border-white/10 text-xs text-white placeholder:text-gray-400 focus:outline-none focus:border-primary disabled:opacity-60"
             />
             <button
               type="submit"
               disabled={loading || !instruction.trim()}
+              aria-label="Apply refinement"
               className="shrink-0 p-1.5 rounded-lg bg-primary text-dark disabled:opacity-50"
             >
               {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
             </button>
           </form>
 
-          {error && <p className="text-[10px] font-semibold text-rose-300">{error}</p>}
+          {error && <p role="alert" className="text-[10px] font-semibold text-rose-300">{error}</p>}
         </div>
       )}
     </div>

@@ -132,7 +132,10 @@ export class ProposalController {
 
   public static async updateTemplate(req: Request, res: Response) {
     try {
-      const template = await ProposalTemplate.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      const template = await ProposalTemplate.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+      });
       if (!template) return res.status(404).json({ success: false, message: 'Proposal template not found.' });
       return res.json({ success: true, data: template });
     } catch (err: any) {

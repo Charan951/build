@@ -33,20 +33,20 @@ const buildHeaderTemplate = (branding: IProposalBranding, meta: IProposalMeta, t
 
   return `
   <div style="width:100%;font-family:'Segoe UI',Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-    <div style="width:100%;background:linear-gradient(90deg, ${gradientFrom}, ${gradientTo});padding:14px 28px;display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;">
-      <div style="display:flex;align-items:center;gap:10px;">
+    <div style="width:100%;background:linear-gradient(90deg, ${gradientFrom}, ${gradientTo});padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-sizing:border-box;">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;overflow:hidden;">
         <div style="width:34px;height:34px;border-radius:8px;background:#ffffff;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
           ${logoUrl ? `<img src="${logoUrl}" style="max-width:100%;max-height:100%;object-fit:contain;" />` : `<span style="font-weight:700;font-size:14px;color:${gradientFrom};">S</span>`}
         </div>
-        <div>
-          <div style="font-weight:700;font-size:12px;color:#ffffff;line-height:1.2;">${companyName.toUpperCase()}</div>
-          <div style="font-size:8px;color:#e2e8f0;line-height:1.3;">${tagline}</div>
+        <div style="min-width:0;overflow:hidden;">
+          <div style="font-weight:700;font-size:12px;color:#ffffff;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${companyName.toUpperCase()}</div>
+          <div style="font-size:8px;color:#e2e8f0;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${tagline}</div>
         </div>
       </div>
-      <div style="text-align:right;">
-        <div style="font-weight:700;font-size:11px;color:#ffffff;">COMMERCIAL QUOTATION</div>
-        ${docRef ? `<div style="font-size:8px;color:#e2e8f0;">Ref: ${docRef}</div>` : ''}
-        <div style="font-size:8px;color:#e2e8f0;">Date: ${date}</div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-weight:700;font-size:11px;color:#ffffff;white-space:nowrap;">COMMERCIAL QUOTATION</div>
+        ${docRef ? `<div style="font-size:8px;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;">Ref: ${docRef}</div>` : ''}
+        <div style="font-size:8px;color:#e2e8f0;white-space:nowrap;">Date: ${date}</div>
       </div>
     </div>
   </div>`;
@@ -66,14 +66,14 @@ const buildFooterTemplate = (branding: IProposalBranding): string => {
   <div style="width:100%;font-family:'Segoe UI',Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
     <div style="width:100%;height:2px;background:linear-gradient(90deg, ${gradientFrom}, ${gradientTo});"></div>
     <div style="width:100%;background:#0f1f2e;padding:8px 28px;display:flex;align-items:flex-start;justify-content:space-between;box-sizing:border-box;color:#ffffff;">
-      <div style="max-width:60%;">
-        <div style="font-weight:700;font-size:9px;color:#ffffff;">${companyName}</div>
-        <div style="font-size:7px;color:#cbd5e1;line-height:1.4;">${addr1}${addr1 && addr2 ? '<br/>' : ''}${addr2}</div>
+      <div style="max-width:60%;overflow-wrap:break-word;">
+        <div style="font-weight:700;font-size:9px;color:#ffffff;overflow-wrap:break-word;">${companyName}</div>
+        <div style="font-size:7px;color:#cbd5e1;line-height:1.4;overflow-wrap:break-word;">${addr1}${addr1 && addr2 ? '<br/>' : ''}${addr2}</div>
       </div>
-      <div style="text-align:right;">
+      <div style="text-align:right;max-width:40%;overflow-wrap:break-word;">
         <div style="font-weight:700;font-size:9px;color:#ffffff;">Contact</div>
-        <div style="font-size:7px;color:#cbd5e1;">${email}${email && phone ? ' | ' : ''}${phone}</div>
-        <div style="font-size:7px;color:#cbd5e1;">${website}</div>
+        <div style="font-size:7px;color:#cbd5e1;overflow-wrap:break-word;">${email}${email && phone ? ' | ' : ''}${phone}</div>
+        <div style="font-size:7px;color:#cbd5e1;overflow-wrap:break-word;">${website}</div>
         <div style="font-size:7px;color:#94a3b8;margin-top:2px;">Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>
       </div>
     </div>
@@ -145,7 +145,7 @@ export const buildProposalHtmlDocument = ({ title, contentHtml, branding, meta }
   }
   .content { padding: 8px 40px 24px; line-height: 1.55; }
   .doc-eyebrow { font-size: 9px; font-weight: 800; letter-spacing: 0.08em; color: ${gradientTo}; text-transform: uppercase; margin: 4px 0 4px; }
-  .doc-title { font-size: 22px; font-weight: 800; margin: 0 0 6px; color: #0f2a3d; }
+  .doc-title { font-size: 22px; font-weight: 800; margin: 0 0 6px; color: #0f2a3d; word-wrap: break-word; overflow-wrap: break-word; }
   .doc-subtitle { font-size: 11px; color: #6b7280; margin: 0 0 16px; max-width: 640px; }
 
   .meta-grid {

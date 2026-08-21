@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { X, Wand2, Loader2, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { apiFetch, getApiUrl } from '../../services/api';
 import { ProposalContentEditor } from './ProposalContentEditor';
@@ -48,6 +48,11 @@ interface TemplateEditorModalProps {
 }
 
 const DEFAULT_TYPES = ['website', 'app', 'website_app'];
+
+const TITLE_MAX_LENGTH = 120;
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 const DEFAULT_BRANDING: ProposalBrandingData = {
   logoUrl: '',
@@ -101,6 +106,53 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
   const [previewError, setPreviewError] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const objectUrlRef = useRef<string>('');
+  const previewAbortRef = useRef<AbortController | null>(null);
+
+  const titleId = useId();
+  const titleErrorId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const previouslyFocused = useRef<HTMLElement | null>(null);
+
+  // Dialog semantics: initial focus, focus restore on close, and a Tab focus
+  // trap so keyboard users can't tab out to the page behind this modal.
+  useEffect(() => {
+    if (!isOpen) return;
+    previouslyFocused.current = document.activeElement as HTMLElement | null;
+    const raf = requestAnimationFrame(() => {
+      const focusable = contentRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+      (focusable?.[0] ?? dialogRef.current)?.focus();
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      previouslyFocused.current?.focus();
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key === 'Tab' && dialogRef.current) {
+        const focusable = dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -138,9 +190,17 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
 
   const refreshPreview = React.useCallback(async () => {
     if (!contentHtml.trim()) {
+      previewAbortRef.current?.abort();
       setPreviewUrl('');
+      setPreviewLoading(false);
       return;
     }
+    // Cancel any in-flight preview request so a slow earlier response can't
+    // overwrite the preview for a newer edit (a stale-response race).
+    previewAbortRef.current?.abort();
+    const controller = new AbortController();
+    previewAbortRef.current = controller;
+
     setPreviewLoading(true);
     setPreviewError('');
     try {
@@ -152,6 +212,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
           Authorization: token ? `Bearer ${token}` : '',
         },
         body: JSON.stringify({ title, contentHtml, branding, meta }),
+        signal: controller.signal,
       });
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
@@ -163,9 +224,10 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
       objectUrlRef.current = url;
       setPreviewUrl(url);
     } catch (err: any) {
+      if (err?.name === 'AbortError') return;
       setPreviewError(err.message || 'Failed to render PDF preview.');
     } finally {
-      setPreviewLoading(false);
+      if (previewAbortRef.current === controller) setPreviewLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title, contentHtml, branding, meta]);
@@ -186,6 +248,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
   useEffect(() => {
     return () => {
       if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+      previewAbortRef.current?.abort();
     };
   }, []);
 
@@ -267,45 +330,59 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
       <div className="fixed inset-0 bg-dark/75 backdrop-blur-md" onClick={onClose} />
 
-      <div className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl border border-dark/10 overflow-hidden z-10 my-auto flex flex-col max-h-[95vh]">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl border border-dark/10 overflow-hidden z-10 my-auto flex flex-col max-h-[95vh] focus:outline-none"
+      >
         <div className="flex items-center justify-between p-5 bg-dark text-white border-b border-white/10 shrink-0">
           <div>
-            <h2 className="font-display text-lg font-bold">
+            <h2 id={titleId} className="font-display text-lg font-bold">
               {template ? 'Edit Proposal Template' : 'New Proposal Template'}
             </h2>
             <p className="text-xs text-gray-400 mt-0.5">{projectName}</p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10">
+          <button onClick={onClose} aria-label="Close dialog" className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2">
+        <div ref={contentRef} className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2">
           {/* Left: edit form */}
           <div className="p-5 sm:p-6 overflow-y-auto space-y-4 border-b lg:border-b-0 lg:border-r border-dark/10">
             {errorMsg && (
-              <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+              <div id={titleErrorId} role="alert" className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
                 {errorMsg}
               </div>
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                <label htmlFor="tpl-title" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                   Template Title *
                 </label>
                 <input
+                  id="tpl-title"
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g., HRMS Website Proposal"
+                  required
+                  maxLength={TITLE_MAX_LENGTH}
+                  aria-required="true"
+                  aria-invalid={!!errorMsg && !title.trim()}
+                  aria-describedby={errorMsg ? titleErrorId : undefined}
                   className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">Type</label>
+                <label htmlFor="tpl-type" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">Type</label>
                 <div className="flex gap-2">
                   <select
+                    id="tpl-type"
                     value={type}
                     onChange={(e) => setType(e.target.value)}
                     className="flex-1 px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark font-semibold"
@@ -321,6 +398,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                       value={customType}
                       onChange={(e) => setCustomType(e.target.value)}
                       placeholder="Custom type"
+                      aria-label="Custom type"
                       className="flex-1 px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
                     />
                   )}
@@ -331,60 +409,70 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
             {/* Document meta */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                <label htmlFor="tpl-prepared-for" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                   Prepared For
                 </label>
                 <input
+                  id="tpl-prepared-for"
                   type="text"
                   value={meta.preparedFor || ''}
                   onChange={(e) => setMetaField('preparedFor', e.target.value)}
                   placeholder="Client or company name"
+                  maxLength={120}
                   className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                <label htmlFor="tpl-project-type" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                   Project Type
                 </label>
                 <input
+                  id="tpl-project-type"
                   type="text"
                   value={meta.projectType || ''}
                   onChange={(e) => setMetaField('projectType', e.target.value)}
                   placeholder="e.g., Web + Mobile App"
+                  maxLength={120}
                   className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                <label htmlFor="tpl-currency" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                   Currency
                 </label>
                 <input
+                  id="tpl-currency"
                   type="text"
                   value={meta.currency || ''}
                   onChange={(e) => setMetaField('currency', e.target.value)}
+                  maxLength={60}
                   className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                <label htmlFor="tpl-doc-ref" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                   Document Ref
                 </label>
                 <input
+                  id="tpl-doc-ref"
                   type="text"
                   value={meta.docRef || ''}
                   onChange={(e) => setMetaField('docRef', e.target.value)}
                   placeholder="SPW/EST/PROJECT/2026"
+                  maxLength={80}
                   className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                <label htmlFor="tpl-validity" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                   Validity
                 </label>
                 <input
+                  id="tpl-validity"
                   type="text"
                   value={meta.validityText || ''}
                   onChange={(e) => setMetaField('validityText', e.target.value)}
+                  maxLength={120}
                   className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
                 />
               </div>
@@ -392,18 +480,22 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
 
             {/* AI content prompt - the primary way to write/refine the document */}
             <div>
-              <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+              <label htmlFor="tpl-ai-instruction" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                 Describe the proposal content
               </label>
               <div className="p-3 rounded-2xl bg-lime-50 border border-primary/30 space-y-2">
                 <textarea
+                  id="tpl-ai-instruction"
                   rows={3}
                   value={aiInstruction}
                   onChange={(e) => setAiInstruction(e.target.value)}
                   placeholder="e.g., Write a project estimation for an HRMS web app with payroll and attendance modules, two pricing plans (web only and web + mobile)"
+                  maxLength={2000}
+                  aria-invalid={!!aiError}
+                  aria-describedby={aiError ? 'tpl-ai-error' : undefined}
                   className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark resize-none"
                 />
-                {aiError && <p className="text-[10px] font-semibold text-rose-600">{aiError}</p>}
+                {aiError && <p id="tpl-ai-error" role="alert" className="text-[10px] font-semibold text-rose-600">{aiError}</p>}
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-[10px] text-slateText">
                     {contentHtml
@@ -480,35 +572,40 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                 <div className="px-4 pb-4 space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                      <label htmlFor="tpl-company-name" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                         Company Name
                       </label>
                       <input
+                        id="tpl-company-name"
                         type="text"
                         value={branding.companyName || ''}
                         onChange={(e) => setBrandingField('companyName', e.target.value)}
+                        maxLength={120}
                         className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                      <label htmlFor="tpl-company-tagline" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                         Tagline
                       </label>
                       <input
+                        id="tpl-company-tagline"
                         type="text"
                         value={branding.companyTagline || ''}
                         onChange={(e) => setBrandingField('companyTagline', e.target.value)}
+                        maxLength={160}
                         className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                    <label htmlFor="tpl-logo-url" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                       Logo URL
                     </label>
                     <input
-                      type="text"
+                      id="tpl-logo-url"
+                      type="url"
                       value={branding.logoUrl || ''}
                       onChange={(e) => setBrandingField('logoUrl', e.target.value)}
                       placeholder="https://res.cloudinary.com/.../logo.png"
@@ -518,10 +615,11 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                      <label htmlFor="tpl-gradient-from" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                         Header Gradient From
                       </label>
                       <input
+                        id="tpl-gradient-from"
                         type="color"
                         value={branding.headerGradientFrom || '#0f2a3d'}
                         onChange={(e) => setBrandingField('headerGradientFrom', e.target.value)}
@@ -529,10 +627,11 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                      <label htmlFor="tpl-gradient-to" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                         Header Gradient To
                       </label>
                       <input
+                        id="tpl-gradient-to"
                         type="color"
                         value={branding.headerGradientTo || '#1f9d63'}
                         onChange={(e) => setBrandingField('headerGradientTo', e.target.value)}
@@ -543,22 +642,24 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                      <label htmlFor="tpl-contact-email" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                         Contact Email
                       </label>
                       <input
-                        type="text"
+                        id="tpl-contact-email"
+                        type="email"
                         value={branding.contactEmail || ''}
                         onChange={(e) => setBrandingField('contactEmail', e.target.value)}
                         className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                      <label htmlFor="tpl-contact-phone" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                         Contact Phone
                       </label>
                       <input
-                        type="text"
+                        id="tpl-contact-phone"
+                        type="tel"
                         value={branding.contactPhone || ''}
                         onChange={(e) => setBrandingField('contactPhone', e.target.value)}
                         className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
@@ -567,10 +668,11 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                    <label htmlFor="tpl-website" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                       Website
                     </label>
                     <input
+                      id="tpl-website"
                       type="text"
                       value={branding.website || ''}
                       onChange={(e) => setBrandingField('website', e.target.value)}
@@ -579,24 +681,28 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                    <label htmlFor="tpl-footer-address-1" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                       Footer Address Line 1
                     </label>
                     <input
+                      id="tpl-footer-address-1"
                       type="text"
                       value={branding.footerAddress || ''}
                       onChange={(e) => setBrandingField('footerAddress', e.target.value)}
+                      maxLength={160}
                       className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
+                    <label htmlFor="tpl-footer-address-2" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
                       Footer Address Line 2
                     </label>
                     <input
+                      id="tpl-footer-address-2"
                       type="text"
                       value={branding.footerAddressLine2 || ''}
                       onChange={(e) => setBrandingField('footerAddressLine2', e.target.value)}
+                      maxLength={160}
                       className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
                     />
                   </div>
@@ -625,7 +731,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
             </div>
 
             {previewError && (
-              <div className="mb-2 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold shrink-0">
+              <div role="alert" className="mb-2 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold shrink-0">
                 {previewError}
               </div>
             )}

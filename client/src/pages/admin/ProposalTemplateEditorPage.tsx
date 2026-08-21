@@ -649,7 +649,9 @@ export const ProposalTemplateEditorPage: React.FC = () => {
 
   // Switching into Canvas with nothing on the canvas yet, but an existing
   // document, gives a best-effort starting layout instead of a blank page -
-  // never overwrites canvas work that already exists.
+  // never silently overwrites canvas work that already exists. If the canvas
+  // already holds something (even a stale conversion from an earlier
+  // regenerate), use "Sync from Document" below to force a fresh conversion.
   const switchToCanvas = () => {
     const hasCanvasContent = pages.some((p) => p.elements.length > 0);
     if (!hasCanvasContent && contentHtml.trim()) {
@@ -657,6 +659,20 @@ export const ProposalTemplateEditorPage: React.FC = () => {
       setPageIndex(0);
     }
     setRenderMode('canvas');
+  };
+
+  const syncCanvasFromDocument = () => {
+    if (!contentHtml.trim()) return;
+    const hasCanvasContent = pages.some((p) => p.elements.length > 0);
+    if (
+      hasCanvasContent &&
+      !window.confirm('Replace the current canvas pages with a fresh layout from the document content? This discards any manual canvas edits.')
+    ) {
+      return;
+    }
+    commitPages(() => aiHtmlToPages(contentHtml));
+    setPageIndex(0);
+    setSelectedId(null);
   };
 
   const downloadUrl = resolvedId ? getApiUrl(`/proposals/templates/${resolvedId}/pdf`) : '';
@@ -921,6 +937,16 @@ export const ProposalTemplateEditorPage: React.FC = () => {
           </div>
         )}
         {renderMode === 'canvas' && (
+          <>
+            {contentHtml.trim() && (
+              <button
+                onClick={syncCanvasFromDocument}
+                title="Rebuild the canvas from the current Document content"
+                className="focus-ring px-3 py-1.5 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
+              >
+                <FileText className="w-3.5 h-3.5" /> Sync from Document
+              </button>
+            )}
           <div className="relative">
             <button
               onClick={() => setCanvasAiOpen((v) => !v)}
@@ -959,6 +985,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
               </div>
             )}
           </div>
+          </>
         )}
 
         <a

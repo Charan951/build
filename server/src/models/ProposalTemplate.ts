@@ -29,13 +29,19 @@ export interface IProposalTemplate extends Document {
   title: string;
   contentHtml: string;
   /**
+   * Which authoring surface is the source of truth for this template's
+   * rendered PDF. 'document' (default) is the rich AI-styled contentHtml
+   * renderer (gradient plan cards, meta grid, zebra tables, callout boxes -
+   * see pdfService.ts buildProposalHtmlDocument); 'canvas' is the freeform
+   * drag/drop editor. Both contentHtml and pages persist regardless of mode
+   * so switching back and forth never loses work.
+   */
+  renderMode: 'document' | 'canvas';
+  /**
    * Freeform canvas pages (absolutely-positioned text/table elements), same
    * shape as ProjectWorkspace's quotation canvas. Left `Mixed` because the
    * element shape is owned by the editor UI, not the database - see the
-   * identical rationale on ProjectWorkspace.IProjectQuotation.pages. When
-   * non-empty, this is the source of truth for rendering; contentHtml
-   * becomes a legacy fallback for templates authored before the canvas
-   * editor existed.
+   * identical rationale on ProjectWorkspace.IProjectQuotation.pages.
    */
   pages?: any[];
   fontFamily?: string;
@@ -91,6 +97,7 @@ const ProposalTemplateSchema: Schema = new Schema(
     kind: { type: String, enum: ['generated', 'uploaded'], default: 'generated' },
     title: { type: String, required: true, trim: true, maxlength: 120 },
     contentHtml: { type: String, default: '' },
+    renderMode: { type: String, enum: ['document', 'canvas'], default: 'document' },
     pages: { type: [Schema.Types.Mixed], default: () => [] },
     fontFamily: { type: String, default: 'Helvetica', maxlength: 60 },
     fileUrl: { type: String, default: '' },

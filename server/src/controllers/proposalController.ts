@@ -203,7 +203,7 @@ export class ProposalController {
       }
 
       const pdfBuffer =
-        Array.isArray(template.pages) && template.pages.length > 0
+        template.renderMode === 'canvas'
           ? await PdfService.renderProjectQuotationPdf({
               quotation: {
                 pages: template.pages,
@@ -232,9 +232,9 @@ export class ProposalController {
   // --- AD-HOC PDF PREVIEW (unsaved edits, used by the split-pane editor) ---
   public static async previewPdf(req: Request, res: Response) {
     try {
-      const { title, contentHtml, branding, meta, pages, fontFamily } = req.body;
+      const { title, contentHtml, branding, meta, pages, fontFamily, renderMode } = req.body;
 
-      if (Array.isArray(pages) && pages.length > 0) {
+      if (renderMode === 'canvas') {
         const pdfBuffer = await PdfService.renderProjectQuotationPdf({
           quotation: {
             pages,

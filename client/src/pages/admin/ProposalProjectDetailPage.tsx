@@ -2,11 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { Badge } from '../../components/ui/Badge';
+import { Modal } from '../../components/ui/Modal';
+import { Input } from '../../components/ui/FormField';
+import { Button } from '../../components/ui/Button';
 import { FadeIn } from '../../components/ui/motion';
 import { ArrowLeft, Plus, Pencil, Trash2, FileText, Upload, Eye, X, Loader2 } from 'lucide-react';
 import { apiFetch, getApiUrl } from '../../services/api';
 import { TemplateEditorModal, ProposalTemplateData } from '../../components/crm/TemplateEditorModal';
+import { Spinner } from '../../components/ui/Spinner';
 
 interface ProposalProjectItem {
   _id: string;
@@ -75,79 +80,50 @@ const UploadTemplateModal: React.FC<{
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-dark/75 backdrop-blur-md" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-dark/10 z-10 p-5 sm:p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-display text-lg font-bold text-dark">Upload Ready-Made Proposal</h2>
-            <p className="text-xs text-slateText mt-0.5">{projectName}</p>
-          </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-slateText hover:text-dark hover:bg-dark/5">
-            <X className="w-4 h-4" />
-          </button>
+    <Modal isOpen={isOpen} onClose={onClose} title="Upload Ready-Made Proposal" subtitle={projectName} maxWidth="md">
+      {errorMsg && (
+        <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+          {errorMsg}
         </div>
+      )}
 
-        {errorMsg && (
-          <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
-            {errorMsg}
-          </div>
-        )}
+      <Input label="Title" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., CRM Standard Estimate" />
 
-        <div>
-          <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">Title *</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g., CRM Standard Estimate"
-            className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
-          />
-        </div>
-
-        <div>
-          <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">PDF File *</label>
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full py-6 border-2 border-dashed border-dark/20 hover:border-dark/40 rounded-xl text-xs font-bold text-slateText hover:text-dark hover:bg-dark/5 transition-all flex flex-col items-center justify-center gap-1.5"
-          >
-            <Upload className="w-5 h-5" />
-            {file ? file.name : 'Click to choose a PDF'}
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="application/pdf"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="hidden"
-          />
-        </div>
-
-        <p className="text-[10px] text-slateText">
-          This PDF is sent to leads exactly as uploaded — no content generation needed.
-        </p>
-
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-dark/20 text-dark font-bold text-xs hover:bg-dark/5"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleUpload}
-            disabled={uploading}
-            className="px-5 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md disabled:opacity-50 flex items-center gap-1.5"
-          >
-            {uploading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            {uploading ? 'Uploading' : 'Upload'}
-          </button>
-        </div>
+      <div>
+        <label className="block text-xs font-bold text-dark mb-1.5">
+          PDF File<span className="text-rose-500 ml-0.5">*</span>
+        </label>
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="focus-ring w-full py-6 border-2 border-dashed border-dark/20 hover:border-dark/40 rounded-xl text-xs font-bold text-slateText hover:text-dark hover:bg-dark/5 transition-all flex flex-col items-center justify-center gap-1.5"
+        >
+          <Upload className="w-5 h-5" />
+          {file ? file.name : 'Click to choose a PDF'}
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/pdf"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          className="hidden"
+        />
       </div>
-    </div>
+
+      <p className="text-[10px] text-mutedOnLight">
+        This PDF is sent to leads exactly as uploaded — no content generation needed.
+      </p>
+
+      <div className="flex items-center justify-end gap-3 pt-2">
+        <Button type="button" variant="ghost" size="sm" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button type="button" variant="lime" size="sm" onClick={handleUpload} disabled={uploading} className="gap-1.5">
+          {uploading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+          {uploading ? 'Uploading' : 'Upload'}
+        </Button>
+      </div>
+    </Modal>
   );
 };
 
@@ -157,9 +133,41 @@ const PdfViewerModal: React.FC<{
   title: string;
   templateId: string;
 }> = ({ isOpen, onClose, title, templateId }) => {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setBlobUrl(null);
+    setLoadError(false);
+
+    const token = localStorage.getItem('adminToken') || '';
+    let cancelled = false;
+    let objectUrl: string | null = null;
+
+    fetch(getApiUrl(`/proposals/templates/${templateId}/pdf`), {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load PDF.');
+        return res.blob();
+      })
+      .then((blob) => {
+        if (cancelled) return;
+        objectUrl = URL.createObjectURL(blob);
+        setBlobUrl(objectUrl);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      });
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [isOpen, templateId]);
+
   if (!isOpen) return null;
-  const token = localStorage.getItem('adminToken') || '';
-  const src = getApiUrl(`/proposals/templates/${templateId}/pdf?token=${encodeURIComponent(token)}`);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
@@ -167,11 +175,21 @@ const PdfViewerModal: React.FC<{
       <div className="relative w-full max-w-4xl h-[90vh] bg-white rounded-3xl shadow-2xl border border-dark/10 z-10 flex flex-col overflow-hidden">
         <div className="flex items-center justify-between p-4 bg-dark text-white shrink-0">
           <h2 className="font-display text-sm font-bold truncate pr-4">{title}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 shrink-0">
+          <button onClick={onClose} aria-label="Close" className="focus-ring-inverse p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 shrink-0">
             <X className="w-4 h-4" />
           </button>
         </div>
-        <iframe title={title} src={src} className="flex-1 w-full bg-background" />
+        {loadError ? (
+          <div className="flex-1 flex items-center justify-center text-sm text-rose-600 font-semibold">
+            Couldn't load this PDF.
+          </div>
+        ) : blobUrl ? (
+          <iframe title={title} src={blobUrl} className="flex-1 w-full bg-background" />
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-sm text-slateText">
+            Loading PDF…
+          </div>
+        )}
       </div>
     </div>
   );
@@ -190,18 +208,24 @@ export const ProposalProjectDetailPage: React.FC = () => {
   const [editingTemplate, setEditingTemplate] = useState<ProposalTemplateData | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [viewingTemplate, setViewingTemplate] = useState<ProposalTemplateData | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const fetchProject = async () => {
     if (!id) return;
     setLoading(true);
+    setLoadError(false);
     try {
       const res = await apiFetch('/proposals/projects');
       if (res.success) {
         const found = res.data.find((p: ProposalProjectItem) => p._id === id) || null;
         setProject(found);
+      } else {
+        setLoadError(true);
       }
     } catch (err) {
-      console.error('Failed to load proposal project:', err);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -213,8 +237,9 @@ export const ProposalProjectDetailPage: React.FC = () => {
     try {
       const res = await apiFetch(`/proposals/templates?proposalProjectId=${id}`);
       if (res.success) setTemplates(res.data);
+      else setErrorMsg('Failed to load templates.');
     } catch (err) {
-      console.error('Failed to load proposal templates:', err);
+      setErrorMsg('Failed to load templates. Please refresh and try again.');
     } finally {
       setTemplatesLoading(false);
     }
@@ -226,19 +251,35 @@ export const ProposalProjectDetailPage: React.FC = () => {
   }, [id]);
 
   const handleDeleteTemplate = async (templateId: string) => {
-    if (!window.confirm('Delete this proposal template?')) return;
     try {
       const res = await apiFetch(`/proposals/templates/${templateId}`, { method: 'DELETE' });
       if (res.success) fetchTemplates();
+      else setErrorMsg(res.error || res.message || 'Failed to delete template.');
     } catch (err) {
-      console.error('Failed to delete proposal template:', err);
+      setErrorMsg('Failed to delete template. Please try again.');
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
   if (loading) {
     return (
       <div className="h-full min-h-0 flex items-center justify-center">
-        <p className="text-xs text-slateText">Loading proposal project...</p>
+        <Spinner.Inline className="w-5 h-5 text-slateText" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="h-full min-h-0 flex flex-col items-center justify-center gap-3">
+        <p className="text-xs text-slateText font-semibold">Couldn't load this proposal project.</p>
+        <button
+          onClick={fetchProject}
+          className="focus-ring px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -249,7 +290,7 @@ export const ProposalProjectDetailPage: React.FC = () => {
         <p className="text-xs text-slateText font-semibold">Proposal project not found.</p>
         <button
           onClick={() => navigate('/dashboard/proposals')}
-          className="px-4 py-2 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
+          className="focus-ring px-4 py-2 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Proposals
         </button>
@@ -294,6 +335,15 @@ export const ProposalProjectDetailPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {errorMsg && (
+        <div className="shrink-0 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center justify-between gap-3">
+          {errorMsg}
+          <button onClick={() => setErrorMsg('')} className="focus-ring shrink-0 font-bold hover:underline">
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Templates */}
       <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar pb-2">
@@ -350,7 +400,7 @@ export const ProposalProjectDetailPage: React.FC = () => {
                         </button>
                       )}
                       <button
-                        onClick={() => t._id && handleDeleteTemplate(t._id)}
+                        onClick={() => t._id && setDeleteTarget(t._id)}
                         className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[10px] flex items-center justify-center"
                       >
                         <Trash2 className="w-3 h-3" />
@@ -385,6 +435,15 @@ export const ProposalProjectDetailPage: React.FC = () => {
         onClose={() => setViewingTemplate(null)}
         title={viewingTemplate?.title || ''}
         templateId={viewingTemplate?._id || ''}
+      />
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => deleteTarget && handleDeleteTemplate(deleteTarget)}
+        title="Delete proposal template?"
+        confirmLabel="Delete"
+        destructive
       />
     </div>
   );

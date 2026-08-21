@@ -2,10 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { SEOHead } from '../components/seo/SEOHead';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { FeaturedProjectsSection, ProjectItem } from '../components/ui/FeaturedProjectsSection';
+import { FilterPill } from '../components/ui/FilterPill';
+import { Spinner } from '../components/ui/Spinner';
 import { apiFetch } from '../services/api';
 
 export const ProjectsPage: React.FC = () => {
   const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   useEffect(() => {
@@ -15,7 +18,8 @@ export const ProjectsPage: React.FC = () => {
           setProjects(data.data);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const categories = ['All', 'Enterprise', 'AI', 'Mobile', 'Cloud', 'UI/UX'];
@@ -27,7 +31,7 @@ export const ProjectsPage: React.FC = () => {
 
   return (
     <div className="pt-32 max-w-7xl mx-auto px-6 space-y-12">
-      <SEOHead title="Featured Projects | Build Your Thoughts" />
+      <SEOHead title="Featured Projects | Build Your Thoughts" canonical="https://buildyourthoughts.com/projects" />
 
       <SectionHeader
         badge="Portfolio"
@@ -38,26 +42,26 @@ export const ProjectsPage: React.FC = () => {
       {/* Category Filter Pills */}
       <div className="flex justify-center gap-3 flex-wrap">
         {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
-              selectedCategory === cat
-                ? 'bg-dark text-primary shadow-soft'
-                : 'bg-white text-dark border border-dark/10 hover:bg-primary/20'
-            }`}
-          >
+          <FilterPill key={cat} active={selectedCategory === cat} onClick={() => setSelectedCategory(cat)}>
             {cat}
-          </button>
+          </FilterPill>
         ))}
       </div>
 
       {/* Projects Showcase using FeaturedProjectsSection for Mobile Card Stacking & Desktop Card Grid */}
-      <FeaturedProjectsSection
-        projects={filteredProjects.length > 0 ? filteredProjects : undefined}
-        showHeadings={false}
-        showViewAllBtn={false}
-      />
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Spinner.CardSkeleton key={i} />
+          ))}
+        </div>
+      ) : (
+        <FeaturedProjectsSection
+          projects={filteredProjects.length > 0 ? filteredProjects : undefined}
+          showHeadings={false}
+          showViewAllBtn={false}
+        />
+      )}
     </div>
   );
 };

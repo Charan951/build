@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useSocket } from '../../hooks/useSocket';
 import { apiFetch } from '../../services/api';
+import { formatMoney } from '../../utils/format';
 
 const GREETINGS = ['Good morning', 'Good afternoon', 'Good evening'];
 
@@ -26,23 +27,29 @@ export const AdminDashboardPage: React.FC = () => {
   const [stats, setStats] = useState({ projects: 0, leads: 0, clients: 0, revenue: 0 });
   const [liveNotification, setLiveNotification] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [statsError, setStatsError] = useState(false);
   const navigate = useNavigate();
 
   const token = localStorage.getItem('adminToken');
   const { subscribe, isConnected } = useSocket({ token });
 
-  useEffect(() => {
+  const fetchStats = () => {
     if (!token) {
       navigate('/login');
       return;
     }
 
+    setLoading(true);
+    setStatsError(false);
     Promise.all([
       apiFetch('/projects'),
       apiFetch('/leads', { token }),
       apiFetch('/crm/analytics', { token }).catch(() => ({ success: false })),
     ])
       .then(([proj, ld, analytics]) => {
+        if (!analytics.success) {
+          setStatsError(true);
+        }
         setStats({
           projects: proj.count || 0,
           leads: ld.count || 0,
@@ -50,8 +57,13 @@ export const AdminDashboardPage: React.FC = () => {
           revenue: analytics.success ? analytics.data.totalRevenue || 0 : 0,
         });
       })
-      .catch(() => {})
+      .catch(() => setStatsError(true))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, navigate]);
 
   useEffect(() => {
@@ -68,7 +80,7 @@ export const AdminDashboardPage: React.FC = () => {
     { label: 'Clients', value: stats.clients, icon: Users, to: '/dashboard/clients', accent: 'text-dark' },
     {
       label: 'Revenue Collected',
-      value: `₹${stats.revenue.toLocaleString('en-IN')}`,
+      value: formatMoney(stats.revenue),
       icon: IndianRupee,
       to: '/dashboard/invoices',
       accent: 'text-emerald-600',
@@ -82,7 +94,11 @@ export const AdminDashboardPage: React.FC = () => {
 
       {/* Live Socket Toast */}
       {liveNotification && (
-        <div className="fixed top-20 right-6 z-50 max-w-sm p-4 rounded-2xl bg-dark text-white flex items-start gap-3 shadow-2xl animate-in fade-in slide-in-from-top-2">
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed top-20 right-6 z-50 max-w-sm p-4 rounded-2xl bg-dark text-white flex items-start gap-3 shadow-2xl animate-in fade-in slide-in-from-top-2"
+        >
           <Bell className="w-4.5 h-4.5 text-primary shrink-0 mt-0.5" />
           <p className="text-xs font-semibold leading-relaxed">{liveNotification}</p>
         </div>
@@ -110,6 +126,13 @@ export const AdminDashboardPage: React.FC = () => {
           <Plus className="w-3.5 h-3.5" /> Add Lead
         </Link>
       </div>
+
+      {statsError && (
+        <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+          Some stats failed to load, so the numbers below may be incomplete.
+          <button onClick={fetchStats} className="focus-ring underline shrink-0">Retry</button>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

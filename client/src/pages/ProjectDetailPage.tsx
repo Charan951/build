@@ -4,37 +4,64 @@ import { SEOHead } from '../components/seo/SEOHead';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-import { ArrowLeft, CheckCircle2, Quote } from 'lucide-react';
+import { StatTile } from '../components/ui/StatTile';
+import { Spinner } from '../components/ui/Spinner';
+import { EmptyState } from '../components/ui/EmptyState';
+import { ArrowLeft, FolderX, Quote } from 'lucide-react';
 import { apiFetch } from '../services/api';
 
 export const ProjectDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [project, setProject] = useState<any>(null);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'notfound'>('loading');
 
   useEffect(() => {
-    if (slug) {
-      apiFetch(`/projects/${slug}`)
-        .then((data) => {
-          if (data.success) setProject(data.data);
-        })
-        .catch(() => {});
-    }
+    if (!slug) return;
+    setStatus('loading');
+    apiFetch(`/projects/${slug}`)
+      .then((data) => {
+        if (data.success && data.data) {
+          setProject(data.data);
+          setStatus('ready');
+        } else {
+          setStatus('notfound');
+        }
+      })
+      .catch(() => setStatus('notfound'));
   }, [slug]);
 
-  if (!project) {
+  if (status === 'loading') {
     return (
-      <div className="pt-36 text-center max-w-4xl mx-auto px-6">
-        <p className="text-xl font-bold text-dark mb-4">Loading Case Study...</p>
-        <Link to="/projects">
-          <Button variant="secondary">Back to Projects</Button>
-        </Link>
+      <div className="pt-36 max-w-4xl mx-auto px-6">
+        <Spinner.Skeleton lines={6} />
+      </div>
+    );
+  }
+
+  if (status === 'notfound' || !project) {
+    return (
+      <div className="pt-36 max-w-2xl mx-auto px-6">
+        <EmptyState
+          icon={FolderX}
+          title="Case study not found"
+          description="This project may have been moved or is no longer available."
+          action={
+            <Link to="/projects">
+              <Button variant="secondary">Back to Projects</Button>
+            </Link>
+          }
+        />
       </div>
     );
   }
 
   return (
     <div className="pt-32 max-w-6xl mx-auto px-6 space-y-16">
-      <SEOHead title={`${project.title} | Project Detail`} description={project.summary} />
+      <SEOHead
+        title={`${project.title} | Project Detail`}
+        description={project.summary}
+        canonical={`https://buildyourthoughts.com/projects/${slug}`}
+      />
 
       <Link to="/projects" className="inline-flex items-center gap-2 font-bold text-dark hover:text-primary transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to Projects
@@ -56,13 +83,16 @@ export const ProjectDetailPage: React.FC = () => {
 
       {/* Metrics Banner */}
       {project.impactMetrics && project.impactMetrics.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-dark text-white p-8 rounded-card border border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-dark p-8 rounded-card border border-white/10">
           {project.impactMetrics.map((m: any, i: number) => (
-            <div key={i} className="text-center space-y-1">
-              <span className="text-sm font-bold text-gray-400 uppercase tracking-widest block">{m.label}</span>
-              <span className="font-display text-4xl font-bold text-primary block">{m.value}</span>
-              {m.description && <span className="text-xs text-gray-400">{m.description}</span>}
-            </div>
+            <StatTile
+              key={i}
+              surface="onDark"
+              value={m.value}
+              label={m.label}
+              description={m.description}
+              className="!bg-transparent !border-0 !p-0"
+            />
           ))}
         </div>
       )}

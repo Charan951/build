@@ -2,10 +2,9 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChevronLeft,
+  ChevronRight,
   Plus,
   Minus,
-  ChevronDown,
-  ChevronUp,
   Undo2,
   Redo2,
   Trash2,
@@ -22,6 +21,7 @@ import {
   Settings2,
 } from 'lucide-react';
 import { apiFetch, getApiUrl } from '../../services/api';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
 export const PAGE_W = 794;
 export const PAGE_H = 1123;
@@ -378,11 +378,17 @@ export const QuotationEditorPage: React.FC = () => {
     setPageIndex(pages.length);
   };
 
-  const deletePage = () => {
+  const [confirmDeletePage, setConfirmDeletePage] = useState(false);
+
+  const requestDeletePage = () => {
     if (pages.length <= 1) return;
-    if (!window.confirm('Delete this page?')) return;
+    setConfirmDeletePage(true);
+  };
+
+  const deletePage = () => {
     commitPages((prev) => prev.filter((_, idx) => idx !== pageIndex));
     setPageIndex((idx) => Math.max(0, idx - 1));
+    setConfirmDeletePage(false);
   };
 
   // --- Drag & resize ---
@@ -472,16 +478,17 @@ export const QuotationEditorPage: React.FC = () => {
       <div className="shrink-0 h-14 bg-white border-b border-dark/10 flex items-center gap-3 px-4">
         <button
           onClick={() => navigate(`/dashboard/client-projects/${projectId}`)}
-          className="flex items-center gap-1 text-xs font-bold text-slateText hover:text-dark"
+          className="focus-ring flex items-center gap-1 text-xs font-bold text-slateText hover:text-dark rounded"
         >
           <ChevronLeft className="w-4 h-4" /> Back to Project
         </button>
         <input
           value={meta.documentTitle}
           onChange={(e) => setMeta({ ...meta, documentTitle: e.target.value })}
-          className="font-display text-sm font-bold text-dark bg-transparent border-none focus:outline-none focus:bg-background rounded px-1.5 py-0.5 min-w-[160px]"
+          aria-label="Document title"
+          className="focus-ring font-display text-sm font-bold text-dark bg-transparent border-none focus:outline-none focus:bg-background rounded px-1.5 py-0.5 min-w-[160px]"
         />
-        <span className="text-[10px] font-bold text-slateText/70">
+        <span role="status" aria-live="polite" className="text-[10px] font-bold text-slateText/70">
           {saveState === 'saving' ? 'Saving...' : saveState === 'saved' ? 'Saved ✓' : ''}
         </span>
         <span className="px-2 py-0.5 rounded-full bg-background border border-dark/10 text-[9px] font-bold uppercase text-slateText">
@@ -494,7 +501,7 @@ export const QuotationEditorPage: React.FC = () => {
           href={downloadUrl}
           target="_blank"
           rel="noreferrer"
-          className="px-3 py-1.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
+          className="focus-ring px-3 py-1.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
         >
           <Download className="w-3.5 h-3.5" /> Download
         </a>
@@ -506,32 +513,47 @@ export const QuotationEditorPage: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setAddMenuOpen((v) => !v)}
-              className="w-10 h-10 rounded-xl bg-primary hover:bg-[#bce63b] text-dark flex items-center justify-center shadow-sm"
+              aria-label="Add element"
+              aria-expanded={addMenuOpen}
+              aria-haspopup="menu"
+              className="focus-ring w-10 h-10 rounded-xl bg-primary hover:bg-[#bce63b] text-dark flex items-center justify-center shadow-sm"
               title="Add element"
             >
               <Plus className="w-5 h-5" />
             </button>
             {addMenuOpen && (
-              <div className="absolute left-12 top-0 w-40 bg-white rounded-xl shadow-2xl border border-dark/10 py-1.5 z-50">
+              <div role="menu" className="absolute left-12 top-0 w-40 bg-white rounded-xl shadow-2xl border border-dark/10 py-1.5 z-50">
                 <button
+                  role="menuitem"
                   onClick={() => addElement('text')}
-                  className="w-full px-3 py-2 text-left text-xs font-bold text-dark hover:bg-lime-50 flex items-center gap-2"
+                  className="focus-ring w-full px-3 py-2 text-left text-xs font-bold text-dark hover:bg-lime-50 flex items-center gap-2"
                 >
                   <Type className="w-3.5 h-3.5" /> Text
                 </button>
                 <button
+                  role="menuitem"
                   onClick={() => addElement('table')}
-                  className="w-full px-3 py-2 text-left text-xs font-bold text-dark hover:bg-lime-50 flex items-center gap-2"
+                  className="focus-ring w-full px-3 py-2 text-left text-xs font-bold text-dark hover:bg-lime-50 flex items-center gap-2"
                 >
                   <TableIcon className="w-3.5 h-3.5" /> Table
                 </button>
               </div>
             )}
           </div>
-          <button onClick={undo} className="w-10 h-10 rounded-xl hover:bg-dark/5 text-dark flex items-center justify-center" title="Undo (Ctrl+Z)">
+          <button
+            onClick={undo}
+            aria-label="Undo"
+            className="focus-ring w-10 h-10 rounded-xl hover:bg-dark/5 text-dark flex items-center justify-center"
+            title="Undo (Ctrl+Z)"
+          >
             <Undo2 className="w-4 h-4" />
           </button>
-          <button onClick={redo} className="w-10 h-10 rounded-xl hover:bg-dark/5 text-dark flex items-center justify-center" title="Redo (Ctrl+Y)">
+          <button
+            onClick={redo}
+            aria-label="Redo"
+            className="focus-ring w-10 h-10 rounded-xl hover:bg-dark/5 text-dark flex items-center justify-center"
+            title="Redo (Ctrl+Y)"
+          >
             <Redo2 className="w-4 h-4" />
           </button>
         </div>
@@ -626,18 +648,22 @@ export const QuotationEditorPage: React.FC = () => {
 
         {/* Right panel */}
         <div className="w-72 shrink-0 bg-white border-l border-dark/10 flex flex-col">
-          <div className="flex items-center border-b border-dark/10 shrink-0">
+          <div role="tablist" aria-label="Editor panel" className="flex items-center border-b border-dark/10 shrink-0">
             <button
+              role="tab"
+              aria-selected={rightTab === 'design'}
               onClick={() => setRightTab('design')}
-              className={`flex-1 py-3 text-xs font-bold flex items-center justify-center gap-1.5 ${
+              className={`focus-ring flex-1 py-3 text-xs font-bold flex items-center justify-center gap-1.5 ${
                 rightTab === 'design' ? 'text-dark border-b-2 border-primary' : 'text-slateText'
               }`}
             >
               <Layers className="w-3.5 h-3.5" /> Design
             </button>
             <button
+              role="tab"
+              aria-selected={rightTab === 'details'}
               onClick={() => setRightTab('details')}
-              className={`flex-1 py-3 text-xs font-bold flex items-center justify-center gap-1.5 ${
+              className={`focus-ring flex-1 py-3 text-xs font-bold flex items-center justify-center gap-1.5 ${
                 rightTab === 'details' ? 'text-dark border-b-2 border-primary' : 'text-slateText'
               }`}
             >
@@ -654,12 +680,15 @@ export const QuotationEditorPage: React.FC = () => {
                     type="color"
                     value={meta.accentColor}
                     onChange={(e) => setMeta({ ...meta, accentColor: e.target.value })}
-                    className="w-9 h-9 rounded-lg border border-dark/10 cursor-pointer"
+                    aria-label="Accent color"
+                    title="Accent color"
+                    className="focus-ring w-9 h-9 rounded-lg border border-dark/10 cursor-pointer"
                   />
                   <select
                     value={meta.fontFamily}
                     onChange={(e) => setMeta({ ...meta, fontFamily: e.target.value })}
-                    className="flex-1 px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                    aria-label="Font family"
+                    className="focus-ring flex-1 px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
                   >
                     {FONT_OPTIONS.map((f) => (
                       <option key={f} value={f}>
@@ -683,57 +712,73 @@ export const QuotationEditorPage: React.FC = () => {
                     type="number"
                     value={selectedElement.fontSize}
                     onChange={(e) => updateElement(selectedElement.id, { fontSize: Number(e.target.value) })}
-                    className="w-16 px-2 py-1.5 bg-background border border-dark/10 rounded-lg text-xs"
+                    aria-label="Font size"
+                    title="Font size"
+                    className="focus-ring w-16 px-2 py-1.5 bg-background border border-dark/10 rounded-lg text-xs"
                   />
                   <input
                     type="color"
                     value={selectedElement.color}
                     onChange={(e) => updateElement(selectedElement.id, { color: e.target.value })}
-                    className="w-9 h-9 rounded-lg border border-dark/10 cursor-pointer"
+                    aria-label="Text color"
+                    title="Text color"
+                    className="focus-ring w-9 h-9 rounded-lg border border-dark/10 cursor-pointer"
                   />
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => updateElement(selectedElement.id, { bold: !selectedElement.bold })}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedElement.bold ? 'bg-primary text-dark' : 'bg-background text-slateText'}`}
+                    aria-label="Bold"
+                    aria-pressed={!!selectedElement.bold}
+                    className={`focus-ring w-8 h-8 rounded-lg flex items-center justify-center ${selectedElement.bold ? 'bg-primary text-dark' : 'bg-background text-slateText'}`}
                   >
                     <Bold className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => updateElement(selectedElement.id, { italic: !selectedElement.italic })}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedElement.italic ? 'bg-primary text-dark' : 'bg-background text-slateText'}`}
+                    aria-label="Italic"
+                    aria-pressed={!!selectedElement.italic}
+                    className={`focus-ring w-8 h-8 rounded-lg flex items-center justify-center ${selectedElement.italic ? 'bg-primary text-dark' : 'bg-background text-slateText'}`}
                   >
                     <Italic className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => updateElement(selectedElement.id, { underline: !selectedElement.underline })}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedElement.underline ? 'bg-primary text-dark' : 'bg-background text-slateText'}`}
+                    aria-label="Underline"
+                    aria-pressed={!!selectedElement.underline}
+                    className={`focus-ring w-8 h-8 rounded-lg flex items-center justify-center ${selectedElement.underline ? 'bg-primary text-dark' : 'bg-background text-slateText'}`}
                   >
                     <Underline className="w-3.5 h-3.5" />
                   </button>
                   <div className="w-px h-6 bg-dark/10 mx-1" />
                   <button
                     onClick={() => updateElement(selectedElement.id, { align: 'left' })}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedElement.align === 'left' ? 'bg-primary text-dark' : 'bg-background text-slateText'}`}
+                    aria-label="Align left"
+                    aria-pressed={selectedElement.align === 'left'}
+                    className={`focus-ring w-8 h-8 rounded-lg flex items-center justify-center ${selectedElement.align === 'left' ? 'bg-primary text-dark' : 'bg-background text-slateText'}`}
                   >
                     <AlignLeft className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => updateElement(selectedElement.id, { align: 'center' })}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedElement.align === 'center' ? 'bg-primary text-dark' : 'bg-background text-slateText'}`}
+                    aria-label="Align center"
+                    aria-pressed={selectedElement.align === 'center'}
+                    className={`focus-ring w-8 h-8 rounded-lg flex items-center justify-center ${selectedElement.align === 'center' ? 'bg-primary text-dark' : 'bg-background text-slateText'}`}
                   >
                     <AlignCenter className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => updateElement(selectedElement.id, { align: 'right' })}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedElement.align === 'right' ? 'bg-primary text-dark' : 'bg-background text-slateText'}`}
+                    aria-label="Align right"
+                    aria-pressed={selectedElement.align === 'right'}
+                    className={`focus-ring w-8 h-8 rounded-lg flex items-center justify-center ${selectedElement.align === 'right' ? 'bg-primary text-dark' : 'bg-background text-slateText'}`}
                   >
                     <AlignRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
                 <button
                   onClick={() => deleteElement(selectedElement.id)}
-                  className="w-full mt-2 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center gap-1.5"
+                  className="focus-ring w-full mt-2 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center gap-1.5"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete element
                 </button>
@@ -749,7 +794,7 @@ export const QuotationEditorPage: React.FC = () => {
                       rows: [...(selectedElement.rows || []), (selectedElement.rows?.[0] || ['']).map(() => '')],
                     })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-background border border-dark/10 text-dark font-bold text-xs"
+                  className="focus-ring w-full px-3 py-2 rounded-xl bg-background border border-dark/10 text-dark font-bold text-xs"
                 >
                   + Add row
                 </button>
@@ -759,13 +804,13 @@ export const QuotationEditorPage: React.FC = () => {
                       rows: (selectedElement.rows || []).map((r) => [...r, '']),
                     })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-background border border-dark/10 text-dark font-bold text-xs"
+                  className="focus-ring w-full px-3 py-2 rounded-xl bg-background border border-dark/10 text-dark font-bold text-xs"
                 >
                   + Add column
                 </button>
                 <button
                   onClick={() => deleteElement(selectedElement.id)}
-                  className="w-full mt-2 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center gap-1.5"
+                  className="focus-ring w-full mt-2 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center gap-1.5"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete table
                 </button>
@@ -779,7 +824,7 @@ export const QuotationEditorPage: React.FC = () => {
                   <input
                     value={meta.agencyName}
                     onChange={(e) => setMeta({ ...meta, agencyName: e.target.value })}
-                    className="w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
                   />
                 </div>
                 <div>
@@ -787,7 +832,7 @@ export const QuotationEditorPage: React.FC = () => {
                   <input
                     value={meta.preparedByName}
                     onChange={(e) => setMeta({ ...meta, preparedByName: e.target.value })}
-                    className="w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
                   />
                 </div>
                 <div>
@@ -795,7 +840,7 @@ export const QuotationEditorPage: React.FC = () => {
                   <input
                     value={meta.clientName}
                     onChange={(e) => setMeta({ ...meta, clientName: e.target.value })}
-                    className="w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
                   />
                 </div>
                 <div>
@@ -803,7 +848,7 @@ export const QuotationEditorPage: React.FC = () => {
                   <input
                     value={meta.clientEmail}
                     onChange={(e) => setMeta({ ...meta, clientEmail: e.target.value })}
-                    className="w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
                   />
                 </div>
                 <div>
@@ -812,7 +857,7 @@ export const QuotationEditorPage: React.FC = () => {
                     type="date"
                     value={meta.validUntil}
                     onChange={(e) => setMeta({ ...meta, validUntil: e.target.value })}
-                    className="w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
                   />
                 </div>
                 <div>
@@ -820,7 +865,7 @@ export const QuotationEditorPage: React.FC = () => {
                   <select
                     value={meta.status}
                     onChange={(e) => setMeta({ ...meta, status: e.target.value })}
-                    className="w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
                   >
                     <option value="draft">Draft</option>
                     <option value="sent">Sent</option>
@@ -853,36 +898,60 @@ export const QuotationEditorPage: React.FC = () => {
       {/* Bottom page/zoom bar */}
       <div className="shrink-0 h-11 bg-white border-t border-dark/10 flex items-center justify-between px-4 text-xs">
         <div className="flex items-center gap-2">
-          <button onClick={() => setPageIndex((i) => Math.max(0, i - 1))} className="p-1 rounded hover:bg-dark/5 text-dark">
-            <ChevronUp className="w-3.5 h-3.5 -rotate-90" />
+          <button
+            onClick={() => setPageIndex((i) => Math.max(0, i - 1))}
+            disabled={pageIndex === 0}
+            aria-label="Previous page"
+            className="focus-ring p-1 rounded hover:bg-dark/5 text-dark disabled:opacity-30 disabled:hover:bg-transparent"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
           </button>
           <span className="font-bold text-dark">
             Page {pageIndex + 1}/{pages.length}
           </span>
           <button
             onClick={() => setPageIndex((i) => Math.min(pages.length - 1, i + 1))}
-            className="p-1 rounded hover:bg-dark/5 text-dark"
+            disabled={pageIndex === pages.length - 1}
+            aria-label="Next page"
+            className="focus-ring p-1 rounded hover:bg-dark/5 text-dark disabled:opacity-30 disabled:hover:bg-transparent"
           >
-            <ChevronDown className="w-3.5 h-3.5 -rotate-90" />
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
-          <button onClick={addPage} className="ml-2 px-2 py-1 rounded-lg bg-background border border-dark/10 font-bold text-dark">
+          <button onClick={addPage} className="focus-ring ml-2 px-2 py-1 rounded-lg bg-background border border-dark/10 font-bold text-dark">
             + Page
           </button>
-          <button onClick={deletePage} className="px-2 py-1 rounded-lg bg-background border border-dark/10 font-bold text-rose-600">
+          <button onClick={requestDeletePage} className="focus-ring px-2 py-1 rounded-lg bg-background border border-dark/10 font-bold text-rose-600">
             Delete Page
           </button>
         </div>
 
         <div className="flex items-center gap-2">
-          <button onClick={() => setZoom((z) => Math.max(25, z - 10))} className="p-1 rounded hover:bg-dark/5 text-dark">
+          <button
+            onClick={() => setZoom((z) => Math.max(25, z - 10))}
+            aria-label="Zoom out"
+            className="focus-ring p-1 rounded hover:bg-dark/5 text-dark"
+          >
             <Minus className="w-3.5 h-3.5" />
           </button>
           <span className="font-bold text-dark w-10 text-center">{zoom}%</span>
-          <button onClick={() => setZoom((z) => Math.min(200, z + 10))} className="p-1 rounded hover:bg-dark/5 text-dark">
+          <button
+            onClick={() => setZoom((z) => Math.min(200, z + 10))}
+            aria-label="Zoom in"
+            className="focus-ring p-1 rounded hover:bg-dark/5 text-dark"
+          >
             <Plus className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmDeletePage}
+        onClose={() => setConfirmDeletePage(false)}
+        onConfirm={deletePage}
+        title="Delete this page?"
+        confirmLabel="Delete"
+        destructive
+      />
     </div>
   );
 };

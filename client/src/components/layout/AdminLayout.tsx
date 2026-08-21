@@ -18,7 +18,7 @@ import {
   Settings as SettingsIcon,
   LogOut,
   Menu,
-  X,
+  PanelLeftClose,
   ChevronDown,
   ExternalLink,
 } from 'lucide-react';
@@ -181,7 +181,7 @@ export const AdminLayout: React.FC = () => {
         </div>
 
         <nav className="flex-1 overflow-y-auto no-scrollbar py-4 px-3 space-y-1">
-          <NavLink to="/dashboard" end className={navLinkClass} onClick={closeOnMobile}>
+          <NavLink to="/dashboard" end className={navLinkClass} onClick={closeOnMobile} title={sidebarOpen ? undefined : 'Dashboard'}>
             <LayoutDashboard className="w-4.5 h-4.5 shrink-0" />
             <span
               className={`overflow-hidden whitespace-nowrap transition-opacity duration-150 ${
@@ -199,6 +199,7 @@ export const AdminLayout: React.FC = () => {
               <div key={group.label} className="pt-1">
                 <button
                   onClick={() => (sidebarOpen ? toggleGroup(group.label) : setSidebarOpen(true))}
+                  title={sidebarOpen ? undefined : group.label}
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide text-gray-500 hover:text-dark hover:bg-black/5 transition-colors"
                 >
                   <GroupIcon className="w-4.5 h-4.5 shrink-0" />
@@ -248,6 +249,7 @@ export const AdminLayout: React.FC = () => {
             href="/portal"
             target="_blank"
             rel="noreferrer"
+            title={sidebarOpen ? undefined : 'Client Portal'}
             className="flex items-center gap-3 px-3 py-2.5 mt-2 rounded-xl text-sm font-medium text-lime-600 hover:bg-black/5 transition-colors"
           >
             <ExternalLink className="w-4.5 h-4.5 shrink-0" />
@@ -258,6 +260,7 @@ export const AdminLayout: React.FC = () => {
         <div className="border-t border-black/10 p-3 shrink-0">
           <button
             onClick={handleLogout}
+            title={sidebarOpen ? undefined : 'Logout'}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-rose-500/10 hover:text-rose-600 transition-colors"
           >
             <LogOut className="w-4.5 h-4.5 shrink-0" />
@@ -274,7 +277,7 @@ export const AdminLayout: React.FC = () => {
             aria-label="Toggle sidebar"
             className="p-2 rounded-lg hover:bg-dark/5 transition-colors text-dark"
           >
-            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {sidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
           <span className="font-display text-base font-bold text-dark">{activeLabel}</span>
         </header>

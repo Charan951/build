@@ -2,8 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
-import { Plus, Pencil, Trash2, FileText, ChevronRight, X, Loader2 } from 'lucide-react';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { Modal } from '../../components/ui/Modal';
+import { Input } from '../../components/ui/FormField';
+import { Button } from '../../components/ui/Button';
+import { Plus, Pencil, Trash2, FileText, ChevronRight, Loader2 } from 'lucide-react';
 import { apiFetch } from '../../services/api';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { Spinner } from '../../components/ui/Spinner';
 
 interface ProposalProjectItem {
   _id: string;
@@ -37,49 +43,27 @@ const NewProjectModal: React.FC<{
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-dark/75 backdrop-blur-md" onClick={onClose} />
-      <div className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-dark/10 z-10 p-5 sm:p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-lg font-bold text-dark">New Proposal Project</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-slateText hover:text-dark hover:bg-dark/5">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+    <Modal isOpen={isOpen} onClose={onClose} title="New Proposal Project" maxWidth="sm">
+      <Input
+        label="Project Name"
+        required
+        autoFocus
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="e.g., HRMS"
+        onKeyDown={(e) => e.key === 'Enter' && submit()}
+      />
 
-        <div>
-          <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">Project Name *</label>
-          <input
-            autoFocus
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="e.g., HRMS"
-            onKeyDown={(e) => e.key === 'Enter' && submit()}
-            className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
-          />
-        </div>
-
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-dark/20 text-dark font-bold text-xs hover:bg-dark/5"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={submit}
-            disabled={creating || !name.trim()}
-            className="px-5 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md disabled:opacity-50 flex items-center gap-1.5"
-          >
-            {creating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            {creating ? 'Creating' : 'Create'}
-          </button>
-        </div>
+      <div className="flex items-center justify-end gap-3 pt-2">
+        <Button type="button" variant="ghost" size="sm" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button type="button" variant="lime" size="sm" onClick={submit} disabled={creating || !name.trim()} className="gap-1.5">
+          {creating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+          {creating ? 'Creating' : 'Create'}
+        </Button>
       </div>
-    </div>
+    </Modal>
   );
 };
 
@@ -87,18 +71,23 @@ export const ManageProposalsPage: React.FC = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<ProposalProjectItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   const fetchProjects = async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const res = await apiFetch('/proposals/projects');
       if (res.success) setProjects(res.data);
+      else setLoadError(true);
     } catch (err) {
-      console.error('Failed to load proposal projects:', err);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -115,13 +104,17 @@ export const ManageProposalsPage: React.FC = () => {
         body: JSON.stringify({ name }),
       });
       if (res.success) fetchProjects();
+      else setErrorMsg(res.error || res.message || 'Failed to create proposal project.');
     } catch (err) {
-      console.error('Failed to create proposal project:', err);
+      setErrorMsg('Failed to create proposal project. Please try again.');
     }
   };
 
   const handleRenameProject = async (id: string) => {
-    if (!renameValue.trim()) return;
+    if (!renameValue.trim()) {
+      setRenamingId(null);
+      return;
+    }
     try {
       const res = await apiFetch(`/proposals/projects/${id}`, {
         method: 'PUT',
@@ -130,19 +123,23 @@ export const ManageProposalsPage: React.FC = () => {
       if (res.success) {
         setRenamingId(null);
         fetchProjects();
+      } else {
+        setErrorMsg(res.error || res.message || 'Failed to rename proposal project.');
       }
     } catch (err) {
-      console.error('Failed to rename proposal project:', err);
+      setErrorMsg('Failed to rename proposal project. Please try again.');
     }
   };
 
   const handleDeleteProject = async (id: string) => {
-    if (!window.confirm('Delete this proposal project and all its templates?')) return;
     try {
       const res = await apiFetch(`/proposals/projects/${id}`, { method: 'DELETE' });
       if (res.success) fetchProjects();
+      else setErrorMsg(res.error || res.message || 'Failed to delete proposal project.');
     } catch (err) {
-      console.error('Failed to delete proposal project:', err);
+      setErrorMsg('Failed to delete proposal project. Please try again.');
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -162,22 +159,50 @@ export const ManageProposalsPage: React.FC = () => {
           </div>
           <button
             onClick={() => setIsNewProjectOpen(true)}
-            className="px-4 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5 shrink-0 self-start sm:self-auto"
+            className="focus-ring px-4 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5 shrink-0 self-start sm:self-auto"
           >
             <Plus className="w-3.5 h-3.5" /> New Project
           </button>
         </div>
 
+        {errorMsg && (
+          <div className="shrink-0 mt-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center justify-between gap-3">
+            {errorMsg}
+            <button onClick={() => setErrorMsg('')} className="focus-ring shrink-0 font-bold hover:underline">
+              Dismiss
+            </button>
+          </div>
+        )}
+
         {/* Projects List */}
         <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
           {loading ? (
-            <p className="text-xs text-slateText py-8 text-center">Loading proposal projects...</p>
-          ) : projects.length === 0 ? (
-            <div className="py-12 text-center">
-              <FileText className="w-8 h-8 text-slateText/40 mx-auto mb-2" />
-              <p className="text-xs text-slateText font-semibold">No proposal projects yet.</p>
-              <p className="text-[10px] text-slateText/70 mt-1">Create one above to start building templates.</p>
+            <div className="py-4 space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Spinner.Skeleton key={i} lines={2} />
+              ))}
             </div>
+          ) : loadError ? (
+            <EmptyState
+              icon={FileText}
+              title="Couldn't load proposal projects"
+              description="Check your connection and try again."
+              action={
+                <button
+                  onClick={fetchProjects}
+                  className="focus-ring px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+                >
+                  Retry
+                </button>
+              }
+              className="border-rose-200 bg-rose-50/40"
+            />
+          ) : projects.length === 0 ? (
+            <EmptyState
+              icon={FileText}
+              title="No proposal projects yet"
+              description="Create one above to start building templates."
+            />
           ) : (
             <div className="divide-y divide-dark/5">
               {projects.map((p) => (
@@ -210,14 +235,15 @@ export const ManageProposalsPage: React.FC = () => {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity shrink-0">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setRenamingId(p._id);
                         setRenameValue(p.name);
                       }}
-                      className="p-1.5 text-slateText hover:text-dark rounded-lg hover:bg-dark/5"
+                      aria-label="Rename"
+                      className="focus-ring p-1.5 text-slateText hover:text-dark rounded-lg hover:bg-dark/5"
                       title="Rename"
                     >
                       <Pencil className="w-3.5 h-3.5" />
@@ -225,9 +251,10 @@ export const ManageProposalsPage: React.FC = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDeleteProject(p._id);
+                        setDeleteTarget(p._id);
                       }}
-                      className="p-1.5 text-slateText hover:text-rose-600 rounded-lg hover:bg-rose-50"
+                      aria-label="Delete"
+                      className="focus-ring p-1.5 text-slateText hover:text-rose-600 rounded-lg hover:bg-rose-50"
                       title="Delete"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -246,6 +273,16 @@ export const ManageProposalsPage: React.FC = () => {
         isOpen={isNewProjectOpen}
         onClose={() => setIsNewProjectOpen(false)}
         onCreate={handleCreateProject}
+      />
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => deleteTarget && handleDeleteProject(deleteTarget)}
+        title="Delete proposal project?"
+        description="This project and all its templates will be permanently removed."
+        confirmLabel="Delete"
+        destructive
       />
     </div>
   );

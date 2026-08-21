@@ -12,6 +12,10 @@ export default {
         slateText: '#737373',
         glassBorder: 'rgba(0,0,0,0.08)',
         glassBg: 'rgba(255,255,255,0.70)',
+        // Semantic muted-text pair (≥4.5:1 contrast) so raw text-gray-400/300
+        // stops being reached for on colored surfaces. See DESIGN.md.
+        mutedOnLight: '#64748B', // slate-500 equivalent, on white/background
+        mutedOnDark: '#9CA3AF',  // gray-400 equivalent, verified ≥4.5:1 on #0F1412
       },
       fontFamily: {
         display: ['Fraunces', 'serif'],
@@ -38,6 +42,11 @@ export default {
         heroCard: '40px',
         form: '18px',
         dialog: '36px',
+        // Operate mode (admin/CRM/client portal) runs a visibly tighter scale
+        // than Persuade's 32-40px — see DESIGN.md "Shapes".
+        operateSm: '8px',
+        operateMd: '12px',
+        operateLg: '16px',
       },
       boxShadow: {
         soft: '0 20px 50px rgba(0,0,0,0.06)',

@@ -6,6 +6,7 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { Plus, Trash2, Edit, Eye, ArrowLeft, Search, RefreshCw, FileText, Calendar } from 'lucide-react';
 
 interface BlogData {
@@ -58,6 +59,7 @@ export const ManageBlogsPage: React.FC = () => {
   const [formData, setFormData] = useState<BlogData>(emptyBlog);
   const [viewBlog, setViewBlog] = useState<any>(null);
   const [tagsInput, setTagsInput] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const token = localStorage.getItem('adminToken');
@@ -174,7 +176,6 @@ export const ManageBlogsPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this blog post?')) return;
     try {
       const data = await apiFetch(`/blogs/${id}`, {
         method: 'DELETE',
@@ -187,6 +188,8 @@ export const ManageBlogsPage: React.FC = () => {
       }
     } catch (err) {
       setErrorMsg('Error deleting blog post.');
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -205,7 +208,7 @@ export const ManageBlogsPage: React.FC = () => {
 
       {/* Navigation */}
       <div className="flex items-center justify-between">
-        <Link to="/dashboard" className="inline-flex items-center gap-2 font-bold text-dark hover:text-primary transition-colors">
+        <Link to="/dashboard" className="focus-ring inline-flex items-center gap-2 font-bold text-dark hover:text-primary transition-colors rounded">
           <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
       </div>
@@ -219,15 +222,15 @@ export const ManageBlogsPage: React.FC = () => {
 
       {/* Messages */}
       {successMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold flex items-center justify-between">
+        <div role="status" className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold flex items-center justify-between">
           <span>{successMsg}</span>
-          <button onClick={() => setSuccessMsg('')} className="text-xs text-emerald-600 font-bold">Dismiss</button>
+          <button onClick={() => setSuccessMsg('')} className="focus-ring text-xs text-emerald-600 font-bold rounded">Dismiss</button>
         </div>
       )}
       {errorMsg && (
-        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm font-semibold flex items-center justify-between">
+        <div role="alert" className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm font-semibold flex items-center justify-between">
           <span>{errorMsg}</span>
-          <button onClick={() => setErrorMsg('')} className="text-xs text-rose-600 font-bold">Dismiss</button>
+          <button onClick={() => setErrorMsg('')} className="focus-ring text-xs text-rose-600 font-bold rounded">Dismiss</button>
         </div>
       )}
 
@@ -239,18 +242,22 @@ export const ManageBlogsPage: React.FC = () => {
             <input
               type="text"
               placeholder="Search blogs by title or excerpt..."
+              aria-label="Search blogs"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-2.5 rounded-2xl bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
+              className="focus-ring w-full pl-11 pr-4 py-2.5 rounded-2xl bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
             />
           </div>
 
           <div className="flex items-center gap-3 w-full md:w-auto">
-            <span className="text-xs font-bold text-slateText uppercase">Category:</span>
+            <label htmlFor="blog-category-filter" className="text-xs font-bold text-slateText uppercase">
+              Category:
+            </label>
             <select
+              id="blog-category-filter"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-2 rounded-2xl bg-background border border-dark/10 text-xs font-bold text-dark focus:outline-none"
+              className="focus-ring px-4 py-2 rounded-2xl bg-background border border-dark/10 text-xs font-bold text-dark focus:outline-none"
             >
               <option value="All">All Categories</option>
               <option value="Engineering">Engineering</option>
@@ -259,7 +266,7 @@ export const ManageBlogsPage: React.FC = () => {
               <option value="DevOps">DevOps</option>
             </select>
 
-            <button onClick={fetchBlogs} className="p-2.5 rounded-2xl border border-dark/10 hover:bg-background text-dark" title="Refresh">
+            <button onClick={fetchBlogs} aria-label="Refresh" className="focus-ring p-2.5 rounded-2xl border border-dark/10 hover:bg-background text-dark" title="Refresh">
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
           </div>
@@ -279,7 +286,9 @@ export const ManageBlogsPage: React.FC = () => {
                 <div className="relative aspect-video rounded-2xl overflow-hidden bg-dark/5 border border-dark/10">
                   <img src={b.coverImage} alt={b.title} className="w-full h-full object-cover" />
                   <div className="absolute top-3 left-3">
-                    <Badge variant="lime">{b.category}</Badge>
+                    <span className="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-dark/80 text-primary backdrop-blur-sm">
+                      {b.category}
+                    </span>
                   </div>
                 </div>
 
@@ -303,21 +312,24 @@ export const ManageBlogsPage: React.FC = () => {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => handleOpenView(b)}
-                    className="p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
+                    aria-label="Read Post"
+                    className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
                     title="Read Post"
                   >
                     <Eye className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleOpenEdit(b)}
-                    className="p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
+                    aria-label="Edit Post"
+                    className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
                     title="Edit Post"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(b._id)}
-                    className="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                    onClick={() => setDeleteTarget(b._id)}
+                    aria-label="Delete Post"
+                    className="focus-ring p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
                     title="Delete Post"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -530,6 +542,16 @@ export const ManageBlogsPage: React.FC = () => {
           </div>
         )}
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
+        title="Delete blog post?"
+        description="This post will be permanently removed and unpublished from the site."
+        confirmLabel="Delete"
+        destructive
+      />
     </div>
   );
 };

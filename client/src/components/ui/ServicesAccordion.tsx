@@ -189,9 +189,13 @@ export const ServicesAccordion: React.FC = () => {
         return (
           <div key={catKey} className="space-y-3">
             {/* Pill Header Bar */}
-            <div
+            <button
+              type="button"
+              id={`services-accordion-trigger-${catKey}`}
               onClick={() => toggleCategory(cat.num)}
-              className={`rounded-full px-6 md:px-8 py-4 md:py-5 flex items-center justify-between cursor-pointer transition-all duration-300 shadow-sm ${
+              aria-expanded={isActive}
+              aria-controls={`services-accordion-panel-${catKey}`}
+              className={`focus-ring w-full text-left rounded-full px-6 md:px-8 py-4 md:py-5 flex items-center justify-between cursor-pointer transition-all duration-300 shadow-sm ${
                 isActive
                   ? 'bg-dark text-white border-2 border-dark shadow-xl scale-[1.01]'
                   : 'bg-white text-dark border border-slate-200/90 hover:border-dark/40 hover:bg-slate-50/80'
@@ -219,12 +223,15 @@ export const ServicesAccordion: React.FC = () => {
                   <ChevronDown className="w-5 h-5 text-gray-500" />
                 )}
               </div>
-            </div>
+            </button>
 
             {/* Accordion Body Content */}
             <AnimatePresence>
               {isActive && (
                 <motion.div
+                  id={`services-accordion-panel-${catKey}`}
+                  role="region"
+                  aria-labelledby={`services-accordion-trigger-${catKey}`}
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}

@@ -7,15 +7,18 @@ import {
   Trash2,
   Edit2,
   CheckCircle2,
-  Sparkles,
-  Layers,
   Search,
-  Star
+  Star,
+  Layers
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
+import { Input, Textarea } from '../../components/ui/FormField';
+import { Spinner } from '../../components/ui/Spinner';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
 export const ManagePlatformSolutionsPage: React.FC = () => {
   const [solutions, setSolutions] = useState<any[]>([]);
@@ -27,6 +30,7 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
 
   // Form State
   const [title, setTitle] = useState('');
@@ -41,12 +45,8 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
 
   const fetchSolutions = async () => {
     setLoading(true);
-    const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch('/api/v1/platform-solutions/admin/all', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const data = await apiFetch('/platform-solutions/admin/all');
       if (data.success) {
         setSolutions(data.data);
       } else {
@@ -157,7 +157,6 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this platform solution?')) return;
     try {
       const data = await apiFetch(`/platform-solutions/${id}`, {
         method: 'DELETE',
@@ -170,6 +169,8 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
       }
     } catch {
       setErrorMsg('Error deleting solution.');
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -198,40 +199,45 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
 
       {/* Messages */}
       {errorMsg && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm">
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-semibold">
           {errorMsg}
         </div>
       )}
       {successMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm">
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold">
           {successMsg}
         </div>
       )}
 
       {/* Search Bar */}
       <div className="relative">
-        <Search className="w-5 h-5 text-gray-400 absolute left-4 top-3.5" />
+        <Search className="w-5 h-5 text-mutedOnLight absolute left-4 top-3.5" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search solutions by title or description..."
-          className="w-full pl-12 pr-4 py-3 rounded-2xl bg-dark/60 border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-primary"
+          aria-label="Search platform solutions"
+          className="focus-ring w-full pl-12 pr-4 py-3 rounded-xl bg-background border border-dark/10 text-dark placeholder:text-mutedOnLight text-sm focus:outline-none focus:border-dark"
         />
       </div>
 
       {/* Solutions Grid */}
       {loading ? (
-        <div className="py-20 text-center text-gray-400 font-mono">Loading platform solutions...</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[0, 1, 2].map((i) => (
+            <Spinner.CardSkeleton key={i} />
+          ))}
+        </div>
       ) : filteredSolutions.length === 0 ? (
-        <div className="py-20 text-center text-gray-400 font-mono">No platform solutions found.</div>
+        <EmptyState icon={Layers} title="No platform solutions found" description="Create your first platform solution to feature it on the home page carousel." />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredSolutions.map((sol) => (
             <Card
               key={sol._id}
-              className={`p-6 bg-dark border flex flex-col justify-between space-y-4 rounded-3xl relative ${
-                sol.isHighlighted ? 'border-primary/60 shadow-glow' : 'border-white/10'
+              className={`p-6 bg-white border flex flex-col justify-between space-y-4 rounded-card relative ${
+                sol.isHighlighted ? 'border-primary shadow-hover' : 'border-dark/10'
               }`}
             >
               {sol.isHighlighted && (
@@ -242,17 +248,17 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
 
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-bold text-gray-400">#{sol.order}</span>
+                  <span className="text-xs font-mono font-bold text-mutedOnLight">#{sol.order}</span>
                   {sol.badge && <Badge variant="lime">{sol.badge}</Badge>}
                 </div>
 
-                <h3 className="font-display text-xl font-bold text-white">{sol.title}</h3>
-                <p className="text-xs text-gray-300 leading-relaxed line-clamp-2">{sol.description}</p>
+                <h3 className="font-display text-xl font-bold text-dark">{sol.title}</h3>
+                <p className="text-xs text-slateText leading-relaxed line-clamp-2">{sol.description}</p>
 
                 {/* Features List */}
                 <div className="space-y-1.5 pt-2">
                   {sol.features?.map((f: string, idx: number) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs text-gray-300">
+                    <div key={idx} className="flex items-center gap-2 text-xs text-slateText">
                       <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
                       <span className="truncate">{f}</span>
                     </div>
@@ -260,21 +266,23 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                <span className={`text-[10px] font-bold uppercase tracking-wider ${sol.isActive ? 'text-emerald-400' : 'text-gray-500'}`}>
+              <div className="pt-4 border-t border-dark/10 flex items-center justify-between">
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${sol.isActive ? 'text-emerald-600' : 'text-mutedOnLight'}`}>
                   {sol.isActive ? '• Active' : '• Inactive'}
                 </span>
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleOpenEditModal(sol)}
-                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+                    aria-label={`Edit ${sol.title}`}
+                    className="focus-ring p-2 rounded-xl bg-dark/5 hover:bg-dark/10 text-slateText hover:text-dark transition-colors"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(sol._id)}
-                    className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
+                    onClick={() => setDeleteTarget({ id: sol._id, title: sol.title })}
+                    aria-label={`Delete ${sol.title}`}
+                    className="focus-ring p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -293,56 +301,36 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
         subtitle="Manage card content displayed on the home page solutions carousel"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-gray-300 mb-1">Platform Title</label>
-            <input
-              type="text"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Food Delivery Platform"
-              className="w-full px-3 py-2 rounded-xl bg-dark/60 border border-white/15 text-white text-sm focus:outline-none focus:border-primary"
-            />
-          </div>
+          <Input
+            label="Platform Title"
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g. Food Delivery Platform"
+          />
 
-          <div>
-            <label className="block text-xs font-bold text-gray-300 mb-1">Description</label>
-            <textarea
-              rows={2}
-              required
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g. Build a restaurant network platform like Swiggy and Zomato with seamless ordering."
-              className="w-full px-3 py-2 rounded-xl bg-dark/60 border border-white/15 text-white text-sm focus:outline-none focus:border-primary"
-            />
-          </div>
+          <Textarea
+            label="Description"
+            rows={2}
+            required
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="e.g. Build a restaurant network platform like Swiggy and Zomato with seamless ordering."
+          />
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-gray-300 mb-1">Badge Tag</label>
-              <input
-                type="text"
-                value={badge}
-                onChange={(e) => setBadge(e.target.value)}
-                placeholder="e.g. Most Popular"
-                className="w-full px-3 py-2 rounded-xl bg-dark/60 border border-white/15 text-white text-sm focus:outline-none focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-300 mb-1">Display Order</label>
-              <input
-                type="number"
-                value={order}
-                onChange={(e) => setOrder(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl bg-dark/60 border border-white/15 text-white text-sm focus:outline-none focus:border-primary"
-              />
-            </div>
+            <Input label="Badge Tag" value={badge} onChange={(e) => setBadge(e.target.value)} placeholder="e.g. Most Popular" />
+            <Input
+              label="Display Order"
+              type="number"
+              value={order}
+              onChange={(e) => setOrder(Number(e.target.value))}
+            />
           </div>
 
           {/* Features List Inputs */}
           <div>
-            <label className="block text-xs font-bold text-gray-300 mb-2">Checkmark Features (4 Items)</label>
+            <label className="block text-xs font-bold text-dark mb-2">Checkmark Features (4 Items)</label>
             <div className="space-y-2">
               {features.map((feat, idx) => (
                 <div key={idx} className="flex gap-2 items-center">
@@ -351,13 +339,15 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
                     value={feat}
                     onChange={(e) => handleFeatureChange(idx, e.target.value)}
                     placeholder={`Feature #${idx + 1} (e.g. Real-time Order Tracking)`}
-                    className="flex-1 px-3 py-2 rounded-xl bg-dark/60 border border-white/15 text-white text-xs focus:outline-none focus:border-primary"
+                    aria-label={`Feature ${idx + 1}`}
+                    className="focus-ring flex-1 px-3 py-2 rounded-form bg-background border border-dark/10 text-dark text-xs focus:outline-none focus:border-dark"
                   />
                   {features.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeFeatureInput(idx)}
-                      className="p-2 text-rose-400 hover:text-rose-300 text-xs"
+                      aria-label={`Remove feature ${idx + 1}`}
+                      className="focus-ring p-2 text-rose-500 hover:text-rose-600 text-xs"
                     >
                       ✕
                     </button>
@@ -368,7 +358,7 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
             <button
               type="button"
               onClick={addFeatureInput}
-              className="mt-2 text-xs font-bold text-primary hover:underline"
+              className="focus-ring mt-2 text-xs font-bold text-dark hover:text-primary"
             >
               + Add Feature Item
             </button>
@@ -376,7 +366,7 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
 
           {/* Highlight Toggle */}
           <div className="flex items-center gap-6 pt-2">
-            <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 font-bold">
+            <label className="flex items-center gap-2 cursor-pointer text-xs text-dark font-bold">
               <input
                 type="checkbox"
                 checked={isHighlighted}
@@ -386,7 +376,7 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
               Highlight Card (Active Green Center Styling)
             </label>
 
-            <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 font-bold">
+            <label className="flex items-center gap-2 cursor-pointer text-xs text-dark font-bold">
               <input
                 type="checkbox"
                 checked={isActive}
@@ -402,6 +392,16 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
           </Button>
         </form>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => deleteTarget && handleDelete(deleteTarget.id)}
+        title="Delete platform solution?"
+        description={deleteTarget ? `"${deleteTarget.title}" will be permanently removed from the home page carousel.` : undefined}
+        confirmLabel="Delete"
+        destructive
+      />
     </div>
   );
 };

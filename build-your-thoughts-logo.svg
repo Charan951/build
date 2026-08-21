@@ -27,11 +27,11 @@
   <!-- Wordmark -->
   <g transform="translate(390 108)">
     <text x="0" y="0" font-family="Inter, Arial, Helvetica, sans-serif" font-size="74" font-weight="800" letter-spacing="-2.5" fill="#0F1412">Build Your</text>
-    <text x="0" y="84" font-family="Inter, Arial, Helvetica, sans-serif" font-size="82" font-weight="800" letter-spacing="-3" fill="#CDFB47">Thoughts</text>
+    <text x="0" y="84" font-family="Inter, Arial, Helvetica, sans-serif" font-size="82" font-weight="800" letter-spacing="-3" fill="#5C7A0F">Thoughts</text>
 
     <!-- descriptor -->
-    <line x1="2" y1="124" x2="70" y2="124" stroke="#CDFB47" stroke-width="5" stroke-linecap="round"/>
-    <text x="88" y="132" font-family="Inter, Arial, Helvetica, sans-serif" font-size="24" font-weight="600" letter-spacing="5" fill="#56615D">APP &amp; WEB DEVELOPMENT</text>
+    <line x1="2" y1="124" x2="70" y2="124" stroke="#A9E51F" stroke-width="5" stroke-linecap="round"/>
+    <text x="88" y="132" font-family="Inter, Arial, Helvetica, sans-serif" font-size="24" font-weight="600" letter-spacing="5" fill="#3A423F">APP &amp; WEB DEVELOPMENT</text>
   </g>
 
   <!-- subtle registered mark -->

@@ -11,13 +11,14 @@ import {
   Users,
 } from 'lucide-react';
 import { apiFetch } from '../../services/api';
+import { formatMoney } from '../../utils/format';
 
 interface ProjectItem {
   _id: string;
   projectName: string;
   description?: string;
   projectType: 'one_off' | 'retainer';
-  clientId?: { _id: string; companyName: string } | string;
+  clientId?: { _id: string; companyName: string; currency?: string } | string;
   budget: number;
   paidAmount: number;
   targetDeliveryDate?: string;
@@ -42,6 +43,9 @@ const columnOf = (status: ProjectItem['status']): ColumnId => {
 const clientName = (p: ProjectItem): string =>
   typeof p.clientId === 'object' && p.clientId ? p.clientId.companyName : '';
 
+const clientCurrency = (p: ProjectItem): string | undefined =>
+  typeof p.clientId === 'object' && p.clientId ? p.clientId.currency : undefined;
+
 export const ClientProjectsPage: React.FC = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<ProjectItem[]>([]);
@@ -58,16 +62,17 @@ export const ClientProjectsPage: React.FC = () => {
     const board = boardRef.current;
     if (!board) return;
     const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
-      const target = e.target as HTMLElement;
-      const column = target.closest('[data-project-column]') as HTMLElement | null;
-      if (column) {
-        const canScrollDown = e.deltaY > 0 && column.scrollTop + column.clientHeight < column.scrollHeight - 1;
-        const canScrollUp = e.deltaY < 0 && column.scrollTop > 0;
-        if (canScrollDown || canScrollUp) return;
-      }
+      // Only handle a gesture that's actually horizontal (trackpad shift-scroll
+      // or a horizontal swipe) — pan the board to match. A vertical wheel
+      // gesture is never redirected into horizontal movement: over a column
+      // with room to scroll, the browser's native vertical scroll on that
+      // column already just works without any JS here. Over an empty or
+      // fully-scrolled column, a vertical gesture should simply do nothing
+      // rather than jump the whole board sideways, which reads as broken.
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      if (board.scrollWidth <= board.clientWidth) return;
       e.preventDefault();
-      board.scrollLeft += e.deltaY;
+      board.scrollLeft += e.deltaX;
     };
     board.addEventListener('wheel', onWheel, { passive: false });
     return () => board.removeEventListener('wheel', onWheel);
@@ -256,7 +261,7 @@ export const ClientProjectsPage: React.FC = () => {
                               <div className="flex items-center justify-between text-[10px] text-slateText font-semibold mb-1">
                                 <span>Budget progress</span>
                                 <span className="font-bold text-dark">
-                                  ₹{paidAmount.toLocaleString('en-IN')} / ₹{budget.toLocaleString('en-IN')}
+                                  {formatMoney(paidAmount, clientCurrency(p))} / {formatMoney(budget, clientCurrency(p))}
                                 </span>
                               </div>
                               <div className="w-full h-1.5 rounded-full bg-dark/10 overflow-hidden">
@@ -266,7 +271,7 @@ export const ClientProjectsPage: React.FC = () => {
 
                             {pending > 0 && (
                               <p className="flex items-center gap-1 text-[10px] font-bold text-amber-600">
-                                <TrendingUp className="w-3 h-3" /> Pending: ₹{pending.toLocaleString('en-IN')}
+                                <TrendingUp className="w-3 h-3" /> Pending: {formatMoney(pending, clientCurrency(p))}
                               </p>
                             )}
 

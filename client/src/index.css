@@ -2,18 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #FFFFFF;
-  --primary: #CDFB47;
-  --secondary: #0F1412;
-  --black: #000000;
-  --white: #FFFFFF;
-  --text: #737373;
-  --border: rgba(0,0,0,0.08);
-  --glass: rgba(255,255,255,0.70);
-  --shadow: rgba(0,0,0,0.08);
-}
-
 html, body {
   background-color: #FFFFFF !important;
   color: #0F1412;
@@ -99,4 +87,19 @@ html, body {
 
 .animate-marquee:hover {
   animation-play-state: paused;
+}
+
+/* Canonical keyboard-focus treatment — apply instead of reinventing a
+   focus-visible ring per component. Use .focus-ring-inverse on dark/lime
+   surfaces where the default offset color (white) would be invisible. */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px #CDFB47;
+}
+.focus-ring-inverse:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #0F1412, 0 0 0 4px #CDFB47;
 }

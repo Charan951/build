@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Trash2, ArrowUp, ArrowDown, Plus, Palette } from 'lucide-react';
+import { Trash2, ArrowUp, ArrowDown, Plus, Palette } from 'lucide-react';
+import { Modal } from '../ui/Modal';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { getApiUrl } from '../../services/api';
 
 export interface StageItem {
   _id: string;
@@ -27,25 +30,12 @@ export const ManageStagesModal: React.FC<ManageStagesModalProps> = ({
   const [newStageName, setNewStageName] = useState('');
   const [selectedColor, setSelectedColor] = useState('#3B82F6');
   const [loading, setLoading] = useState(false);
+  const [deleteStageId, setDeleteStageId] = useState<string | null>(null);
+  const [formError, setFormError] = useState('');
 
   useEffect(() => {
     setLocalStages(stages);
   }, [stages]);
-
-  // Lock document body scroll while modal is active
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-      document.documentElement.style.overflow = 'auto';
-    }
-    return () => {
-      document.body.style.overflow = 'auto';
-      document.documentElement.style.overflow = 'auto';
-    };
-  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -71,8 +61,9 @@ export const ManageStagesModal: React.FC<ManageStagesModalProps> = ({
     setLocalStages(reordered);
 
     // Persist reorder to server
+    const previousStages = localStages;
     try {
-      await fetch('/api/v1/leads/stages/reorder', {
+      const response = await fetch(getApiUrl('/leads/stages/reorder'), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -82,15 +73,18 @@ export const ManageStagesModal: React.FC<ManageStagesModalProps> = ({
           stages: reordered.map((item) => ({ id: item._id, order: item.order })),
         }),
       });
+      if (!response.ok) throw new Error('Failed to reorder stages.');
       onStagesUpdated();
     } catch (err) {
       console.error('Failed to reorder stages:', err);
+      setLocalStages(previousStages);
+      setFormError('Failed to reorder stages. Please try again.');
     }
   };
 
   const handleSaveStageItem = async (stage: StageItem) => {
     try {
-      await fetch(`/api/v1/leads/stages/${stage._id}`, {
+      const response = await fetch(getApiUrl(`/leads/stages/${stage._id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -98,26 +92,37 @@ export const ManageStagesModal: React.FC<ManageStagesModalProps> = ({
         },
         body: JSON.stringify({ name: stage.name, color: stage.color, order: stage.order }),
       });
+      if (!response.ok) throw new Error('Failed to save stage.');
       onStagesUpdated();
-    } catch (err) {}
+    } catch (err) {
+      setFormError('Failed to save stage changes. Please try again.');
+    }
+  };
+
+  const requestDeleteStage = (id: string) => {
+    if (localStages.length <= 1) {
+      setFormError('You must have at least one pipeline stage.');
+      return;
+    }
+    setFormError('');
+    setDeleteStageId(id);
   };
 
   const handleDeleteStage = async (id: string) => {
-    if (localStages.length <= 1) {
-      alert('You must have at least one pipeline stage.');
-      return;
-    }
-    if (!window.confirm('Are you sure? Leads in this stage will be reassigned to default stage.')) return;
-
     try {
-      await fetch(`/api/v1/leads/stages/${id}`, {
+      const response = await fetch(getApiUrl(`/leads/stages/${id}`), {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('adminToken')}`,
         },
       });
+      if (!response.ok) throw new Error('Failed to delete stage.');
       onStagesUpdated();
-    } catch (err) {}
+    } catch (err) {
+      setFormError('Failed to delete stage. Please try again.');
+    } finally {
+      setDeleteStageId(null);
+    }
   };
 
   const handleAddStage = async (e: React.FormEvent) => {
@@ -125,8 +130,9 @@ export const ManageStagesModal: React.FC<ManageStagesModalProps> = ({
     if (!newStageName.trim()) return;
 
     setLoading(true);
+    setFormError('');
     try {
-      const response = await fetch('/api/v1/leads/stages', {
+      const response = await fetch(getApiUrl('/leads/stages'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -142,40 +148,22 @@ export const ManageStagesModal: React.FC<ManageStagesModalProps> = ({
       if (data.success) {
         setNewStageName('');
         onStagesUpdated();
+      } else {
+        setFormError(data.message || 'Failed to add stage.');
       }
-    } catch (err) {} finally {
+    } catch (err) {
+      setFormError('Failed to add stage. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-dark/60 backdrop-blur-sm flex items-center justify-center p-3 z-50 overflow-hidden overscroll-none"
-      onWheel={(e) => e.stopPropagation()}
-    >
-      <div
-        className="bg-white rounded-card p-4 sm:p-5 max-w-md w-full max-h-[82vh] flex flex-col shadow-2xl border border-dark/10 animate-in fade-in zoom-in duration-200"
-        onWheel={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-dark/10 pb-2.5 shrink-0">
-          <div>
-            <h2 className="font-display text-lg font-bold text-dark">Manage Pipeline Stages</h2>
-            <p className="text-[10px] text-slateText">Add, rename, recolor, reorder or remove columns.</p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 text-slateText hover:text-dark hover:bg-dark/5 rounded-lg transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
+    <>
+      <Modal isOpen={isOpen} onClose={onClose} title="Manage Pipeline Stages" subtitle="Add, rename, recolor, reorder or remove columns." maxWidth="md">
         {/* Existing Stages List with Scrollbar & Reorder */}
         <div
-          className="space-y-2 max-h-[260px] sm:max-h-[280px] overflow-y-scroll my-2.5 pr-2 custom-form-scrollbar overscroll-contain"
-          onWheel={(e) => e.stopPropagation()}
+          className="space-y-2 max-h-[260px] sm:max-h-[280px] overflow-y-scroll pr-2 custom-form-scrollbar overscroll-contain"
         >
           {localStages.map((stage, idx) => (
             <div
@@ -231,7 +219,7 @@ export const ManageStagesModal: React.FC<ManageStagesModalProps> = ({
               {/* Delete Trash Button */}
               <button
                 type="button"
-                onClick={() => handleDeleteStage(stage._id)}
+                onClick={() => requestDeleteStage(stage._id)}
                 className="p-1.5 text-slateText hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors shrink-0"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -239,6 +227,12 @@ export const ManageStagesModal: React.FC<ManageStagesModalProps> = ({
             </div>
           ))}
         </div>
+
+        {formError && (
+          <p className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+            {formError}
+          </p>
+        )}
 
         {/* Add a New Stage Form */}
         <form onSubmit={handleAddStage} className="pt-2.5 border-t border-dark/10 space-y-2 shrink-0">
@@ -288,7 +282,17 @@ export const ManageStagesModal: React.FC<ManageStagesModalProps> = ({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteStageId}
+        onClose={() => setDeleteStageId(null)}
+        onConfirm={() => deleteStageId && handleDeleteStage(deleteStageId)}
+        title="Delete pipeline stage?"
+        description="Leads in this stage will be reassigned to the default stage."
+        confirmLabel="Delete"
+        destructive
+      />
+    </>
   );
 };

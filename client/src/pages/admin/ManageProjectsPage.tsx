@@ -6,6 +6,7 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { Plus, Trash2, Edit, Eye, ArrowLeft, Search, RefreshCw, Layers } from 'lucide-react';
 
 interface ImpactMetric {
@@ -78,6 +79,7 @@ export const ManageProjectsPage: React.FC = () => {
   const [formData, setFormData] = useState<ProjectData>(emptyProject);
   const [viewProject, setViewProject] = useState<any>(null);
   const [techStackInput, setTechStackInput] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const token = localStorage.getItem('adminToken');
@@ -199,6 +201,7 @@ export const ManageProjectsPage: React.FC = () => {
   };
 
   const handleToggleFeatured = async (proj: any) => {
+    setErrorMsg('');
     try {
       const data = await apiFetch(`/projects/${proj._id}`, {
         method: 'PUT',
@@ -206,12 +209,15 @@ export const ManageProjectsPage: React.FC = () => {
       });
       if (data.success) {
         setProjects(projects.map((p) => (p._id === proj._id ? { ...p, featured: !p.featured } : p)));
+      } else {
+        setErrorMsg(data.message || 'Failed to update home-page visibility.');
       }
-    } catch (err) {}
+    } catch (err) {
+      setErrorMsg('Server connection error.');
+    }
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) return;
     try {
       const data = await apiFetch(`/projects/${id}`, {
         method: 'DELETE',
@@ -224,6 +230,8 @@ export const ManageProjectsPage: React.FC = () => {
       }
     } catch (err) {
       setErrorMsg('Server connection error.');
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -243,7 +251,7 @@ export const ManageProjectsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <Link to="/dashboard" className="inline-flex items-center text-xs font-bold text-slateText hover:text-dark mb-2 gap-1">
+          <Link to="/dashboard" className="focus-ring inline-flex items-center text-xs font-bold text-slateText hover:text-dark mb-2 gap-1 rounded">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
           </Link>
         </div>
@@ -272,18 +280,22 @@ export const ManageProjectsPage: React.FC = () => {
             <input
               type="text"
               placeholder="Search projects by title, client..."
+              aria-label="Search projects"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-2.5 rounded-2xl bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
+              className="focus-ring w-full pl-11 pr-4 py-2.5 rounded-2xl bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
             />
           </div>
 
           <div className="flex items-center gap-3 w-full md:w-auto">
-            <span className="text-xs font-bold text-slateText uppercase">Category:</span>
+            <label htmlFor="project-category-filter" className="text-xs font-bold text-slateText uppercase">
+              Category:
+            </label>
             <select
+              id="project-category-filter"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-2 rounded-2xl bg-background border border-dark/10 text-xs font-bold text-dark focus:outline-none"
+              className="focus-ring px-4 py-2 rounded-2xl bg-background border border-dark/10 text-xs font-bold text-dark focus:outline-none"
             >
               <option value="All">All Categories</option>
               <option value="Enterprise">Enterprise</option>
@@ -293,7 +305,7 @@ export const ManageProjectsPage: React.FC = () => {
               <option value="UI/UX">UI/UX</option>
             </select>
 
-            <button onClick={fetchProjects} className="p-2.5 rounded-2xl border border-dark/10 hover:bg-background text-dark" title="Refresh">
+            <button onClick={fetchProjects} aria-label="Refresh" className="focus-ring p-2.5 rounded-2xl border border-dark/10 hover:bg-background text-dark" title="Refresh">
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
           </div>
@@ -302,7 +314,7 @@ export const ManageProjectsPage: React.FC = () => {
 
       {/* Table List */}
       <Card className="p-6">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto custom-form-scrollbar pb-2">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-dark/10 text-xs font-bold uppercase text-slateText">
@@ -311,7 +323,7 @@ export const ManageProjectsPage: React.FC = () => {
                 <th className="py-3 px-4">Category</th>
                 <th className="py-3 px-4">Home Showcase</th>
                 <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+                <th className="py-3 px-4 text-right sticky right-0 bg-white border-l border-dark/10">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-dark/5 text-sm font-medium">
@@ -323,16 +335,16 @@ export const ManageProjectsPage: React.FC = () => {
                 </tr>
               ) : (
                 filteredProjects.map((proj) => (
-                  <tr key={proj._id} className="hover:bg-background/50 transition-colors">
+                  <tr key={proj._id} className="group hover:bg-background/50 transition-colors">
                     <td className="py-4 px-4">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
                         <img
                           src={proj.heroImage}
                           alt={proj.title}
-                          className="w-12 h-12 rounded-xl object-cover border border-dark/10 bg-dark/5"
+                          className="w-12 h-12 rounded-xl object-cover border border-dark/10 bg-dark/5 shrink-0"
                         />
-                        <div>
-                          <span className="font-bold text-dark text-base block">{proj.title}</span>
+                        <div className="min-w-0">
+                          <span className="font-bold text-dark text-base block truncate max-w-xs">{proj.title}</span>
                           <span className="text-xs text-slateText block truncate max-w-xs">{proj.tagline}</span>
                         </div>
                       </div>
@@ -348,7 +360,8 @@ export const ManageProjectsPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleToggleFeatured(proj)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors shrink-0 ${
+                        aria-pressed={proj.featured}
+                        className={`focus-ring px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors shrink-0 ${
                           proj.featured
                             ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/20'
                             : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200'
@@ -360,25 +373,28 @@ export const ManageProjectsPage: React.FC = () => {
                     <td className="py-4 px-4">
                       <Badge variant={proj.status === 'published' ? 'lime' : 'dark'}>{proj.status}</Badge>
                     </td>
-                    <td className="py-4 px-4 text-right">
+                    <td className="py-4 px-4 text-right sticky right-0 bg-white group-hover:bg-background/50 border-l border-dark/10 transition-colors">
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => handleOpenView(proj)}
-                          className="p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
+                          aria-label="View Details"
+                          className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleOpenEdit(proj)}
-                          className="p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
+                          aria-label="Edit"
+                          className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
                           title="Edit"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(proj._id)}
-                          className="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                          onClick={() => setDeleteTarget(proj._id)}
+                          aria-label="Delete"
+                          className="focus-ring p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
                           title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -688,6 +704,16 @@ export const ManageProjectsPage: React.FC = () => {
           </div>
         )}
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
+        title="Delete project?"
+        description="This project and its case study will be permanently removed. This action cannot be undone."
+        confirmLabel="Delete"
+        destructive
+      />
     </div>
   );
 };

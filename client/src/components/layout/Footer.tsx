@@ -140,7 +140,7 @@ export const Footer: React.FC = () => {
                 </React.Fragment>
               ))}
             </div>
-            <div className="flex items-center gap-10 shrink-0">
+            <div aria-hidden="true" className="flex items-center gap-10 shrink-0">
               {[1, 2, 3, 4].map((i) => (
                 <React.Fragment key={i}>
                   <span className="font-display text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight text-primary transition-colors">
@@ -157,7 +157,7 @@ export const Footer: React.FC = () => {
         </a>
       </div>
 
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between text-xs text-gray-400 gap-4">
         <p>© {new Date().getFullYear()} Build Your Thoughts. All rights reserved.</p>
         <div className="flex items-center gap-6">
           <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>

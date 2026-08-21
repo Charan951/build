@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Star, CheckCircle2, Quote } from 'lucide-react';
 import { Card } from './Card';
 
@@ -75,20 +74,15 @@ export const ReviewsSection: React.FC = () => {
         <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
 
-        <motion.div
-          animate={{ x: ['0%', '-50%'] }}
-          transition={{
-            repeat: Infinity,
-            repeatType: 'loop',
-            duration: 25,
-            ease: 'linear',
-          }}
-          className="flex gap-6 w-max"
-        >
+        <div className="animate-marquee gap-6">
           {[...reviewsData, ...reviewsData].map((rev, idx) => (
             <Card
               key={idx}
-              className="w-[320px] md:w-[380px] p-6 bg-white border border-slate-200/90 rounded-3xl space-y-4 shrink-0 shadow-sm hover:shadow-lg transition-all duration-300 group"
+              // Second half is a duplicate that only exists to complete the seamless
+              // loop illusion — hide it from assistive tech so testimonials aren't
+              // announced twice.
+              {...(idx >= reviewsData.length ? { 'aria-hidden': true } : {})}
+              className="w-[320px] md:w-[380px] p-6 bg-white border border-slate-200/90 rounded-card space-y-4 shrink-0 shadow-sm hover:shadow-lg transition-all duration-300 group"
             >
               {/* Stars & Verified */}
               <div className="flex items-center justify-between">
@@ -124,7 +118,7 @@ export const ReviewsSection: React.FC = () => {
               </div>
             </Card>
           ))}
-        </motion.div>
+        </div>
       </div>
 
       {/* 4 Stat Counter Cards matching image copy 8 */}
@@ -132,7 +126,7 @@ export const ReviewsSection: React.FC = () => {
         {statsData.map((st, i) => (
           <div
             key={i}
-            className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-sm space-y-1 hover:border-primary transition-all duration-300"
+            className="p-6 rounded-card bg-white border border-slate-200/80 shadow-sm space-y-1 hover:border-primary transition-all duration-300"
           >
             <div className="font-display text-3xl md:text-4xl font-black text-dark tracking-tight">
               {st.value}

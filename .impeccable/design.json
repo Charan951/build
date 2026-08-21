@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-20T08:21:54Z",
+  "title": "Design System: Build Your Thoughts",
+  "extensions": {
+    "colorMeta": {
+      "signal-lime": {
+        "role": "primary",
+        "displayName": "Signal Lime",
+        "canonical": "#CDFB47",
+        "tonalRamp": ["#1A2005", "#3A4A0D", "#5C7A0F", "#7FA015", "#A9E51F", "#CDFB47", "#E0FC85", "#F3FEC2"]
+      },
+      "circuit-black": {
+        "role": "neutral",
+        "displayName": "Circuit Black",
+        "canonical": "#0F1412",
+        "tonalRamp": ["#050705", "#0F1412", "#18211D", "#2A332E", "#4A544E", "#737D77", "#A8AFA9", "#E8EAE7"]
+      },
+      "paper-white": {
+        "role": "neutral",
+        "displayName": "Paper White",
+        "canonical": "#FFFFFF",
+        "tonalRamp": ["#1A1A1A", "#404040", "#737373", "#A0A0A0", "#C4C4C4", "#E5E5E5", "#F5F5F5", "#FFFFFF"]
+      },
+      "neutral-slate": {
+        "role": "neutral",
+        "displayName": "Neutral Slate",
+        "canonical": "#737373",
+        "tonalRamp": ["#1A1A1A", "#333333", "#4D4D4D", "#666666", "#737373", "#999999", "#BFBFBF", "#E0E0E0"]
+      },
+      "operate-canvas": {
+        "role": "neutral",
+        "displayName": "Operate Canvas",
+        "canonical": "#F5F6F4",
+        "tonalRamp": ["#1C1D1C", "#3A3B3A", "#6B6D6B", "#9A9C9A", "#C4C6C3", "#DEE0DD", "#F5F6F4", "#FFFFFF"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headline only, one per page." },
+      "headline": { "displayName": "Headline", "purpose": "Section H2s." },
+      "body": { "displayName": "Body", "purpose": "Paragraph copy across the marketing site." },
+      "label": { "displayName": "Label", "purpose": "Badges, eyebrow tags, uppercase stat labels." },
+      "mono": { "displayName": "Mono", "purpose": "Literal code/data only — the hero code-preview card, tech-stack tags." }
+    },
+    "shadows": [
+      { "name": "soft", "value": "0 20px 50px rgba(0,0,0,0.06)", "purpose": "Resting-state card elevation." },
+      { "name": "hover", "value": "0 35px 80px rgba(0,0,0,0.12)", "purpose": "Card/button hover escalation, paired with -8px translateY lift." },
+      { "name": "glass", "value": "0 15px 40px rgba(0,0,0,0.05)", "purpose": "Glassmorphic surfaces (nav pill, glass panels)." }
+    ],
+    "motion": [
+      { "name": "hover-lift", "value": "translateY(-8px)", "purpose": "Card hover lift, paired with the hover shadow." },
+      { "name": "button-spring", "value": "whileHover scale(1.03) / whileTap scale(0.97), Framer spring physics", "purpose": "Default button micro-interaction." },
+      { "name": "nav-indicator-spring", "value": "type: spring, stiffness: 380, damping: 30", "purpose": "Active nav-link pill indicator (layoutId) sliding between links." },
+      { "name": "reveal-ease", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Scroll-triggered entrance reveals (Reveal/Stagger), exponential ease-out." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Default dark button — inverts to Signal Lime on hover.",
+      "html": "<button class=\"ds-btn-primary\">Get Started</button>",
+      "css": ".ds-btn-primary { background: #0F1412; color: #FFFFFF; border: 1px solid rgba(15,20,18,0.2); border-radius: 20px; padding: 14px 28px; font-family: Inter, sans-serif; font-weight: 600; font-size: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.06); transition: all 0.3s ease; cursor: pointer; } .ds-btn-primary:hover { background: #CDFB47; color: #0F1412; border-color: #CDFB47; transform: scale(1.03); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px #CDFB47, 0 0 0 4px rgba(205,251,71,0.3); } .ds-btn-primary:active { transform: scale(0.97); }"
+    },
+    {
+      "name": "Lime CTA Button",
+      "kind": "button",
+      "refersTo": "button-lime",
+      "description": "The primary call-to-action voice — Signal Lime fill, inverts to Circuit Black on hover.",
+      "html": "<button class=\"ds-btn-lime\">Start Your Project <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"/><polyline points=\"12 5 19 12 12 19\"/></svg></button>",
+      "css": ".ds-btn-lime { display: inline-flex; align-items: center; gap: 10px; background: #CDFB47; color: #0F1412; border: none; border-radius: 20px; padding: 16px 32px; font-family: Inter, sans-serif; font-weight: 700; font-size: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.06); transition: all 0.3s ease; cursor: pointer; } .ds-btn-lime:hover { background: #0F1412; color: #FFFFFF; transform: scale(1.03); } .ds-btn-lime:focus-visible { outline: none; box-shadow: 0 0 0 2px #CDFB47, 0 0 0 4px rgba(205,251,71,0.3); } .ds-btn-lime:active { transform: scale(0.97); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Default glassmorphic card — soft shadow at rest, lift + hover shadow on interaction.",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">Lightning Fast Delivery</h3><p class=\"ds-card-body\">Complete digital solutions in 5 days — website, admin panel, Android &amp; iOS apps.</p></div>",
+      "css": ".ds-card { background: rgba(255,255,255,0.80); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.60); border-radius: 32px; padding: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.06); transition: all 0.3s ease; } .ds-card:hover { transform: translateY(-8px); box-shadow: 0 35px 80px rgba(0,0,0,0.12); border-color: rgba(205,251,71,0.5); } .ds-card-title { font-family: Fraunces, serif; font-weight: 800; font-size: 20px; color: #0F1412; margin: 0 0 12px; } .ds-card-body { font-family: Inter, sans-serif; font-size: 14px; line-height: 1.6; color: #737373; margin: 0; }"
+    },
+    {
+      "name": "Badge",
+      "kind": "chip",
+      "refersTo": "badge-lime",
+      "description": "Pill-shaped label used for eyebrow tags, category chips, and status marks.",
+      "html": "<span class=\"ds-badge\">Verified Client</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; padding: 4px 14px; border-radius: 9999px; background: rgba(205,251,71,0.20); color: #0F1412; border: 1px solid rgba(205,251,71,0.40); font-family: Inter, sans-serif; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }"
+    },
+    {
+      "name": "Navigation Pill",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Floating scroll-responsive nav — condenses into a glass pill once the page scrolls.",
+      "html": "<nav class=\"ds-nav\"><div class=\"ds-nav-logo\">Build Your Thoughts</div><div class=\"ds-nav-links\"><a href=\"#\" class=\"ds-nav-link ds-nav-link-active\">Home</a><a href=\"#\" class=\"ds-nav-link\">Services</a><a href=\"#\" class=\"ds-nav-link\">Contact</a></div><button class=\"ds-btn-lime\" style=\"padding:10px 20px;font-size:14px;\">Start Project</button></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; background: rgba(15,20,18,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.1); border-radius: 9999px; padding: 12px 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.05); } .ds-nav-logo { font-family: Fraunces, serif; font-weight: 800; color: #FFFFFF; font-size: 16px; } .ds-nav-links { display: flex; gap: 4px; } .ds-nav-link { padding: 6px 16px; border-radius: 9999px; font-family: Inter, sans-serif; font-size: 14px; font-weight: 500; color: #D1D5DB; text-decoration: none; transition: color 0.2s ease; } .ds-nav-link:hover { color: #FFFFFF; } .ds-nav-link-active { color: #CDFB47; background: rgba(205,251,71,0.10); border: 1px solid rgba(205,251,71,0.30); }"
+    },
+    {
+      "name": "Operate Sidebar Nav Item",
+      "kind": "nav",
+      "refersTo": "operate-sidebar",
+      "description": "Dashboard sidebar link — active state is a solid Signal Lime fill (the one large-area use of lime in the whole system, reserved for 'your current location').",
+      "html": "<div class=\"ds-operate-sidebar\"><a href=\"#\" class=\"ds-operate-link ds-operate-link-active\">Projects</a><a href=\"#\" class=\"ds-operate-link\">Clients</a><a href=\"#\" class=\"ds-operate-link\">Invoices</a></div>",
+      "css": ".ds-operate-sidebar { display: flex; flex-direction: column; gap: 4px; background: #FFFFFF; border-right: 1px solid rgba(0,0,0,0.10); padding: 12px; width: 220px; } .ds-operate-link { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; font-family: Inter, sans-serif; font-size: 14px; font-weight: 600; color: rgba(15,20,18,0.70); text-decoration: none; transition: background 0.2s ease, color 0.2s ease; } .ds-operate-link:hover { background: rgba(0,0,0,0.05); color: #0F1412; } .ds-operate-link-active { background: #CDFB47; color: #0F1412; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }"
+    },
+    {
+      "name": "Operate Status Pill",
+      "kind": "chip",
+      "refersTo": "operate-status-pill",
+      "description": "Semantic status chip for tables/lists (active/inactive, paid/unpaid) — the one place Operate mode uses color beyond the two-tone core.",
+      "html": "<span class=\"ds-status-pill ds-status-active\">Active</span> <span class=\"ds-status-pill ds-status-inactive\">Inactive</span>",
+      "css": ".ds-status-pill { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 12px; font-family: Inter, sans-serif; font-size: 12px; font-weight: 700; border: 1px solid transparent; } .ds-status-active { background: rgba(16,185,129,0.10); color: #059669; border-color: rgba(16,185,129,0.30); } .ds-status-inactive { background: #F3F4F6; color: #6B7280; border-color: #E5E7EB; }"
+    },
+    {
+      "name": "Lightfall Signature Backdrop",
+      "kind": "custom",
+      "refersTo": "lightfall-hero",
+      "description": "Static CSS approximation of the hero's live WebGL shader (OGL-based Lightfall) — lime/dark light-streak trails. The real implementation renders on canvas via WebGL; this snippet is a representative, self-contained stand-in for the panel.",
+      "html": "<div class=\"ds-lightfall\"><div class=\"ds-lightfall-streak ds-lightfall-streak-1\"></div><div class=\"ds-lightfall-streak ds-lightfall-streak-2\"></div><div class=\"ds-lightfall-streak ds-lightfall-streak-3\"></div></div>",
+      "css": ".ds-lightfall { position: relative; width: 100%; height: 100%; min-height: 240px; background: #0F1412; overflow: hidden; border-radius: 40px; } .ds-lightfall-streak { position: absolute; top: -20%; width: 2px; height: 140%; background: linear-gradient(to bottom, rgba(205,251,71,0) 0%, #CDFB47 50%, rgba(169,229,31,0) 100%); opacity: 0.7; filter: blur(0.5px); } .ds-lightfall-streak-1 { left: 20%; animation: ds-lightfall-fall 3s linear infinite; } .ds-lightfall-streak-2 { left: 55%; animation: ds-lightfall-fall 4s linear infinite 0.8s; } .ds-lightfall-streak-3 { left: 80%; animation: ds-lightfall-fall 3.5s linear infinite 1.6s; } @keyframes ds-lightfall-fall { from { transform: translateY(-20%); } to { transform: translateY(20%); } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Build Signal",
+    "overview": "This project has two coherent, deliberately different visual systems. The marketing site (Persuade mode: home, about, services, projects, blog, contact) reads as a dark, focused engineering console rather than a conventional marketing site. Deep near-black (#0F1412) is the resting state of every major surface — nav, hero, CTA banners — and Signal Lime (#CDFB47) exists to mean exactly one thing wherever it appears: this is active, this is happening now. It's the terminal cursor, the build-success indicator, the status light — never decoration for its own sake. The hero's live WebGL shader backdrop and the code-preview card (\"Live Build Succeeded (14ms)\") aren't incidental flourishes; they're the thesis made literal.\n\nAgainst that dark, technical foundation sits a warm counterweight: Fraunces, a high-contrast display serif, carries every headline. The pairing — engineering-console color language with editorial serif type — is the system's core tension and its signature.\n\nThe admin/CRM dashboard and client portal (Operate mode: /dashboard, /portal) share the same two core tokens but apply them functionally, not atmospherically: a light gray canvas (#F5F6F4), white panels, tight 8-16px radii, and Signal Lime used as a solid active-state fill (sidebar, not a rare accent mark). Motion is fast and restrained (FadeIn, not scroll-triggered Reveal/Stagger). This is a deliberate split, not an unfinished corner of the marketing system — assume Persuade mode below unless a section is marked Operate.",
+    "keyCharacteristics": [
+      "Near-black is the default surface; white is the content canvas; lime is a rare, meaningful signal — never a background wash (Persuade mode).",
+      "Fraunces serif for all display/headline type; Inter for body and UI; JetBrains Mono only for actual code/data.",
+      "Soft, large-blur ambient shadows and glassmorphism (never hard-offset or neobrutalist) in Persuade mode.",
+      "Generous pill/rounded-full shapes for interactive chrome against softer large-radius rounding (32-40px) for content surfaces in Persuade mode.",
+      "Operate mode (dashboard/portal) trades all of the above for a calmer, denser, functional system: light gray canvas, white panels, tight 8-16px radii, fast non-scroll-hijacking motion."
+    ],
+    "rules": [
+      { "name": "The Signal Rule", "body": "Lime never appears as a passive background fill or large color block — only as a small, meaningful mark (text, icon, thin accent line, active-state fill) that says \"this is live.\" A full-bleed lime panel would break the rule.", "section": "colors" },
+      { "name": "The Two-Surface Rule", "body": "Every section is either Circuit Black or Paper White at rest — no mid-tone gray section backgrounds. Contrast between sections is the rhythm.", "section": "colors" },
+      { "name": "The Serif-Only-Display Rule", "body": "Fraunces never appears below Title size, and Inter never carries a headline. The split is absolute — it's what makes the pairing read as a deliberate choice rather than inconsistency.", "section": "typography" },
+      { "name": "The Lift-On-Hover Rule", "body": "Interactive cards are flat-ish at rest and gain both a translateY lift and a shadow escalation on hover — depth is a response to interaction, not a static decoration.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do treat Signal Lime as a rare mark of \"this is active\" — CTA fills, active states, live indicators — never a large background field (The Signal Rule).",
+      "Do keep every section's resting background either Circuit Black or Paper White — no mid-tone gray sections.",
+      "Do pair large soft-blur shadows with a hover lift on any interactive card or button; nothing gets a hard-offset shadow.",
+      "Do give every clickable card/row a real keyboard path (role, tabIndex, visible focus ring) — this system has a Card primitive that does this automatically when onClick is passed; use it rather than a bare onClick div.",
+      "Do hide duplicate/looping marquee content from assistive tech (aria-hidden on the repeated copy) — this system runs several infinite-scroll marquees."
+    ],
+    "donts": [
+      "Don't introduce a second \"accent\" hex outside #CDFB47 (Signal Lime). One isolated instance of #65A30D currently exists in the \"Why Choose Us\" eyebrow badge — treat it as a bug to consolidate to the primary token, not a precedent for a secondary accent.",
+      "Don't use text-gray-400/text-slate-400 (or lighter) for body text on a white surface — both fall below the 4.5:1 AA contrast floor. gray-500/slate-500 is the lightest acceptable gray on white.",
+      "Don't run a continuous JS-driven animation (marquees, shaders) without gating it behind IntersectionObserver — several components in this system pause off-screen for exactly this reason; new ones should too.",
+      "Don't use Fraunces below Title size, or Inter for a headline — the serif/sans split is absolute, not a suggestion."
+    ]
+  }
+}

@@ -8,14 +8,17 @@ import {
   Edit2,
   CheckCircle2,
   XCircle,
-  X,
-  DollarSign,
   Search,
-  Star
+  Star,
+  Tag
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Modal } from '../../components/ui/Modal';
+import { Input } from '../../components/ui/FormField';
+import { Spinner } from '../../components/ui/Spinner';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
 export const ManagePricingPlansPage: React.FC = () => {
   const [plans, setPlans] = useState<any[]>([]);
@@ -27,6 +30,7 @@ export const ManagePricingPlansPage: React.FC = () => {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   // Form State
   const [name, setName] = useState('');
@@ -43,12 +47,8 @@ export const ManagePricingPlansPage: React.FC = () => {
 
   const fetchPlans = async () => {
     setLoading(true);
-    const token = localStorage.getItem('adminToken');
     try {
-      const res = await fetch('/api/v1/pricing-plans/admin/all', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const data = await apiFetch('/pricing-plans/admin/all');
       if (data.success) {
         setPlans(data.data);
       } else {
@@ -165,7 +165,6 @@ export const ManagePricingPlansPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this pricing plan?')) return;
     try {
       const data = await apiFetch(`/pricing-plans/${id}`, {
         method: 'DELETE',
@@ -178,6 +177,8 @@ export const ManagePricingPlansPage: React.FC = () => {
       }
     } catch {
       setErrorMsg('Error deleting plan.');
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -206,40 +207,45 @@ export const ManagePricingPlansPage: React.FC = () => {
 
       {/* Messages */}
       {errorMsg && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm">
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-semibold">
           {errorMsg}
         </div>
       )}
       {successMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm">
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold">
           {successMsg}
         </div>
       )}
 
       {/* Search Bar */}
       <div className="relative">
-        <Search className="w-5 h-5 text-gray-400 absolute left-4 top-3.5" />
+        <Search className="w-5 h-5 text-mutedOnLight absolute left-4 top-3.5" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search pricing plans by name or price..."
-          className="w-full pl-12 pr-4 py-3 rounded-2xl bg-dark/60 border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-primary"
+          aria-label="Search pricing plans"
+          className="focus-ring w-full pl-12 pr-4 py-3 rounded-xl bg-background border border-dark/10 text-dark placeholder:text-mutedOnLight text-sm focus:outline-none focus:border-dark"
         />
       </div>
 
       {/* Plans Grid */}
       {loading ? (
-        <div className="py-20 text-center text-gray-400 font-mono">Loading pricing plans...</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[0, 1, 2].map((i) => (
+            <Spinner.CardSkeleton key={i} />
+          ))}
+        </div>
       ) : filteredPlans.length === 0 ? (
-        <div className="py-20 text-center text-gray-400 font-mono">No pricing plans found.</div>
+        <EmptyState icon={Tag} title="No pricing plans found" description="Create your first pricing plan to show it on the public pricing section." />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {filteredPlans.map((plan) => (
             <Card
               key={plan._id}
-              className={`p-8 bg-dark border flex flex-col justify-between space-y-6 rounded-3xl relative ${
-                plan.isPopular ? 'border-primary/60 shadow-glow' : 'border-white/10'
+              className={`p-8 bg-white border flex flex-col justify-between space-y-6 rounded-card relative ${
+                plan.isPopular ? 'border-primary shadow-hover' : 'border-dark/10'
               }`}
             >
               {plan.isPopular && (
@@ -249,18 +255,18 @@ export const ManagePricingPlansPage: React.FC = () => {
               )}
 
               <div className="space-y-4">
-                <span className="text-xs font-mono text-gray-400 font-bold">#{plan.order}</span>
+                <span className="text-xs font-mono text-mutedOnLight font-bold">#{plan.order}</span>
 
-                <h3 className="font-display text-2xl font-bold text-white">{plan.name}</h3>
+                <h3 className="font-display text-2xl font-bold text-dark">{plan.name}</h3>
 
                 <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-bold text-primary">{plan.currency}</span>
-                  <span className="font-display text-4xl font-extrabold text-white">{plan.price}</span>
-                  <span className="text-xs text-gray-400 font-medium ml-1">/ {plan.billingCycle}</span>
+                  <span className="text-xl font-bold text-dark">{plan.currency}</span>
+                  <span className="font-display text-4xl font-extrabold text-dark">{plan.price}</span>
+                  <span className="text-xs text-mutedOnLight font-medium ml-1">/ {plan.billingCycle}</span>
                 </div>
 
                 {plan.description && (
-                  <p className="text-xs text-gray-400 leading-relaxed">{plan.description}</p>
+                  <p className="text-xs text-slateText leading-relaxed">{plan.description}</p>
                 )}
 
                 {/* Features */}
@@ -276,11 +282,11 @@ export const ManagePricingPlansPage: React.FC = () => {
                     return (
                       <div key={idx} className="flex items-center gap-2 text-xs">
                         {isEx ? (
-                          <XCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                          <XCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                         ) : (
                           <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
                         )}
-                        <span className={isEx ? 'text-gray-400 line-through' : 'text-gray-200 font-medium'}>
+                        <span className={isEx ? 'text-mutedOnLight line-through' : 'text-dark font-medium'}>
                           {f}
                         </span>
                       </div>
@@ -289,21 +295,23 @@ export const ManagePricingPlansPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                <span className={`text-[10px] font-bold uppercase tracking-wider ${plan.isActive ? 'text-emerald-400' : 'text-gray-500'}`}>
+              <div className="pt-4 border-t border-dark/10 flex items-center justify-between">
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${plan.isActive ? 'text-emerald-600' : 'text-mutedOnLight'}`}>
                   {plan.isActive ? '• Active' : '• Inactive'}
                 </span>
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleOpenEditModal(plan)}
-                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+                    aria-label={`Edit ${plan.name}`}
+                    className="focus-ring p-2 rounded-xl bg-dark/5 hover:bg-dark/10 text-slateText hover:text-dark transition-colors"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(plan._id)}
-                    className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
+                    onClick={() => setDeleteTarget({ id: plan._id, name: plan.name })}
+                    aria-label={`Delete ${plan.name}`}
+                    className="focus-ring p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -322,59 +330,25 @@ export const ManagePricingPlansPage: React.FC = () => {
         subtitle="Configure plan details, pricing, and features for website display"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-gray-300 mb-1">Plan Name</label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Startup Plan"
-              className="w-full px-3 py-2 rounded-xl bg-dark/60 border border-white/15 text-white text-sm focus:outline-none focus:border-primary"
-            />
-          </div>
+          <Input label="Plan Name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Startup Plan" />
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-gray-300 mb-1">Price Amount</label>
-              <input
-                type="text"
-                required
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="e.g. 89,000"
-                className="w-full px-3 py-2 rounded-xl bg-dark/60 border border-white/15 text-white text-sm focus:outline-none focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-300 mb-1">Billing Cycle</label>
-              <input
-                type="text"
-                value={billingCycle}
-                onChange={(e) => setBillingCycle(e.target.value)}
-                placeholder="e.g. One-time payment"
-                className="w-full px-3 py-2 rounded-xl bg-dark/60 border border-white/15 text-white text-sm focus:outline-none focus:border-primary"
-              />
-            </div>
+            <Input label="Price Amount" required value={price} onChange={(e) => setPrice(e.target.value)} placeholder="e.g. 89,000" />
+            <Input label="Billing Cycle" value={billingCycle} onChange={(e) => setBillingCycle(e.target.value)} placeholder="e.g. One-time payment" />
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-gray-300 mb-1">Short Description</label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g. Complete multi-app ecosystem for rapidly growing startup platforms."
-              className="w-full px-3 py-2 rounded-xl bg-dark/60 border border-white/15 text-white text-sm focus:outline-none focus:border-primary"
-            />
-          </div>
+          <Input
+            label="Short Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="e.g. Complete multi-app ecosystem for rapidly growing startup platforms."
+          />
 
           {/* Features List Inputs */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs font-bold text-gray-300">Plan Features List</label>
-              <span className="text-[10px] text-gray-400">Prefix with "No " or click "Not Included" for Red Cross Mark (✕)</span>
+              <label className="block text-xs font-bold text-dark">Plan Features List</label>
+              <span className="text-[10px] text-mutedOnLight">Prefix with "No " or click "Not Included" for Red Cross Mark (✕)</span>
             </div>
 
             <div className="space-y-2">
@@ -404,10 +378,10 @@ export const ManagePricingPlansPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={toggleExcludedStatus}
-                      className={`px-2.5 py-1.5 rounded-xl text-[11px] font-bold border transition-colors shrink-0 ${
+                      className={`focus-ring px-2.5 py-1.5 rounded-xl text-[11px] font-bold border transition-colors shrink-0 ${
                         isExcluded
-                          ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 hover:bg-rose-500/30'
-                          : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
+                          ? 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100'
+                          : 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100'
                       }`}
                     >
                       {isExcluded ? '✕ Excluded' : '✓ Included'}
@@ -418,8 +392,9 @@ export const ManagePricingPlansPage: React.FC = () => {
                       value={feat}
                       onChange={(e) => handleFeatureChange(idx, e.target.value)}
                       placeholder={`Feature #${idx + 1} (e.g. Master Admin Panel or No Source Code)`}
-                      className={`flex-1 px-3 py-2 rounded-xl bg-dark/60 border text-xs focus:outline-none focus:border-primary ${
-                        isExcluded ? 'border-rose-500/40 text-rose-200' : 'border-white/15 text-white'
+                      aria-label={`Feature ${idx + 1}`}
+                      className={`focus-ring flex-1 px-3 py-2 rounded-form bg-background border text-xs focus:outline-none focus:border-dark ${
+                        isExcluded ? 'border-rose-200 text-rose-600' : 'border-dark/10 text-dark'
                       }`}
                     />
 
@@ -427,7 +402,8 @@ export const ManagePricingPlansPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => removeFeatureInput(idx)}
-                        className="p-2 text-rose-400 hover:text-rose-300 text-xs"
+                        aria-label={`Remove feature ${idx + 1}`}
+                        className="focus-ring p-2 text-rose-500 hover:text-rose-600 text-xs"
                       >
                         ✕
                       </button>
@@ -440,48 +416,30 @@ export const ManagePricingPlansPage: React.FC = () => {
             <button
               type="button"
               onClick={addFeatureInput}
-              className="mt-2 text-xs font-bold text-primary hover:underline"
+              className="focus-ring mt-2 text-xs font-bold text-dark hover:text-primary"
             >
               + Add Feature Line
             </button>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-gray-300 mb-1">Button Text</label>
-              <input
-                type="text"
-                value={buttonText}
-                onChange={(e) => setButtonText(e.target.value)}
-                placeholder="e.g. Choose This Plan"
-                className="w-full px-3 py-2 rounded-xl bg-dark/60 border border-white/15 text-white text-sm focus:outline-none focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-300 mb-1">Display Order</label>
-              <input
-                type="number"
-                value={order}
-                onChange={(e) => setOrder(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl bg-dark/60 border border-white/15 text-white text-sm focus:outline-none focus:border-primary"
-              />
-            </div>
+            <Input label="Button Text" value={buttonText} onChange={(e) => setButtonText(e.target.value)} placeholder="e.g. Choose This Plan" />
+            <Input label="Display Order" type="number" value={order} onChange={(e) => setOrder(Number(e.target.value))} />
           </div>
 
           {/* Highlight & Active Toggles */}
           <div className="flex items-center gap-6 pt-2">
-            <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 font-bold">
+            <label className="flex items-center gap-2 cursor-pointer text-xs text-dark font-bold">
               <input
                 type="checkbox"
                 checked={isPopular}
                 onChange={(e) => setIsPopular(e.target.checked)}
                 className="w-4 h-4 rounded accent-primary"
               />
-              Mark as "Most Popular" (Highlighted Blue Card)
+              Mark as "Most Popular" (Highlighted Card)
             </label>
 
-            <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 font-bold">
+            <label className="flex items-center gap-2 cursor-pointer text-xs text-dark font-bold">
               <input
                 type="checkbox"
                 checked={isActive}
@@ -497,6 +455,16 @@ export const ManagePricingPlansPage: React.FC = () => {
           </Button>
         </form>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => deleteTarget && handleDelete(deleteTarget.id)}
+        title="Delete pricing plan?"
+        description={deleteTarget ? `"${deleteTarget.name}" will be permanently removed from the public pricing section.` : undefined}
+        confirmLabel="Delete"
+        destructive
+      />
     </div>
   );
 };

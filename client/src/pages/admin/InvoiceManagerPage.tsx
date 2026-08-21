@@ -3,26 +3,38 @@ import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
-import { Receipt, DollarSign, CheckCircle2, AlertCircle, CreditCard } from 'lucide-react';
+import { Receipt, CreditCard } from 'lucide-react';
 import { apiFetch } from '../../services/api';
+import { Modal } from '../../components/ui/Modal';
+import { Input, Select } from '../../components/ui/FormField';
+import { Spinner } from '../../components/ui/Spinner';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { formatMoney } from '../../utils/format';
 
 export const InvoiceManagerPage: React.FC = () => {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
   const [paymentAmount, setPaymentAmount] = useState(0);
   const [transactionRef, setTransactionRef] = useState('');
   const [paymentMode, setPaymentMode] = useState('UPI');
+  const [paymentError, setPaymentError] = useState('');
 
   const token = localStorage.getItem('adminToken');
 
   const fetchInvoices = () => {
     setLoading(true);
+    setLoadError(false);
     apiFetch('/crm/invoices', { token })
       .then((res) => {
-        if (res.success) setInvoices(res.data || []);
+        if (!res.success) {
+          setLoadError(true);
+          return;
+        }
+        setInvoices(res.data || []);
       })
-      .catch(() => {})
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
   };
 
@@ -33,6 +45,7 @@ export const InvoiceManagerPage: React.FC = () => {
   const handleRecordPayment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedInvoice) return;
+    setPaymentError('');
 
     apiFetch(`/crm/invoices/${selectedInvoice._id}/payments`, {
       method: 'POST',
@@ -49,9 +62,11 @@ export const InvoiceManagerPage: React.FC = () => {
           setPaymentAmount(0);
           setTransactionRef('');
           fetchInvoices();
+        } else {
+          setPaymentError(res.error || res.message || 'Failed to record payment.');
         }
       })
-      .catch((err) => alert('Error recording payment: ' + err.message));
+      .catch((err) => setPaymentError('Error recording payment: ' + err.message));
   };
 
   return (
@@ -59,9 +74,24 @@ export const InvoiceManagerPage: React.FC = () => {
       <SEOHead title="Invoice & Payment Manager | Admin Dashboard" />
 
       {loading ? (
-        <div className="text-center py-12 text-slateText text-sm">Loading tax invoices...</div>
+        <Spinner.Skeleton lines={4} />
+      ) : loadError ? (
+        <EmptyState
+          icon={Receipt}
+          title="Couldn't load invoices"
+          description="Check your connection and try again."
+          action={
+            <button
+              onClick={fetchInvoices}
+              className="focus-ring px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+            >
+              Retry
+            </button>
+          }
+          className="border-rose-200 bg-rose-50/40"
+        />
       ) : invoices.length === 0 ? (
-        <Card className="p-12 text-center text-slateText text-sm">No tax invoices generated yet.</Card>
+        <EmptyState icon={Receipt} title="No tax invoices generated yet" description="Invoices created from client projects will appear here." />
       ) : (
         <div className="space-y-4">
           {invoices.map((inv) => (
@@ -83,8 +113,8 @@ export const InvoiceManagerPage: React.FC = () => {
               <div className="flex items-center gap-6">
                 <div className="text-right">
                   <span className="text-[10px] text-slateText uppercase font-bold block">Total Amount (Inc. GST)</span>
-                  <span className="font-display text-xl font-bold text-dark">₹{inv.totalAmount?.toLocaleString('en-IN')}</span>
-                  <span className="block text-[11px] text-rose-600 font-bold">Due: ₹{inv.balanceDue?.toLocaleString('en-IN')}</span>
+                  <span className="font-display text-xl font-bold text-dark">{formatMoney(inv.totalAmount || 0, inv.clientId?.currency)}</span>
+                  <span className="block text-[11px] text-rose-600 font-bold">Due: {formatMoney(inv.balanceDue || 0, inv.clientId?.currency)}</span>
                 </div>
 
                 {inv.balanceDue > 0 && (
@@ -105,60 +135,54 @@ export const InvoiceManagerPage: React.FC = () => {
       )}
 
       {/* Record Payment Modal */}
-      {selectedInvoice && (
-        <div className="fixed inset-0 bg-dark/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-card p-8 max-w-md w-full space-y-6 shadow-2xl">
-            <h2 className="font-display text-2xl font-bold text-dark">Record Payment Transaction</h2>
-            <p className="text-xs text-slateText">Invoice: {selectedInvoice.invoiceNumber}</p>
-            <form onSubmit={handleRecordPayment} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-dark mb-1">Payment Amount (₹)</label>
-                <input
-                  type="number"
-                  required
-                  value={paymentAmount}
-                  onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
-                  className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm font-bold text-dark"
-                />
-              </div>
+      <Modal
+        isOpen={!!selectedInvoice}
+        onClose={() => {
+          setSelectedInvoice(null);
+          setPaymentError('');
+        }}
+        title="Record Payment Transaction"
+        subtitle={selectedInvoice ? `Invoice: ${selectedInvoice.invoiceNumber}` : undefined}
+        maxWidth="md"
+      >
+        <form onSubmit={handleRecordPayment} className="space-y-4">
+          {paymentError && (
+            <p className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+              {paymentError}
+            </p>
+          )}
+          <Input
+            label={`Payment Amount (${selectedInvoice?.clientId?.currency || 'INR'})`}
+            type="number"
+            required
+            value={paymentAmount}
+            onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
+          />
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-dark mb-1">Payment Mode</label>
-                  <select
-                    value={paymentMode}
-                    onChange={(e) => setPaymentMode(e.target.value)}
-                    className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
-                  >
-                    <option value="UPI">UPI / QR</option>
-                    <option value="NetBanking">NetBanking / NEFT</option>
-                    <option value="Wire">Wire Transfer</option>
-                    <option value="Cheque">Cheque</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-dark mb-1">Txn Ref / UTR #</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. UTR98237482"
-                    value={transactionRef}
-                    onChange={(e) => setTransactionRef(e.target.value)}
-                    className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-dark/10">
-                <Button type="button" variant="ghost" onClick={() => setSelectedInvoice(null)}>
-                  Cancel
-                </Button>
-                <Button type="submit">Submit Payment Entry</Button>
-              </div>
-            </form>
+          <div className="grid grid-cols-2 gap-4">
+            <Select label="Payment Mode" value={paymentMode} onChange={(e) => setPaymentMode(e.target.value)}>
+              <option value="UPI">UPI / QR</option>
+              <option value="NetBanking">NetBanking / NEFT</option>
+              <option value="Wire">Wire Transfer</option>
+              <option value="Cheque">Cheque</option>
+            </Select>
+            <Input
+              label="Txn Ref / UTR #"
+              required
+              placeholder="e.g. UTR98237482"
+              value={transactionRef}
+              onChange={(e) => setTransactionRef(e.target.value)}
+            />
           </div>
-        </div>
-      )}
+
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-dark/10">
+            <Button type="button" variant="ghost" onClick={() => setSelectedInvoice(null)}>
+              Cancel
+            </Button>
+            <Button type="submit">Submit Payment Entry</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

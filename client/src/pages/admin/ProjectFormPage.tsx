@@ -49,9 +49,12 @@ export const ProjectFormPage: React.FC = () => {
   const [loading, setLoading] = useState(isEdit);
 
   useEffect(() => {
-    apiFetch('/crm/clients', { token }).then((res) => {
-      if (res.success) setClients(res.data || []);
-    });
+    apiFetch('/crm/clients', { token })
+      .then((res) => {
+        if (res.success) setClients(res.data || []);
+        else setError('Failed to load clients. Please refresh and try again.');
+      })
+      .catch(() => setError('Failed to load clients. Please refresh and try again.'));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

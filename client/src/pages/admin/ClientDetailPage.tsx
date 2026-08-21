@@ -24,6 +24,12 @@ import {
 } from 'lucide-react';
 import { apiFetch, getApiUrl } from '../../services/api';
 import { MeetingsPanel } from '../../components/crm/MeetingsPanel';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { Modal } from '../../components/ui/Modal';
+import { Input, Select } from '../../components/ui/FormField';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { Spinner } from '../../components/ui/Spinner';
+import { CURRENCY_OPTIONS, timeAgo, formatMoney } from '../../utils/format';
 
 interface ClientFileItem {
   _id: string;
@@ -40,14 +46,6 @@ const formatFileSize = (bytes: number): string => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-const CURRENCY_OPTIONS = [
-  { code: 'INR', label: 'INR — Indian Rupee (₹)' },
-  { code: 'USD', label: 'USD — US Dollar ($)' },
-  { code: 'EUR', label: 'EUR — Euro (€)' },
-  { code: 'GBP', label: 'GBP — British Pound (£)' },
-  { code: 'AUD', label: 'AUD — Australian Dollar (A$)' },
-];
-
 type Tab = 'portal' | 'files' | 'projects' | 'meetings';
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
@@ -57,21 +55,6 @@ const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: 'meetings', label: 'Meetings', icon: Calendar },
 ];
 
-const timeAgo = (dateStr?: string): string => {
-  if (!dateStr) return '';
-  const diffMs = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `about ${hours} hour${hours === 1 ? '' : 's'} ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  const months = Math.floor(days / 30);
-  if (months < 12) return `${months}mo ago`;
-  return `${Math.floor(months / 12)}y ago`;
-};
-
 export const ClientDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -79,6 +62,7 @@ export const ClientDetailPage: React.FC = () => {
 
   const [client, setClient] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [tab, setTab] = useState<Tab>('portal');
 
   const [editOpen, setEditOpen] = useState(false);
@@ -96,26 +80,33 @@ export const ClientDetailPage: React.FC = () => {
   const [filesLoading, setFilesLoading] = useState(false);
   const [fileSearch, setFileSearch] = useState('');
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [uploadError, setUploadError] = useState('');
   const [expandedProjectId, setExpandedProjectId] = useState<string | null>(null);
+  const [deleteFileTarget, setDeleteFileTarget] = useState<string | null>(null);
+  const [deleteClientConfirmOpen, setDeleteClientConfirmOpen] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const fetchClient = () => {
     setLoading(true);
+    setLoadError(false);
     apiFetch(`/crm/clients`, { token })
       .then((res) => {
-        if (res.success) {
-          const found = (res.data || []).find((c: any) => c._id === id);
-          setClient(found || null);
-          if (found) {
-            setFormData({
-              companyName: found.companyName || '',
-              billingEmail: found.billingEmail || '',
-              phone: found.phone || '',
-              currency: found.currency || 'INR',
-            });
-          }
+        if (!res.success) {
+          setLoadError(true);
+          return;
+        }
+        const found = (res.data || []).find((c: any) => c._id === id);
+        setClient(found || null);
+        if (found) {
+          setFormData({
+            companyName: found.companyName || '',
+            billingEmail: found.billingEmail || '',
+            phone: found.phone || '',
+            currency: found.currency || 'INR',
+          });
         }
       })
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
   };
 
@@ -148,6 +139,7 @@ export const ClientDetailPage: React.FC = () => {
 
   const handleUploadFile = async (file: File) => {
     setUploadingFile(true);
+    setUploadError('');
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -158,9 +150,9 @@ export const ClientDetailPage: React.FC = () => {
       });
       const data = await response.json();
       if (data.success) fetchClientFiles();
-      else alert(data.message || 'Failed to upload file.');
+      else setUploadError(data.message || 'Failed to upload file.');
     } catch (err: any) {
-      alert(err.message || 'Error uploading file.');
+      setUploadError(err.message || 'Error uploading file.');
     } finally {
       setUploadingFile(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -168,10 +160,11 @@ export const ClientDetailPage: React.FC = () => {
   };
 
   const handleDeleteFile = (fileId: string) => {
-    if (!window.confirm('Delete this file?')) return;
-    apiFetch(`/crm/clients/files/${fileId}`, { method: 'DELETE', token }).then((res) => {
-      if (res.success) fetchClientFiles();
-    });
+    apiFetch(`/crm/clients/files/${fileId}`, { method: 'DELETE', token })
+      .then((res) => {
+        if (res.success) fetchClientFiles();
+      })
+      .finally(() => setDeleteFileTarget(null));
   };
 
   const handleViewFile = (file: ClientFileItem) => {
@@ -219,23 +212,55 @@ export const ClientDetailPage: React.FC = () => {
   };
 
   const handleDeleteClient = () => {
-    if (!window.confirm('Delete this client? This cannot be undone.')) return;
-    apiFetch(`/crm/clients/${id}`, { method: 'DELETE', token }).then((res) => {
-      if (res.success) navigate('/dashboard/clients');
-    });
+    apiFetch(`/crm/clients/${id}`, { method: 'DELETE', token })
+      .then((res) => {
+        if (res.success) navigate('/dashboard/clients');
+      })
+      .finally(() => setDeleteClientConfirmOpen(false));
   };
 
   if (loading) {
-    return <div className="py-24 text-center text-slateText text-sm font-semibold animate-pulse">Loading client...</div>;
+    return (
+      <div className="py-8">
+        <Spinner.CardSkeleton />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="py-16">
+        <EmptyState
+          icon={FolderKanban}
+          title="Couldn't load this client"
+          description="Check your connection and try again."
+          action={
+            <button
+              onClick={fetchClient}
+              className="focus-ring px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+            >
+              Retry
+            </button>
+          }
+          className="border-rose-200 bg-rose-50/40"
+        />
+      </div>
+    );
   }
 
   if (!client) {
     return (
-      <div className="py-24 text-center space-y-3">
-        <p className="text-slateText text-sm font-semibold">Client not found.</p>
-        <Button variant="ghost" onClick={() => navigate('/dashboard/clients')}>
-          <ChevronLeft className="w-4 h-4 mr-1" /> Back to Clients
-        </Button>
+      <div className="py-16">
+        <EmptyState
+          icon={FolderKanban}
+          title="Client not found"
+          description="This client may have been deleted or the link is incorrect."
+          action={
+            <Button variant="ghost" onClick={() => navigate('/dashboard/clients')}>
+              <ChevronLeft className="w-4 h-4 mr-1" /> Back to Clients
+            </Button>
+          }
+        />
       </div>
     );
   }
@@ -290,14 +315,16 @@ export const ClientDetailPage: React.FC = () => {
             </button>
             <button
               onClick={() => setEditOpen(true)}
-              className="p-2.5 rounded-xl border border-dark/15 text-dark hover:bg-dark/5 transition-colors"
+              aria-label="Edit Client"
+              className="focus-ring p-2.5 rounded-xl border border-dark/15 text-dark hover:bg-dark/5 transition-colors"
               title="Edit Client"
             >
               <Pencil className="w-4 h-4" />
             </button>
             <button
-              onClick={handleDeleteClient}
-              className="p-2.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors"
+              onClick={() => setDeleteClientConfirmOpen(true)}
+              aria-label="Delete Client"
+              className="focus-ring p-2.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors"
               title="Delete Client"
             >
               <Trash2 className="w-4 h-4" />
@@ -321,15 +348,15 @@ export const ClientDetailPage: React.FC = () => {
         <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-dark/10 max-w-md">
           <div>
             <p className="text-[10px] font-bold text-slateText uppercase">Budget</p>
-            <p className="font-bold text-lg text-dark">₹{(client.totalRevenue || 0).toLocaleString('en-IN')}</p>
+            <p className="font-bold text-lg text-dark">{formatMoney(client.totalRevenue || 0, client.currency)}</p>
           </div>
           <div>
             <p className="text-[10px] font-bold text-slateText uppercase">Paid</p>
-            <p className="font-bold text-lg text-emerald-600">₹{paid.toLocaleString('en-IN')}</p>
+            <p className="font-bold text-lg text-emerald-600">{formatMoney(paid, client.currency)}</p>
           </div>
           <div>
             <p className="text-[10px] font-bold text-slateText uppercase">Balance</p>
-            <p className="font-bold text-lg text-rose-600">₹{(client.outstandingBalance || 0).toLocaleString('en-IN')}</p>
+            <p className="font-bold text-lg text-rose-600">{formatMoney(client.outstandingBalance || 0, client.currency)}</p>
           </div>
         </div>
       </Card>
@@ -423,6 +450,12 @@ export const ClientDetailPage: React.FC = () => {
             </span>
           </div>
 
+          {uploadError && (
+            <p className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+              {uploadError}
+            </p>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Client files */}
             <Card className="p-5 space-y-3" hoverEffect={false}>
@@ -435,7 +468,7 @@ export const ClientDetailPage: React.FC = () => {
               </p>
 
               {filesLoading ? (
-                <p className="text-xs text-slateText py-6 text-center">Loading files...</p>
+                <Spinner.Skeleton lines={3} className="py-2" />
               ) : filteredClientFiles.length === 0 ? (
                 <button
                   onClick={() => fileInputRef.current?.click()}
@@ -460,17 +493,19 @@ export const ClientDetailPage: React.FC = () => {
                           <p className="text-[10px] text-slateText">{formatFileSize(f.fileSize)}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
                         <button
                           onClick={() => handleViewFile(f)}
-                          className="p-1.5 text-slateText hover:text-dark rounded-lg hover:bg-dark/5"
+                          aria-label="View / Download"
+                          className="focus-ring p-1.5 text-slateText hover:text-dark rounded-lg hover:bg-dark/5"
                           title="View / Download"
                         >
                           <Download className="w-3.5 h-3.5" />
                         </button>
                         <button
-                          onClick={() => handleDeleteFile(f._id)}
-                          className="p-1.5 text-slateText hover:text-rose-600 rounded-lg hover:bg-rose-50"
+                          onClick={() => setDeleteFileTarget(f._id)}
+                          aria-label="Delete file"
+                          className="focus-ring p-1.5 text-slateText hover:text-rose-600 rounded-lg hover:bg-rose-50"
                           title="Delete"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -493,7 +528,7 @@ export const ClientDetailPage: React.FC = () => {
               </p>
 
               {projectsLoading ? (
-                <p className="text-xs text-slateText py-6 text-center">Loading projects...</p>
+                <Spinner.Skeleton lines={3} className="py-2" />
               ) : projects.length === 0 ? (
                 <p className="text-xs text-slateText py-6 text-center">No projects yet for this client.</p>
               ) : (
@@ -502,11 +537,12 @@ export const ClientDetailPage: React.FC = () => {
                     const isExpanded = expandedProjectId === p._id;
                     return (
                       <div key={p._id} className="rounded-xl border border-dark/10 overflow-hidden">
-                        <button
-                          onClick={() => setExpandedProjectId(isExpanded ? null : p._id)}
-                          className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-dark/[0.02] transition-colors"
-                        >
-                          <span className="flex items-center gap-2 min-w-0">
+                        <div className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-dark/[0.02] transition-colors">
+                          <button
+                            onClick={() => setExpandedProjectId(isExpanded ? null : p._id)}
+                            aria-expanded={isExpanded}
+                            className="focus-ring flex items-center gap-2 min-w-0 flex-1 text-left rounded"
+                          >
                             <ChevronDown
                               className={`w-3.5 h-3.5 text-slateText shrink-0 transition-transform ${
                                 isExpanded ? '' : '-rotate-90'
@@ -516,17 +552,14 @@ export const ClientDetailPage: React.FC = () => {
                             <span className="px-1.5 py-0.5 rounded-full bg-dark/5 text-[9px] font-bold text-slateText shrink-0">
                               {p.fileCount || 0}
                             </span>
-                          </span>
-                          <span
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/dashboard/client-projects/${p._id}`);
-                            }}
-                            className="text-[10px] font-bold text-primary-dark hover:underline flex items-center gap-1 shrink-0"
+                          </button>
+                          <button
+                            onClick={() => navigate(`/dashboard/client-projects/${p._id}`)}
+                            className="focus-ring text-[10px] font-bold text-primary-dark hover:underline flex items-center gap-1 shrink-0 rounded"
                           >
                             Open <ExternalLink className="w-3 h-3" />
-                          </span>
-                        </button>
+                          </button>
+                        </div>
                         {isExpanded && (
                           <div className="px-3 pb-3 pt-0.5">
                             <p className="text-[11px] text-slateText">No files on this project yet.</p>
@@ -555,9 +588,21 @@ export const ClientDetailPage: React.FC = () => {
           </div>
 
           {projectsLoading ? (
-            <p className="text-xs text-slateText py-6 text-center">Loading projects...</p>
+            <Spinner.Skeleton lines={3} className="py-2" />
           ) : projects.length === 0 ? (
-            <p className="text-xs text-slateText py-6 text-center">This client has no projects yet.</p>
+            <EmptyState
+              icon={FolderKanban}
+              title="No projects yet"
+              description="Create the first project for this client to start tracking delivery."
+              action={
+                <button
+                  onClick={() => navigate(`/dashboard/client-projects/new?client=${id}`)}
+                  className="focus-ring px-4 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs flex items-center gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" /> New Project
+                </button>
+              }
+            />
           ) : (
             <div className="space-y-2">
               {projects.map((p) => (
@@ -571,8 +616,8 @@ export const ClientDetailPage: React.FC = () => {
                     <p className="text-[10px] text-slateText capitalize">{p.status?.replace('_', ' ')}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-xs text-dark">₹{(p.budget || 0).toLocaleString('en-IN')}</p>
-                    <p className="text-[10px] text-slateText">Paid ₹{(p.paidAmount || 0).toLocaleString('en-IN')}</p>
+                    <p className="font-bold text-xs text-dark">{formatMoney(p.budget || 0, client.currency)}</p>
+                    <p className="text-[10px] text-slateText">Paid {formatMoney(p.paidAmount || 0, client.currency)}</p>
                   </div>
                 </button>
               ))}
@@ -592,70 +637,66 @@ export const ClientDetailPage: React.FC = () => {
       )}
 
       {/* Edit Modal */}
-      {editOpen && (
-        <div className="fixed inset-0 bg-dark/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-card p-8 max-w-lg w-full space-y-6 shadow-2xl">
-            <h2 className="font-display text-2xl font-bold text-dark">Edit Client</h2>
-            {formError && (
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
-                {formError}
-              </div>
-            )}
-            <form onSubmit={handleSaveEdit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-dark mb-1">Client Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.companyName}
-                  onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                  className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-dark mb-1">Email (optional)</label>
-                <input
-                  type="email"
-                  value={formData.billingEmail}
-                  onChange={(e) => setFormData({ ...formData, billingEmail: e.target.value })}
-                  className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-dark mb-1">Phone Number</label>
-                <input
-                  type="text"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-dark mb-1">Invoice Currency</label>
-                <select
-                  value={formData.currency}
-                  onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                  className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm font-semibold"
-                >
-                  {CURRENCY_OPTIONS.map((c) => (
-                    <option key={c.code} value={c.code}>
-                      {c.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-dark/5">
-                <Button type="button" variant="ghost" onClick={() => setEditOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={saving} className="gap-2">
-                  <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </div>
-            </form>
+      <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Edit Client" maxWidth="lg">
+        {formError && (
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+            {formError}
           </div>
-        </div>
-      )}
+        )}
+        <form onSubmit={handleSaveEdit} className="space-y-4">
+          <Input
+            label="Client Name"
+            required
+            value={formData.companyName}
+            onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+          />
+          <Input
+            label="Email (optional)"
+            type="email"
+            value={formData.billingEmail}
+            onChange={(e) => setFormData({ ...formData, billingEmail: e.target.value })}
+          />
+          <Input
+            label="Phone Number"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+          />
+          <Select label="Invoice Currency" value={formData.currency} onChange={(e) => setFormData({ ...formData, currency: e.target.value })}>
+            {CURRENCY_OPTIONS.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.label}
+              </option>
+            ))}
+          </Select>
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-dark/5">
+            <Button type="button" variant="ghost" onClick={() => setEditOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={saving} className="gap-2">
+              <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteFileTarget}
+        onClose={() => setDeleteFileTarget(null)}
+        onConfirm={() => deleteFileTarget && handleDeleteFile(deleteFileTarget)}
+        title="Delete file?"
+        confirmLabel="Delete"
+        destructive
+      />
+
+      <ConfirmDialog
+        isOpen={deleteClientConfirmOpen}
+        onClose={() => setDeleteClientConfirmOpen(false)}
+        onConfirm={handleDeleteClient}
+        title="Delete client?"
+        description="This client record will be permanently removed. This cannot be undone."
+        confirmLabel="Delete"
+        destructive
+      />
     </div>
   );
 };

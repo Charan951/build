@@ -9,18 +9,72 @@ import { apiFetch } from '../../services/api';
 
 export const PricingPlansSection: React.FC = () => {
   const [plans, setPlans] = useState<any[]>([]);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'empty' | 'error'>('loading');
 
   useEffect(() => {
     apiFetch('/pricing-plans')
       .then((data) => {
         if (data.success && data.data.length > 0) {
           setPlans(data.data);
+          setStatus('ready');
+        } else {
+          setStatus('empty');
         }
       })
-      .catch(() => {});
+      .catch(() => setStatus('error'));
   }, []);
 
-  if (plans.length === 0) return null;
+  if (status === 'loading') {
+    return (
+      <div className="space-y-12 py-4">
+        <div className="text-center space-y-3">
+          <h2 className="font-display text-3xl md:text-5xl font-black text-dark tracking-tight">
+            Choose Your <span className="text-primary font-black">Startup Plan</span>
+          </h2>
+          <p className="text-base md:text-lg text-slateText max-w-2xl mx-auto">
+            Get everything you need to launch your million-dollar startup
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-2">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="rounded-3xl border border-slate-200 bg-white p-8 md:p-10 space-y-6 animate-pulse">
+              <div className="space-y-3 text-center">
+                <div className="h-5 w-24 bg-slate-100 rounded-full mx-auto" />
+                <div className="h-9 w-28 bg-slate-100 rounded-lg mx-auto" />
+                <div className="h-5 w-32 bg-slate-100 rounded-full mx-auto" />
+              </div>
+              <div className="space-y-3 pt-4 border-t border-slate-100">
+                {[0, 1, 2, 3].map((j) => (
+                  <div key={j} className="h-3.5 w-full bg-slate-100 rounded-full" />
+                ))}
+              </div>
+              <div className="h-12 w-full bg-slate-100 rounded-button" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'empty' || status === 'error') {
+    return (
+      <div className="space-y-6 py-4 text-center">
+        <h2 className="font-display text-3xl md:text-5xl font-black text-dark tracking-tight">
+          Choose Your <span className="text-primary font-black">Startup Plan</span>
+        </h2>
+        <p className="text-base text-slateText max-w-md mx-auto">
+          {status === 'error'
+            ? "Pricing plans couldn't be loaded right now. Reach out and we'll walk you through options directly."
+            : 'Pricing plans are being finalized — reach out and we\'ll put together a plan for your project.'}
+        </p>
+        <Link to="/contact">
+          <Button variant="lime" size="lg" className="gap-2">
+            Talk to Us <ArrowRight className="w-4 h-4" />
+          </Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-12 py-4">
@@ -103,7 +157,7 @@ export const PricingPlansSection: React.FC = () => {
                             <Check className="w-3.5 h-3.5 stroke-[3]" />
                           </div>
                         )}
-                        <span className={`leading-snug pt-0.5 ${isExcluded ? 'text-slate-400 font-medium' : 'text-dark font-bold'}`}>
+                        <span className={`leading-snug pt-0.5 ${isExcluded ? 'text-slate-500 font-medium' : 'text-dark font-bold'}`}>
                           {f}
                         </span>
                       </div>

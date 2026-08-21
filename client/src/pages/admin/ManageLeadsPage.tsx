@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import {
   Plus,
   Settings,
@@ -26,6 +27,7 @@ import { NewLeadModal } from '../../components/crm/NewLeadModal';
 import { ManageStagesModal, StageItem } from '../../components/crm/ManageStagesModal';
 import { EditLeadModal, LeadData } from '../../components/crm/EditLeadModal';
 import { SendProposalModal } from '../../components/crm/SendProposalModal';
+import { getApiUrl } from '../../services/api';
 
 export const ManageLeadsPage: React.FC = () => {
   const [leads, setLeads] = useState<any[]>([]);
@@ -38,6 +40,7 @@ export const ManageLeadsPage: React.FC = () => {
   });
 
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   // Leads with at least one proposal that has actually been emailed (status: 'sent').
   const [sentProposalLeadIds, setSentProposalLeadIds] = useState<Set<string>>(new Set());
 
@@ -60,6 +63,7 @@ export const ManageLeadsPage: React.FC = () => {
 
   // Export Dropdown State
   const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
+  const exportDropdownRef = useRef<HTMLDivElement>(null);
 
   // Selection mode state
   const [isSelectMode, setIsSelectMode] = useState(false);
@@ -80,31 +84,40 @@ export const ManageLeadsPage: React.FC = () => {
     if (!board) return;
 
     const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
-
-      const target = e.target as HTMLElement;
-      const column = target.closest('[data-lead-column]') as HTMLElement | null;
-
-      if (column) {
-        // Cursor is over a stage's card list: only let it scroll vertically
-        // while there's actually more of the list to reveal in that
-        // direction. Once the list is at its top/bottom (or has no
-        // overflow at all, e.g. an empty stage), fall through to panning
-        // the board horizontally instead of doing nothing.
-        const canScrollDown = e.deltaY > 0 && column.scrollTop + column.clientHeight < column.scrollHeight - 1;
-        const canScrollUp = e.deltaY < 0 && column.scrollTop > 0;
-        if (canScrollDown || canScrollUp) return;
-      }
-
-      // Cursor is over the board background, or a stage list with no more
-      // vertical room to give: pan the whole board horizontally instead.
+      // Only handle a gesture that's actually horizontal (trackpad shift-scroll
+      // or a horizontal swipe) — pan the board to match. A vertical wheel
+      // gesture is never redirected into horizontal movement: over a column
+      // with room to scroll, the browser's native vertical scroll on that
+      // column already just works without any JS here. Over an empty or
+      // fully-scrolled column, a vertical gesture should simply do nothing
+      // rather than jump the whole board sideways, which reads as broken.
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      if (board.scrollWidth <= board.clientWidth) return;
       e.preventDefault();
-      board.scrollLeft += e.deltaY;
+      board.scrollLeft += e.deltaX;
     };
 
     board.addEventListener('wheel', onWheel, { passive: false });
     return () => board.removeEventListener('wheel', onWheel);
   }, []);
+
+  useEffect(() => {
+    if (!isExportDropdownOpen) return;
+    const onClickOutside = (e: MouseEvent) => {
+      if (exportDropdownRef.current && !exportDropdownRef.current.contains(e.target as Node)) {
+        setIsExportDropdownOpen(false);
+      }
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsExportDropdownOpen(false);
+    };
+    document.addEventListener('mousedown', onClickOutside);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onClickOutside);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isExportDropdownOpen]);
 
   // Click-and-drag panning on the board background, so the board scrolls
   // freely even on a plain mouse (no trackpad/shift-scroll needed). Dragging
@@ -170,24 +183,37 @@ export const ManageLeadsPage: React.FC = () => {
   }, []);
 
   const fetchPipelineData = async (silent = false) => {
-    if (!silent) setLoading(true);
+    if (!silent) {
+      setLoading(true);
+      setLoadError(false);
+    }
     try {
       const token = localStorage.getItem('adminToken');
       const [leadsRes, stagesRes, statsRes, leadProposalsRes] = await Promise.all([
-        fetch('/api/v1/leads', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/v1/leads/stages', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/v1/leads/stats', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/v1/proposals/lead-proposals', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(getApiUrl('/leads'), { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(getApiUrl('/leads/stages'), { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(getApiUrl('/leads/stats'), { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(getApiUrl('/proposals/lead-proposals'), { headers: { Authorization: `Bearer ${token}` } }),
       ]);
+
+      if (!leadsRes.ok || !stagesRes.ok || !statsRes.ok) {
+        setLoadError(true);
+        return;
+      }
 
       const leadsData = await leadsRes.json();
       const stagesData = await stagesRes.json();
       const statsData = await statsRes.json();
       const leadProposalsData = await leadProposalsRes.json();
 
-      if (leadsData.success) setLeads(leadsData.data);
-      if (stagesData.success) setStages(stagesData.data);
-      if (statsData.success) setStats(statsData.data);
+      if (!leadsData.success || !stagesData.success || !statsData.success) {
+        setLoadError(true);
+        return;
+      }
+
+      setLeads(leadsData.data);
+      setStages(stagesData.data);
+      setStats(statsData.data);
       if (leadProposalsData.success) {
         setSentProposalLeadIds(
           new Set(
@@ -199,6 +225,7 @@ export const ManageLeadsPage: React.FC = () => {
       }
     } catch (err) {
       console.error('Error fetching pipeline data:', err);
+      setLoadError(true);
     } finally {
       if (!silent) setLoading(false);
     }
@@ -207,12 +234,12 @@ export const ManageLeadsPage: React.FC = () => {
   // Unified Export Handler (Excel .xlsx or CSV .csv)
   const handleExport = (format: 'xlsx' | 'csv' = 'xlsx') => {
     setIsExportDropdownOpen(false);
-    if (leads.length === 0) {
-      alert('No leads available to export.');
+    if (filteredLeads.length === 0) {
+      showToast('error', 'No leads available to export.');
       return;
     }
 
-    const exportData = leads.map((l) => ({
+    const exportData = filteredLeads.map((l) => ({
       'Name': l.name || '',
       'Company': l.company || '',
       'Email': l.email || '',
@@ -257,12 +284,12 @@ export const ManageLeadsPage: React.FC = () => {
         const jsonRows: any[] = XLSX.utils.sheet_to_json(worksheet);
 
         if (jsonRows.length === 0) {
-          alert('Uploaded file is empty or missing data rows.');
+          showToast('error', 'Uploaded file is empty or missing data rows.');
           return;
         }
 
         // Send parsed records to backend endpoint
-        const response = await fetch('/api/v1/leads/import', {
+        const response = await fetch(getApiUrl('/leads/import'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -273,13 +300,13 @@ export const ManageLeadsPage: React.FC = () => {
 
         const resData = await response.json();
         if (resData.success) {
-          alert(`Successfully imported ${resData.count} lead(s) from "${file.name}"!`);
+          showToast('success', `Successfully imported ${resData.count} lead(s) from "${file.name}".`);
           fetchPipelineData(true);
         } else {
-          alert(`Import failed: ${resData.message}`);
+          showToast('error', `Import failed: ${resData.message}`);
         }
       } catch (err: any) {
-        alert(`Error reading file: ${err.message}`);
+        showToast('error', `Error reading file: ${err.message}`);
       } finally {
         if (fileInputRef.current) fileInputRef.current.value = '';
       }
@@ -310,6 +337,12 @@ export const ManageLeadsPage: React.FC = () => {
     e.preventDefault();
   };
 
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const showToast = (type: 'success' | 'error', text: string) => {
+    setToast({ type, text });
+    setTimeout(() => setToast(null), 5000);
+  };
+
   const handleDrop = async (e: React.DragEvent, targetStageName: string) => {
     e.preventDefault();
     setDragOverStage(null);
@@ -318,18 +351,20 @@ export const ManageLeadsPage: React.FC = () => {
 
     if (!leadId) return;
 
+    const previousStatus = leads.find((l) => l._id === leadId)?.status;
+
     // Optimistic UI Update
     setLeads((prevLeads) =>
       prevLeads.map((l) => (l._id === leadId ? { ...l, status: targetStageName } : l))
     );
 
     // Server Persistence
-    await handleStageChange(leadId, targetStageName);
+    await handleStageChange(leadId, targetStageName, previousStatus);
   };
 
-  const handleStageChange = async (leadId: string, newStageName: string) => {
+  const handleStageChange = async (leadId: string, newStageName: string, revertToStatus?: string) => {
     try {
-      const response = await fetch(`/api/v1/leads/${leadId}/status`, {
+      const response = await fetch(getApiUrl(`/leads/${leadId}/status`), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -339,11 +374,19 @@ export const ManageLeadsPage: React.FC = () => {
       });
 
       const data = await response.json();
-      if (data.success) {
+      if (response.ok && data.success) {
         fetchPipelineData(true);
+      } else {
+        throw new Error(data.message || 'Failed to move lead.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to change lead stage:', err);
+      if (revertToStatus !== undefined) {
+        setLeads((prevLeads) =>
+          prevLeads.map((l) => (l._id === leadId ? { ...l, status: revertToStatus } : l))
+        );
+      }
+      showToast('error', err.message || 'Failed to move lead. It has been moved back.');
     }
   };
 
@@ -355,25 +398,45 @@ export const ManageLeadsPage: React.FC = () => {
     }
   };
 
-  const handleBulkDelete = async () => {
-    if (selectedLeadIds.length === 0) return;
-    if (!window.confirm(`Are you sure you want to delete ${selectedLeadIds.length} lead(s)?`)) return;
+  const [bulkDeleteConfirmOpen, setBulkDeleteConfirmOpen] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [bulkDeleteError, setBulkDeleteError] = useState('');
 
-    try {
-      const token = localStorage.getItem('adminToken');
-      await Promise.all(
-        selectedLeadIds.map((id) =>
-          fetch(`/api/v1/leads/${id}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` },
-          })
-        )
-      );
+  const requestBulkDelete = () => {
+    if (selectedLeadIds.length === 0) return;
+    setBulkDeleteError('');
+    setBulkDeleteConfirmOpen(true);
+  };
+
+  const handleBulkDelete = async () => {
+    setBulkDeleting(true);
+    const token = localStorage.getItem('adminToken');
+    const results = await Promise.allSettled(
+      selectedLeadIds.map((id) =>
+        fetch(getApiUrl(`/leads/${id}`), {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        }).then((res) => {
+          if (!res.ok) throw new Error(`Failed to delete lead ${id}`);
+          return res;
+        })
+      )
+    );
+
+    const failedCount = results.filter((r) => r.status === 'rejected').length;
+    const succeededIds = selectedLeadIds.filter((_, i) => results[i].status === 'fulfilled');
+
+    if (failedCount === 0) {
       setSelectedLeadIds([]);
-      fetchPipelineData();
-    } catch (err) {
-      console.error('Error during bulk deletion:', err);
+      setBulkDeleteConfirmOpen(false);
+    } else {
+      setSelectedLeadIds(selectedLeadIds.filter((id) => !succeededIds.includes(id)));
+      setBulkDeleteError(
+        `${succeededIds.length} of ${selectedLeadIds.length} deleted — ${failedCount} failed. Try again for the rest.`
+      );
     }
+    setBulkDeleting(false);
+    fetchPipelineData();
   };
 
   const filteredLeads = leads.filter((l) => {
@@ -393,6 +456,17 @@ export const ManageLeadsPage: React.FC = () => {
 
   return (
     <div className="h-full min-h-0 flex flex-col gap-2">
+      {toast && (
+        <div
+          role="status"
+          aria-live="assertive"
+          className={`fixed top-20 right-6 z-50 max-w-sm px-4 py-3 rounded-2xl text-white text-xs font-semibold shadow-2xl ${
+            toast.type === 'error' ? 'bg-rose-600' : 'bg-dark'
+          }`}
+        >
+          {toast.text}
+        </div>
+      )}
       <SEOHead
         title="Leads Pipeline | Build Your Thoughts Admin"
         description="Manage, drag-and-drop, edit, export and import sales CRM prospects"
@@ -428,19 +502,26 @@ export const ManageLeadsPage: React.FC = () => {
             <Upload className="w-3.5 h-3.5" /> Import
           </button>
 
-          <div className="relative">
+          <div className="relative" ref={exportDropdownRef}>
             <button
               onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
+              aria-expanded={isExportDropdownOpen}
+              aria-haspopup="menu"
               className="px-3 py-2.5 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
-              title="Export leads to Excel or CSV"
+              title={
+                searchTerm.trim()
+                  ? `Export the ${filteredLeads.length} matching lead(s)`
+                  : 'Export leads to Excel or CSV'
+              }
             >
-              <Download className="w-3.5 h-3.5" /> Export
+              <Download className="w-3.5 h-3.5" /> Export{searchTerm.trim() ? ` (${filteredLeads.length})` : ''}
               <ChevronDown className="w-3 h-3 text-slateText ml-0.5" />
             </button>
 
             {isExportDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-dark/10 py-1.5 z-50 animate-in fade-in zoom-in duration-150">
+              <div role="menu" className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-dark/10 py-1.5 z-50 animate-in fade-in zoom-in duration-150">
                 <button
+                  role="menuitem"
                   onClick={() => handleExport('xlsx')}
                   className="w-full px-4 py-2 text-left text-xs font-bold text-dark hover:bg-lime-50 hover:text-dark transition-colors flex items-center gap-2"
                 >
@@ -448,6 +529,7 @@ export const ManageLeadsPage: React.FC = () => {
                   Export Excel (.xlsx)
                 </button>
                 <button
+                  role="menuitem"
                   onClick={() => handleExport('csv')}
                   className="w-full px-4 py-2 text-left text-xs font-bold text-dark hover:bg-lime-50 hover:text-dark transition-colors flex items-center gap-2 border-t border-dark/5"
                 >
@@ -493,7 +575,7 @@ export const ManageLeadsPage: React.FC = () => {
           <span className="text-xs font-bold text-dark">
             {selectedLeadIds.length} lead(s) selected
           </span>
-          <Button variant="secondary" size="sm" onClick={handleBulkDelete} className="text-rose-600 border-rose-200 hover:bg-rose-50">
+          <Button variant="secondary" size="sm" onClick={requestBulkDelete} className="text-rose-600 border-rose-200 hover:bg-rose-50">
             <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete Selected
           </Button>
         </div>
@@ -504,6 +586,17 @@ export const ManageLeadsPage: React.FC = () => {
         {loading ? (
           <div className="py-20 text-center text-xs font-bold text-slateText animate-pulse">
             Loading pipeline leads...
+          </div>
+        ) : loadError ? (
+          <div className="py-20 text-center space-y-3">
+            <p className="text-rose-600 text-sm font-semibold">Couldn't load the pipeline.</p>
+            <p className="text-slateText text-xs">Check your connection and try again.</p>
+            <button
+              onClick={() => fetchPipelineData()}
+              className="focus-ring px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+            >
+              Retry
+            </button>
           </div>
         ) : (
           <div className="flex flex-row gap-6 min-w-max pr-6 h-full">
@@ -576,19 +669,33 @@ export const ManageLeadsPage: React.FC = () => {
                       stageLeads.map((lead) => {
                         const isBeingDragged = draggingLeadId === lead._id;
 
+                        const activateLead = () => {
+                          if (isSelectMode) {
+                            handleSelectToggle(lead._id);
+                          } else {
+                            setSelectedLeadForEdit(lead);
+                            setIsEditModalOpen(true);
+                          }
+                        };
+
                         return (
                           <div
                             key={lead._id}
                             draggable={true}
                             onDragStart={(e) => handleDragStart(e, lead._id)}
                             onDragEnd={handleDragEnd}
-                            onClick={() => {
-                              if (!isSelectMode) {
-                                setSelectedLeadForEdit(lead);
-                                setIsEditModalOpen(true);
+                            onClick={activateLead}
+                            role="button"
+                            aria-label={isSelectMode ? `Select ${lead.name || 'lead'}` : `Edit ${lead.name || 'lead'}`}
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.target !== e.currentTarget) return;
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                activateLead();
                               }
                             }}
-                            className={`p-4 bg-background rounded-2xl border transition-all cursor-pointer space-y-3 relative group ${
+                            className={`focus-ring p-4 bg-background rounded-2xl border transition-all cursor-pointer space-y-3 relative group ${
                               isBeingDragged
                                 ? 'opacity-40 border-dashed border-dark'
                                 : isSelectMode && selectedLeadIds.includes(lead._id)
@@ -604,6 +711,8 @@ export const ManageLeadsPage: React.FC = () => {
                                   <input
                                     type="checkbox"
                                     checked={selectedLeadIds.includes(lead._id)}
+                                    aria-label={`Select ${lead.name || 'lead'}`}
+                                    onClick={(e) => e.stopPropagation()}
                                     onChange={(e) => {
                                       e.stopPropagation();
                                       handleSelectToggle(lead._id);
@@ -619,7 +728,8 @@ export const ManageLeadsPage: React.FC = () => {
                                           setSelectedLeadForProposal({ _id: lead._id, name: lead.name, email: lead.email });
                                           setIsSendProposalOpen(true);
                                         }}
-                                        className="p-1 text-slateText/60 hover:text-dark hover:bg-dark/10 rounded-lg transition-colors"
+                                        className="focus-ring p-1 text-slateText/60 hover:text-dark hover:bg-dark/10 rounded-lg transition-colors"
+                                        aria-label="Send Proposal"
                                         title="Send Proposal"
                                       >
                                         <FileSignature className="w-3.5 h-3.5" />
@@ -631,7 +741,8 @@ export const ManageLeadsPage: React.FC = () => {
                                         setSelectedLeadForEdit(lead);
                                         setIsEditModalOpen(true);
                                       }}
-                                      className="p-1 text-slateText/60 hover:text-dark hover:bg-dark/10 rounded-lg transition-colors"
+                                      className="focus-ring p-1 text-slateText/60 hover:text-dark hover:bg-dark/10 rounded-lg transition-colors"
+                                      aria-label="Edit Lead"
                                       title="Edit Lead"
                                     >
                                       <Pencil className="w-3.5 h-3.5" />
@@ -741,6 +852,21 @@ export const ManageLeadsPage: React.FC = () => {
         }}
         lead={selectedLeadForProposal}
         onSent={() => fetchPipelineData(true)}
+      />
+
+      <ConfirmDialog
+        isOpen={bulkDeleteConfirmOpen}
+        onClose={() => {
+          setBulkDeleteConfirmOpen(false);
+          setBulkDeleteError('');
+        }}
+        onConfirm={handleBulkDelete}
+        title={`Delete ${selectedLeadIds.length} lead(s)?`}
+        description="Selected leads will be permanently removed."
+        confirmLabel="Delete"
+        destructive
+        isSubmitting={bulkDeleting}
+        error={bulkDeleteError}
       />
     </div>
   );

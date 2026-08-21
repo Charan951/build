@@ -93,6 +93,18 @@ export const FeaturedProjectsSection: React.FC<FeaturedProjectsSectionProps> = (
   const displayProjects =
     projects && projects.length > 0 ? projects : DEFAULT_FEATURED_PROJECTS;
 
+  // The card itself carries the primary "open case study" action, but also
+  // contains nested links (Play Store / App Store / Website) that stop
+  // propagation on click. role="link" + tabIndex + this handler give the
+  // card a real keyboard equivalent without nesting <a> inside <a>.
+  const handleCardKeyDown = (e: React.KeyboardEvent, slug: string) => {
+    if (e.target !== e.currentTarget) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      navigate(`/projects/${slug}`);
+    }
+  };
+
   return (
     <section className="max-w-7xl mx-auto px-6 space-y-12">
       {showHeadings && (
@@ -119,7 +131,11 @@ export const FeaturedProjectsSection: React.FC<FeaturedProjectsSectionProps> = (
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.4, delay: idx * 0.1 }}
             onClick={() => navigate(`/projects/${proj.slug}`)}
-            className="sticky cursor-pointer group rounded-3xl bg-white border border-slate-200/90 shadow-2xl overflow-hidden transition-all duration-300 transform active:scale-[0.98]"
+            role="link"
+            tabIndex={0}
+            aria-label={`View case study: ${proj.title}`}
+            onKeyDown={(e) => handleCardKeyDown(e, proj.slug)}
+            className="sticky cursor-pointer group rounded-3xl bg-white border border-slate-200/90 shadow-2xl overflow-hidden transition-all duration-300 transform active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             style={{
               // Sticky top offset creates an overlapping deck effect as you scroll down
               top: `${95 + idx * 16}px`,
@@ -131,7 +147,7 @@ export const FeaturedProjectsSection: React.FC<FeaturedProjectsSectionProps> = (
             <div className="p-5 space-y-4 bg-white">
               <div className="flex items-center justify-between">
                 <Badge variant="dark">{proj.category}</Badge>
-                <span className="text-xs font-mono font-bold text-gray-400">
+                <span className="text-xs font-mono font-bold text-gray-500">
                   0{idx + 1} / 0{displayProjects.length}
                 </span>
               </div>
@@ -211,7 +227,11 @@ export const FeaturedProjectsSection: React.FC<FeaturedProjectsSectionProps> = (
           <div
             key={idx}
             onClick={() => navigate(`/projects/${proj.slug}`)}
-            className="block h-full cursor-pointer group"
+            role="link"
+            tabIndex={0}
+            aria-label={`View case study: ${proj.title}`}
+            onKeyDown={(e) => handleCardKeyDown(e, proj.slug)}
+            className="block h-full cursor-pointer group rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             <Card className="p-6 flex flex-col justify-between h-full rounded-3xl border border-slate-200/90 hover:shadow-xl transition-all duration-300 space-y-4">
               <div className="space-y-4 flex-1 flex flex-col justify-between">
@@ -261,7 +281,7 @@ export const FeaturedProjectsSection: React.FC<FeaturedProjectsSectionProps> = (
                       onClick={(e) => e.stopPropagation()}
                       className="flex-1 min-w-0 px-2.5 py-2 rounded-xl bg-white border border-slate-200 hover:border-dark text-[11px] font-bold text-dark flex items-center justify-center gap-1 shadow-sm hover:shadow transition-all whitespace-nowrap"
                     >
-                      <Smartphone className="w-3.5 h-3.5 shrink-0" /> <span className="truncate">Google Play</span> <ExternalLink className="w-3 h-3 text-gray-400 shrink-0" />
+                      <Smartphone className="w-3.5 h-3.5 shrink-0" /> <span className="truncate">Google Play</span> <ExternalLink className="w-3 h-3 text-gray-500 shrink-0" />
                     </a>
                   )}
 
@@ -273,7 +293,7 @@ export const FeaturedProjectsSection: React.FC<FeaturedProjectsSectionProps> = (
                       onClick={(e) => e.stopPropagation()}
                       className="flex-1 min-w-0 px-2.5 py-2 rounded-xl bg-white border border-slate-200 hover:border-dark text-[11px] font-bold text-dark flex items-center justify-center gap-1 shadow-sm hover:shadow transition-all whitespace-nowrap"
                     >
-                      <Smartphone className="w-3.5 h-3.5 shrink-0" /> <span className="truncate">App Store</span> <ExternalLink className="w-3 h-3 text-gray-400 shrink-0" />
+                      <Smartphone className="w-3.5 h-3.5 shrink-0" /> <span className="truncate">App Store</span> <ExternalLink className="w-3 h-3 text-gray-500 shrink-0" />
                     </a>
                   )}
 
@@ -284,7 +304,7 @@ export const FeaturedProjectsSection: React.FC<FeaturedProjectsSectionProps> = (
                     onClick={(e) => e.stopPropagation()}
                     className="flex-1 min-w-0 px-2.5 py-2 rounded-xl bg-white border border-slate-200 hover:border-primary text-[11px] font-bold text-dark flex items-center justify-center gap-1 shadow-sm hover:shadow transition-all whitespace-nowrap"
                   >
-                    <Globe className="w-3.5 h-3.5 text-primary shrink-0" /> <span className="truncate">Website</span> <ExternalLink className="w-3 h-3 text-gray-400 shrink-0" />
+                    <Globe className="w-3.5 h-3.5 text-primary shrink-0" /> <span className="truncate">Website</span> <ExternalLink className="w-3 h-3 text-gray-500 shrink-0" />
                   </a>
                 </div>
               </div>

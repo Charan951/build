@@ -3,6 +3,7 @@ import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
 import { IndianRupee, AlertTriangle, Users, FolderGit2, FileSignature, Receipt } from 'lucide-react';
 import { apiFetch } from '../../services/api';
+import { formatMoney } from '../../utils/format';
 
 export const ReportsAnalyticsPage: React.FC = () => {
   const [analytics, setAnalytics] = useState<any>(null);
@@ -10,27 +11,34 @@ export const ReportsAnalyticsPage: React.FC = () => {
 
   const token = localStorage.getItem('adminToken');
 
-  useEffect(() => {
+  const fetchAnalytics = () => {
+    setLoading(true);
     apiFetch('/crm/analytics', { token })
       .then((res) => {
         if (res.success) setAnalytics(res.data);
+        else setAnalytics(null);
       })
-      .catch(() => {})
+      .catch(() => setAnalytics(null))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchAnalytics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const statTiles = analytics
     ? [
         {
           label: 'Total Gross Revenue',
-          value: `₹${(analytics.totalRevenue || 0).toLocaleString('en-IN')}`,
+          value: formatMoney(analytics.totalRevenue || 0),
           icon: IndianRupee,
           accent: 'text-emerald-600',
           iconBg: 'bg-emerald-50',
         },
         {
           label: 'Outstanding Balance',
-          value: `₹${(analytics.outstandingBalance || 0).toLocaleString('en-IN')}`,
+          value: formatMoney(analytics.outstandingBalance || 0),
           icon: AlertTriangle,
           accent: 'text-amber-600',
           iconBg: 'bg-amber-50',
@@ -66,7 +74,15 @@ export const ReportsAnalyticsPage: React.FC = () => {
       {loading ? (
         <div className="text-center py-12 text-slateText text-sm">Calculating executive analytics...</div>
       ) : !analytics ? (
-        <Card className="p-12 text-center text-slateText text-sm">Failed to load financial analytics.</Card>
+        <Card className="p-12 text-center space-y-3">
+          <p className="text-slateText text-sm">Failed to load financial analytics.</p>
+          <button
+            onClick={fetchAnalytics}
+            className="focus-ring px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+          >
+            Retry
+          </button>
+        </Card>
       ) : (
         <>
           {/* Executive Stats Grid */}

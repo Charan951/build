@@ -1,15 +1,52 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from './Button';
 import CoverflowGallery, { CoverflowSlide } from '../originkit/coverflowgallery';
 import { apiFetch } from '../../services/api';
 
+// Direction-aware crossfade for the info card below the gallery — shared by
+// mobile and desktop so a "next" always slides the same way regardless of
+// which control triggered it (pill tap, coverflow autoplay, or swipe).
+const cardVariants = {
+  enter: (direction: number) => ({ opacity: 0, x: direction >= 0 ? 24 : -24 }),
+  center: { opacity: 1, x: 0 },
+  exit: (direction: number) => ({ opacity: 0, x: direction >= 0 ? -24 : 24 }),
+};
+
+const reducedCardVariants = {
+  enter: { opacity: 0 },
+  center: { opacity: 1 },
+  exit: { opacity: 0 },
+};
+
+// Staggered reveal for the feature chips — a small rise-in per chip instead
+// of the whole list popping in as one flat block with the card.
+const featureItemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const reducedFeatureItemVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+};
+
+const featureContainerVariants = (stagger: number, reduced: boolean) => ({
+  hidden: {},
+  visible: {
+    transition: reduced ? {} : { staggerChildren: stagger, delayChildren: 0.08 },
+  },
+});
+
 export const PlatformSolutionsCarousel: React.FC = () => {
   const [solutions, setSolutions] = useState<any[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
   const timerRef = useRef<any>(null);
+  const pillRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     apiFetch('/platform-solutions')
@@ -28,6 +65,7 @@ export const PlatformSolutionsCarousel: React.FC = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     if (solutions.length <= 1) return;
     timerRef.current = setInterval(() => {
+      setDirection(1);
       setActiveIndex((prev) => (prev + 1) % solutions.length);
     }, 3500);
   }, [solutions.length]);
@@ -39,7 +77,26 @@ export const PlatformSolutionsCarousel: React.FC = () => {
     };
   }, [startTimer]);
 
+  // Keep the active pill scrolled into view in the horizontally-scrollable
+  // bar, since the active index can change from something other than a
+  // direct tap (autoplay tick, coverflow drag, mobile swipe).
+  useEffect(() => {
+    pillRefs.current[activeIndex]?.scrollIntoView({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      inline: 'center',
+      block: 'nearest',
+    });
+  }, [activeIndex, prefersReducedMotion]);
+
   if (solutions.length === 0) return null;
+
+  // Shortest-path direction between two indices on a circular track, so the
+  // crossfade always slides the way that feels natural even across the wrap.
+  const goTo = (index: number) => {
+    const forwardDistance = (index - activeIndex + solutions.length) % solutions.length;
+    setDirection(forwardDistance <= solutions.length / 2 ? 1 : -1);
+    setActiveIndex(index);
+  };
 
   // Format solutions into CoverflowSlide format for desktop 3D view
   const coverflowSlides: CoverflowSlide[] = solutions.map((sol) => ({
@@ -61,51 +118,71 @@ export const PlatformSolutionsCarousel: React.FC = () => {
   const activeSolution = solutions[activeIndex] || solutions[0];
 
   const handlePrev = () => {
+    setDirection(-1);
     setActiveIndex((prev) => (prev - 1 + solutions.length) % solutions.length);
     startTimer();
   };
 
   const handleNext = () => {
+    setDirection(1);
     setActiveIndex((prev) => (prev + 1) % solutions.length);
     startTimer();
   };
 
   return (
-    <div className="space-y-8 relative">
+    <div className="space-y-6 relative">
       {/* Header */}
-      <div className="text-center space-y-3">
+      <div className="text-center space-y-2">
         <span className="text-xs font-black uppercase tracking-widest text-primary px-3 py-1 rounded-full bg-primary/10 border border-primary/20 inline-block">
           Platform Solutions
         </span>
-        <h2 className="font-display text-3xl md:text-5xl font-black text-white tracking-tight">
+        <h2 className="font-display text-2xl md:text-4xl font-black text-white tracking-tight">
           Our Platform Solutions
         </h2>
-        <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto">
+        <p className="text-sm md:text-base text-gray-400 max-w-2xl mx-auto">
           Explore complete digital ecosystems designed for enterprise growth.
         </p>
       </div>
 
-      {/* Horizontal Draggable / Scrollable Solution Buttons Bar */}
-      <div className="max-w-4xl mx-auto overflow-x-auto pb-2 px-2 no-scrollbar scrollbar-none flex items-center gap-2.5 justify-start sm:justify-center">
+      {/* Horizontal Draggable / Scrollable Solution Buttons Bar — real gradient
+          overlays at each edge (not a CSS mask, which renders unreliably
+          across browsers with bordered/translucent children) so a partially
+          -visible pill dissolves into the dark background instead of being
+          hard-clipped mid-word when there are more categories than fit. */}
+      <div className="relative max-w-4xl mx-auto">
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-10 z-10 bg-gradient-to-r from-dark to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-10 z-10 bg-gradient-to-l from-dark to-transparent" />
+        <div className="overflow-x-auto pb-2 px-2 no-scrollbar scrollbar-none flex items-center gap-2.5 justify-start sm:justify-center">
         {solutions.map((sol, idx) => {
           const isActive = idx === activeIndex;
           return (
             <button
               key={sol._id || idx}
+              ref={(el) => { pillRefs.current[idx] = el; }}
               onClick={() => {
-                setActiveIndex(idx);
+                goTo(idx);
                 startTimer();
               }}
-              className={`px-4 py-2.5 rounded-full text-xs font-black tracking-wide whitespace-nowrap transition-all duration-300 shrink-0 cursor-pointer ${
+              className={`relative px-4 py-2.5 rounded-full text-xs font-black tracking-wide whitespace-nowrap shrink-0 cursor-pointer transition-colors duration-300 ${
                 isActive
-                  ? 'bg-primary text-dark shadow-lg scale-105 border-2 border-primary font-bold'
-                  : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white border border-white/15'
+                  ? 'text-dark border-2 border-primary'
+                  : 'text-gray-300 hover:text-white bg-white/10 hover:bg-white/20 border border-white/15'
               }`}
             >
-              {sol.title}
+              {isActive && (
+                <motion.div
+                  layoutId="activePlatformPill"
+                  className="absolute inset-0 bg-primary rounded-full shadow-lg"
+                  transition={
+                    prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 380, damping: 30 }
+                  }
+                />
+              )}
+              <span className="relative z-10">{sol.title}</span>
             </button>
           );
         })}
+        </div>
       </div>
 
       {/* ========================================================================= */}
@@ -113,12 +190,14 @@ export const PlatformSolutionsCarousel: React.FC = () => {
       {/* ========================================================================= */}
       <div className="block md:hidden max-w-md mx-auto space-y-4">
         <div className="relative">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={activeSolution._id || activeIndex}
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -30 }}
+              custom={direction}
+              variants={prefersReducedMotion ? reducedCardVariants : cardVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
               transition={{ duration: 0.25, ease: 'easeInOut' }}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
@@ -130,11 +209,11 @@ export const PlatformSolutionsCarousel: React.FC = () => {
                   handlePrev();
                 }
               }}
-              className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden shadow-2xl p-5 space-y-5 cursor-grab active:cursor-grabbing select-none"
+              className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden shadow-2xl p-4 space-y-4 cursor-grab active:cursor-grabbing select-none"
             >
               {/* Image Header */}
               {(activeSolution.image || activeSolution.heroImage) && (
-                <div className="relative h-48 rounded-2xl overflow-hidden border border-white/10">
+                <div className="relative h-36 rounded-2xl overflow-hidden border border-white/10">
                   <img
                     src={activeSolution.image || activeSolution.heroImage}
                     alt={activeSolution.title}
@@ -170,27 +249,33 @@ export const PlatformSolutionsCarousel: React.FC = () => {
                   <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest block">
                     Key Features:
                   </span>
-                  <div className="space-y-2">
+                  <motion.div
+                    className="space-y-2"
+                    variants={featureContainerVariants(0.035, !!prefersReducedMotion)}
+                    initial="hidden"
+                    animate="visible"
+                  >
                     {activeSolution.features.map((feature: string, idx: number) => (
-                      <div
+                      <motion.div
                         key={idx}
+                        variants={prefersReducedMotion ? reducedFeatureItemVariants : featureItemVariants}
                         className="flex items-center gap-2 bg-white/5 border border-white/5 px-3 py-2 rounded-xl text-xs font-bold text-gray-200"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
                         <span className="truncate">{feature}</span>
-                      </div>
+                      </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
                 </div>
               )}
 
               {/* CTA Button */}
-              <div className="pt-2">
+              <div className="pt-1">
                 <Link to={activeSolution.ctaLink || '/contact'} className="block">
                   <Button
                     variant="lime"
-                    size="lg"
-                    className="w-full justify-center py-3.5 text-xs font-black tracking-wider uppercase shadow-soft gap-2 text-dark"
+                    size="md"
+                    className="w-full justify-center py-3 text-xs font-black tracking-wider uppercase shadow-soft gap-2 text-dark"
                   >
                     <Sparkles className="w-4 h-4 shrink-0 text-dark" />
                     {activeSolution.ctaText || 'BOOK FREE CONSULTATION'}
@@ -206,9 +291,9 @@ export const PlatformSolutionsCarousel: React.FC = () => {
       {/* ========================================================================= */}
       {/* 2. DESKTOP INTERACTIVE 3D COVERFLOW GALLERY (Visible on Desktop >= 768px) */}
       {/* ========================================================================= */}
-      <div className="hidden md:block space-y-8">
+      <div className="hidden md:block space-y-6">
         {/* 3D Coverflow Gallery Component from Originkit */}
-        <div className="h-[440px] w-full relative my-4">
+        <div className="h-[440px] w-full relative my-2">
           <CoverflowGallery
             slides={coverflowSlides}
             cardWidth={440}
@@ -220,17 +305,19 @@ export const PlatformSolutionsCarousel: React.FC = () => {
             opacity={55}
             autoplay={true}
             showTitle={true}
-            onSlideChange={(index) => setActiveIndex(index)}
+            onSlideChange={(index) => goTo(index)}
           />
         </div>
 
         {/* Active Platform Feature Card & CTA */}
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={activeSolution._id || activeIndex}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
+            custom={direction}
+            variants={prefersReducedMotion ? reducedCardVariants : cardVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
             transition={{ duration: 0.3 }}
             className="max-w-3xl mx-auto bg-white/5 border border-white/10 rounded-3xl p-8 space-y-6 shadow-2xl backdrop-blur-md"
           >
@@ -256,17 +343,23 @@ export const PlatformSolutionsCarousel: React.FC = () => {
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-widest block">
                   Key Features Included:
                 </span>
-                <div className="grid grid-cols-2 gap-3">
+                <motion.div
+                  className="grid grid-cols-2 gap-3"
+                  variants={featureContainerVariants(0.05, !!prefersReducedMotion)}
+                  initial="hidden"
+                  animate="visible"
+                >
                   {activeSolution.features.map((feature: string, idx: number) => (
-                    <div
+                    <motion.div
                       key={idx}
+                      variants={prefersReducedMotion ? reducedFeatureItemVariants : featureItemVariants}
                       className="flex items-center gap-2.5 bg-white/5 border border-white/5 px-4 py-2.5 rounded-2xl text-xs font-bold text-gray-200"
                     >
                       <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                       <span>{feature}</span>
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </div>
             )}
 

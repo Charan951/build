@@ -8,15 +8,12 @@ import {
   Cpu,
   Cloud,
   Smartphone,
-  Sparkles,
   ShieldCheck,
   Zap,
   ChevronDown,
   Layers,
   Bot,
   Database,
-  CheckCircle2,
-  Star,
   Building2,
   HeartPulse,
   Landmark,
@@ -45,7 +42,7 @@ import { ReviewsSection } from '../components/ui/ReviewsSection';
 import { PricingPlansSection } from '../components/ui/PricingPlansSection';
 import { ServicesAccordion } from '../components/ui/ServicesAccordion';
 import { FeaturedProjectsSection } from '../components/ui/FeaturedProjectsSection';
-import { HeroCanvas } from '../components/3d/HeroCanvas';
+import Lightfall from '../components/backgrounds/Lightfall/Lightfall';
 import { apiFetch } from '../services/api';
 import { Reveal, Stagger, StaggerItem } from '../components/ui/motion';
 
@@ -62,9 +59,28 @@ const AutoScrollMarqueeRow: React.FC<AutoMarqueeProps> = ({ children, baseVeloci
   const smoothVelocity = useSpring(scrollVelocity, { damping: 50, stiffness: 400 });
   const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 2], { clamp: false });
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Plain ref, not state: toggled by IntersectionObserver so scrolling this
+  // row off-screen doesn't need a re-render, just skips the per-frame write.
+  const isVisibleRef = useRef(true);
+
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => {
+      isVisibleRef.current = entry.isIntersecting;
+    }, { threshold: 0 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   useAnimationFrame((_, delta) => {
+    // This row runs a perpetual JS-driven transform; once it's scrolled out of
+    // view there's nothing on screen to update, so skip the work entirely
+    // rather than burning a style write every frame forever.
+    if (!isVisibleRef.current) return;
+
     let moveBy = baseVelocity * (delta / 16);
     const vf = velocityFactor.get();
 
@@ -88,10 +104,107 @@ const AutoScrollMarqueeRow: React.FC<AutoMarqueeProps> = ({ children, baseVeloci
   });
 
   return (
-    <div className="overflow-hidden whitespace-nowrap flex w-full">
+    <div ref={wrapperRef} className="overflow-hidden whitespace-nowrap flex w-full">
       <div ref={containerRef} className={`flex items-center whitespace-nowrap gap-12 will-change-transform ${className}`}>
         <div className="flex items-center gap-12 shrink-0">{children}</div>
-        <div className="flex items-center gap-12 shrink-0">{children}</div>
+        {/* Second copy exists only to complete the seamless loop illusion —
+            hidden from assistive tech so screen readers don't read every item twice. */}
+        <div className="flex items-center gap-12 shrink-0" aria-hidden="true">{children}</div>
+      </div>
+    </div>
+  );
+};
+
+const PACKAGE_SLIDES = [
+  {
+    icon: Smartphone,
+    iconBg: 'bg-blue-50 text-blue-600 border-blue-100',
+    title: 'Customer Mobile Apps',
+    desc: 'Native Android & iOS apps for your customers with intuitive UI/UX',
+  },
+  {
+    icon: Store,
+    iconBg: 'bg-purple-50 text-purple-600 border-purple-100',
+    title: 'Vendor/Seller Apps',
+    desc: 'Dedicated apps for vendors to manage their inventory and orders',
+  },
+  {
+    icon: Truck,
+    iconBg: 'bg-cyan-50 text-cyan-600 border-cyan-100',
+    title: 'Delivery Partner Apps',
+    desc: 'Apps for delivery partners with GPS tracking and route optimization',
+  },
+  {
+    icon: Settings,
+    iconBg: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    title: 'Master Admin Panel',
+    desc: 'Comprehensive admin dashboard to manage entire platform',
+  },
+];
+
+// Isolated in its own component so the 3s auto-advance interval only re-renders
+// this small mobile-only carousel, not the entire HomePage tree.
+const PackageCarousel: React.FC = () => {
+  const [activePkg, setActivePkg] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActivePkg((prev) => (prev + 1) % PACKAGE_SLIDES.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const slide = PACKAGE_SLIDES[activePkg];
+  const Icon = slide.icon;
+
+  return (
+    <div className="block sm:hidden max-w-sm mx-auto space-y-4">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activePkg}
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -40 }}
+          transition={{ duration: 0.3 }}
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.2}
+          onDragEnd={(_, info) => {
+            if (info.offset.x < -20) setActivePkg((prev) => (prev + 1) % PACKAGE_SLIDES.length);
+            if (info.offset.x > 20) setActivePkg((prev) => (prev - 1 + PACKAGE_SLIDES.length) % PACKAGE_SLIDES.length);
+          }}
+        >
+          <Card className="p-8 bg-white border border-slate-200/90 rounded-3xl text-center space-y-5 shadow-xl">
+            <div className={`w-20 h-20 rounded-full border flex items-center justify-center mx-auto ${slide.iconBg}`}>
+              <Icon className="w-9 h-9" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-display text-xl font-extrabold text-dark leading-snug">{slide.title}</h3>
+              <p className="text-xs text-slateText leading-relaxed">{slide.desc}</p>
+            </div>
+          </Card>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Indicator Dots */}
+      <div className="flex justify-center items-center pt-2">
+        {PACKAGE_SLIDES.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setActivePkg(idx)}
+            // The dot stays small visually, but the button's padding gives it a
+            // ~32x32px hit area — the visible 8px dot alone fails the 24x24px
+            // minimum touch-target size.
+            className="p-3 -m-1 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-full"
+            aria-label={`Go to package card ${idx + 1}`}
+          >
+            <span
+              className={`block h-2 rounded-full transition-all duration-300 ${
+                activePkg === idx ? 'w-7 bg-primary' : 'w-2 bg-slate-300'
+              }`}
+            />
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -102,14 +215,6 @@ export const HomePage: React.FC = () => {
   const [techTab, setTechTab] = useState<'frontend' | 'backend' | 'cloud' | 'ai'>('frontend');
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
   const [projects, setProjects] = useState<any[]>([]);
-  const [activePkg, setActivePkg] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActivePkg((prev) => (prev + 1) % 4);
-    }, 3000);
-    return () => clearInterval(timer);
-  }, []);
 
   // Scroll marquee animation hooks
   const marqueeRef = useRef<HTMLDivElement>(null);
@@ -232,22 +337,44 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="pt-24 md:pt-32 space-y-20 md:space-y-28">
-      <SEOHead title="Build Your Thoughts | Enterprise Software & AI Solutions Agency" />
+      <SEOHead title="Build Your Thoughts | Enterprise Software & AI Solutions Agency" canonical="https://buildyourthoughts.com/" />
 
       {/* SECTION 3: Hero Section */}
-      <section className="max-w-7xl mx-auto px-6 pt-0">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-            <h1 className="font-display text-display font-black text-dark">
-              <span className="font-black">Build Your Dream App</span> <br />
-              <span className="text-[#65A30D] underline decoration-primary decoration-4 font-black">in Just 5 Days</span>
-            </h1>
-            <p className="text-bodyLg text-slateText max-w-2xl mx-auto lg:mx-0 font-sans">
-              Complete MVP applications with website, admin panel, Android & iOS apps delivered in record time.
-            </p>
+      <section className="relative overflow-hidden bg-dark -mt-24 md:-mt-32 pt-24 md:pt-32 min-h-screen flex items-center">
+        {/* Full-bleed Lightfall backdrop */}
+        <div className="absolute inset-0">
+          <Lightfall
+            colors={['#CDFB47', '#A9E51F', '#65A30D']}
+            backgroundColor="#0F1412"
+            speed={0.4}
+            streakCount={3}
+            streakWidth={1}
+            streakLength={1.2}
+            glow={1}
+            density={0.55}
+            twinkle={0.8}
+            zoom={3}
+            backgroundGlow={0.35}
+            opacity={0.9}
+            mouseInteraction
+            mouseStrength={0.4}
+            mouseRadius={1}
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-dark/10 via-dark/40 to-dark pointer-events-none" />
 
-          {/* Main Hero CTA Buttons (Full 100% width on mobile, auto on tablet/desktop) */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-4 w-full">
+        <div className="relative max-w-5xl mx-auto px-6 w-full flex flex-col items-center text-center gap-7">
+          <h1 className="font-display text-display font-black text-white leading-[1.05]">
+            <span className="font-black">Build Your Dream App</span> <br />
+            <span className="text-primary underline decoration-primary decoration-4 underline-offset-8 font-black">in Just 5 Days</span>
+          </h1>
+
+          <p className="text-bodyLg text-gray-300 max-w-2xl font-sans">
+            Complete MVP applications with website, admin panel, Android &amp; iOS apps delivered in record time.
+          </p>
+
+          {/* Hero CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3.5 w-full sm:w-auto">
             <Link to="/contact" className="w-full sm:w-auto">
               <Button variant="lime" size="lg" className="w-full justify-center gap-2.5 py-4 text-base font-bold shadow-soft">
                 <Rocket className="w-5 h-5 text-dark" />
@@ -256,57 +383,29 @@ export const HomePage: React.FC = () => {
               </Button>
             </Link>
             <Link to="/projects" className="w-full sm:w-auto">
-              <Button variant="secondary" size="lg" className="w-full justify-center gap-2.5 py-4 text-base font-bold shadow-glass">
-                <FolderGit2 className="w-5 h-5 text-dark" />
+              <Button variant="secondary" size="lg" className="w-full justify-center gap-2.5 py-4 text-base font-bold bg-white/10 text-white border border-white/20 hover:bg-white/20 shadow-glass">
+                <FolderGit2 className="w-5 h-5 text-white" />
                 Explore Projects
-                <ArrowUpRight className="w-5 h-5 text-gray-500" />
+                <ArrowUpRight className="w-5 h-5 text-gray-300" />
               </Button>
             </Link>
           </div>
 
-          {/* Mobile Highlights Card & Side-by-Side CTA Buttons (Visible on Mobile < 1024px) */}
-          <div className="lg:hidden pt-4 space-y-4">
-            {/* Highlights Grid with Increased Font Sizes */}
-            <div className="grid grid-cols-3 gap-2 p-5 rounded-2xl bg-dark text-white border border-white/10 shadow-glass text-center">
-              <div className="space-y-1">
-                <span className="font-display text-2xl sm:text-3xl font-black text-primary block">100+</span>
-                <span className="text-xs font-bold text-gray-300 uppercase tracking-wider block">Apps Built</span>
+          {/* Trust Stat Strip */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-0 w-full max-w-xl mt-2 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm divide-x divide-white/10 overflow-hidden">
+            {[
+              { value: '100+', label: 'Apps Built' },
+              { value: '5 Days', label: 'Delivery' },
+              { value: '24/7', label: 'Support' },
+            ].map((stat, idx) => (
+              <div key={idx} className="flex flex-col items-center justify-center gap-1 px-3 py-4">
+                <span className="font-display text-xl sm:text-2xl font-black text-primary">{stat.value}</span>
+                <span className="text-[10px] sm:text-xs font-bold text-gray-300 uppercase tracking-wider">{stat.label}</span>
               </div>
-              <div className="space-y-1 border-x border-white/10 px-1">
-                <span className="font-display text-2xl sm:text-3xl font-black text-primary block">5 Days</span>
-                <span className="text-xs font-bold text-gray-300 uppercase tracking-wider block">Delivery</span>
-              </div>
-              <div className="space-y-1">
-                <span className="font-display text-2xl sm:text-3xl font-black text-primary block">24/7</span>
-                <span className="text-xs font-bold text-gray-300 uppercase tracking-wider block">Support</span>
-              </div>
-            </div>
-
-            {/* Side-by-Side Action Buttons for Get Quotation & Start Your Journey with Icons */}
-            <div className="grid grid-cols-2 gap-3 pt-2">
-              <Link to="/contact" className="w-full">
-                <Button variant="primary" size="md" className="w-full justify-center gap-1.5 py-3.5 px-2 text-xs sm:text-sm font-bold border border-primary/40 bg-dark hover:bg-dark/80 text-white shadow-soft">
-                  <Sparkles className="w-4 h-4 text-primary shrink-0" />
-                  <span>Get Quotation</span>
-                </Button>
-              </Link>
-
-              <Link to="/contact" className="w-full">
-                <Button variant="lime" size="md" className="w-full justify-center gap-1.5 py-3.5 px-2 text-xs sm:text-sm font-bold shadow-soft">
-                  <Rocket className="w-4 h-4 text-dark shrink-0" />
-                  <span>Start Journey</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-dark shrink-0 hidden sm:inline" />
-                </Button>
-              </Link>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Hero Desktop 3D Canvas Scene */}
-        <div className="hidden lg:block lg:col-span-5 relative">
-          <HeroCanvas />
-        </div>
-        </div>
       </section>
 
       {/* SECTION 4: Dual-Line Auto & Scroll Marquee */}
@@ -363,7 +462,7 @@ export const HomePage: React.FC = () => {
       {/* SECTION 5: Why Build Your Thoughts Auto-Scrolling Carousel Section */}
       <section className="max-w-7xl mx-auto px-6 space-y-10">
         <div className="text-center space-y-3">
-          <span className="text-xs font-black uppercase tracking-widest text-[#65A30D] px-3 py-1 rounded-full bg-[#65A30D]/10 border border-[#65A30D]/20 inline-block">
+          <span className="text-xs font-black uppercase tracking-widest text-dark px-3 py-1 rounded-full bg-primary inline-block">
             Why Choose Us
           </span>
           <h2 className="font-display text-h2 font-black text-dark">
@@ -435,7 +534,7 @@ export const HomePage: React.FC = () => {
 
       {/* SECTION 8: Platform Solutions Automatic Carousel (Dark Background Container) */}
       <section className="max-w-7xl mx-auto px-6">
-        <div className="bg-dark text-white rounded-card p-8 md:p-14 border border-white/10 shadow-2xl">
+        <div className="bg-dark text-white rounded-card p-6 md:p-10 border border-white/10 shadow-2xl">
           <PlatformSolutionsCarousel />
         </div>
       </section>
@@ -452,101 +551,7 @@ export const HomePage: React.FC = () => {
         </div>
 
         {/* MOBILE AUTO-SLIDING CAROUSEL (Visible on Mobile < 640px) */}
-        <div className="block sm:hidden max-w-sm mx-auto space-y-4">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activePkg}
-              initial={{ opacity: 0, x: 40 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -40 }}
-              transition={{ duration: 0.3 }}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.2}
-              onDragEnd={(_, info) => {
-                if (info.offset.x < -20) setActivePkg((prev) => (prev + 1) % 4);
-                if (info.offset.x > 20) setActivePkg((prev) => (prev - 1 + 4) % 4);
-              }}
-            >
-              <Card className="p-8 bg-white border border-slate-200/90 rounded-3xl text-center space-y-5 shadow-xl">
-                {activePkg === 0 && (
-                  <>
-                    <div className="w-20 h-20 rounded-full bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center mx-auto">
-                      <Smartphone className="w-9 h-9" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-display text-xl font-extrabold text-dark leading-snug">
-                        Customer Mobile Apps
-                      </h3>
-                      <p className="text-xs text-slateText leading-relaxed">
-                        Native Android & iOS apps for your customers with intuitive UI/UX
-                      </p>
-                    </div>
-                  </>
-                )}
-                {activePkg === 1 && (
-                  <>
-                    <div className="w-20 h-20 rounded-full bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center mx-auto">
-                      <Store className="w-9 h-9" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-display text-xl font-extrabold text-dark leading-snug">
-                        Vendor/Seller Apps
-                      </h3>
-                      <p className="text-xs text-slateText leading-relaxed">
-                        Dedicated apps for vendors to manage their inventory and orders
-                      </p>
-                    </div>
-                  </>
-                )}
-                {activePkg === 2 && (
-                  <>
-                    <div className="w-20 h-20 rounded-full bg-cyan-50 text-cyan-600 border border-cyan-100 flex items-center justify-center mx-auto">
-                      <Truck className="w-9 h-9" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-display text-xl font-extrabold text-dark leading-snug">
-                        Delivery Partner Apps
-                      </h3>
-                      <p className="text-xs text-slateText leading-relaxed">
-                        Apps for delivery partners with GPS tracking and route optimization
-                      </p>
-                    </div>
-                  </>
-                )}
-                {activePkg === 3 && (
-                  <>
-                    <div className="w-20 h-20 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center mx-auto">
-                      <Settings className="w-9 h-9" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-display text-xl font-extrabold text-dark leading-snug">
-                        Master Admin Panel
-                      </h3>
-                      <p className="text-xs text-slateText leading-relaxed">
-                        Comprehensive admin dashboard to manage entire platform
-                      </p>
-                    </div>
-                  </>
-                )}
-              </Card>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Indicator Dots */}
-          <div className="flex justify-center items-center gap-1.5 pt-2">
-            {[0, 1, 2, 3].map((idx) => (
-              <button
-                key={idx}
-                onClick={() => setActivePkg(idx)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  activePkg === idx ? 'w-7 bg-primary' : 'w-2 bg-slate-300'
-                }`}
-                aria-label={`Go to package card ${idx + 1}`}
-              />
-            ))}
-          </div>
-        </div>
+        <PackageCarousel />
 
         {/* DESKTOP 4-COLUMN GRID (Visible on Tablet/Desktop >= 640px) */}
         <div className="hidden sm:grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -643,8 +648,13 @@ export const HomePage: React.FC = () => {
           {industries.map((ind, idx) => {
             const Icon = ind.icon;
             return (
-              <StaggerItem key={idx} className="p-6 rounded-card bg-white text-center flex flex-col items-center justify-center gap-3 border border-dark/10 hover:border-primary transition-colors">
-                <Icon className="w-8 h-8 text-dark" />
+              <StaggerItem
+                key={idx}
+                className="p-6 rounded-card bg-white text-center flex flex-col items-center justify-center gap-3 border border-dark/10 hover:border-primary hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 text-dark flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+                  <Icon className="w-6 h-6" />
+                </div>
                 <span className="text-small font-bold text-dark">{ind.name}</span>
               </StaggerItem>
             );
@@ -670,19 +680,38 @@ export const HomePage: React.FC = () => {
           {faqs.map((faq, idx) => {
             const isOpen = activeFaq === idx;
             return (
-              <div key={idx} className="rounded-2xl bg-white border border-dark/10 overflow-hidden">
+              <div
+                key={idx}
+                className={`rounded-2xl bg-white border overflow-hidden transition-colors duration-300 ${isOpen ? 'border-primary/50' : 'border-dark/10'}`}
+              >
                 <button
                   onClick={() => setActiveFaq(isOpen ? null : idx)}
-                  className="w-full p-6 text-left font-display text-xl font-bold text-dark flex items-center justify-between gap-4"
+                  aria-expanded={isOpen}
+                  aria-controls={`faq-panel-${idx}`}
+                  id={`faq-trigger-${idx}`}
+                  className="w-full p-6 text-left font-display text-xl font-bold text-dark flex items-center justify-between gap-4 hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white rounded-2xl"
                 >
                   <span>{faq.q}</span>
-                  <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-180 text-primary' : ''}`} />
+                  <ChevronDown className={`w-5 h-5 shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180 text-primary' : ''}`} />
                 </button>
-                {isOpen && (
-                  <div className="px-6 pb-6 text-slateText text-base font-sans leading-relaxed border-t border-dark/5 pt-4">
-                    {faq.a}
-                  </div>
-                )}
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      id={`faq-panel-${idx}`}
+                      role="region"
+                      aria-labelledby={`faq-trigger-${idx}`}
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-6 pb-6 text-slateText text-base font-sans leading-relaxed border-t border-dark/5 pt-4">
+                        {faq.a}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             );
           })}
@@ -692,16 +721,23 @@ export const HomePage: React.FC = () => {
       {/* SECTION 16: Final Contact CTA Banner */}
       <section className="max-w-7xl mx-auto px-6">
         <div className="bg-dark text-white rounded-[40px] p-12 md:p-20 text-center space-y-8 relative overflow-hidden border border-white/10">
-          <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-primary/20 text-primary border border-primary/40 shadow-sm mx-auto">
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'radial-gradient(60% 80% at 50% 0%, rgba(205,251,71,0.16) 0%, rgba(205,251,71,0) 65%)',
+            }}
+          />
+          <span className="relative inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-primary/20 text-primary border border-primary/40 shadow-sm mx-auto">
             Let's Build Together
           </span>
-          <h2 className="font-display text-h1 font-bold max-w-3xl mx-auto">
+          <h2 className="relative font-display text-h1 font-bold max-w-3xl mx-auto">
             Ready to Transform Your Product Concept Into Reality?
           </h2>
-          <p className="text-gray-400 text-lg md:text-xl max-w-xl mx-auto font-sans">
+          <p className="relative text-gray-400 text-lg md:text-xl max-w-xl mx-auto font-sans">
             Schedule an architectural consultation with our senior engineering team today.
           </p>
-          <div className="pt-4 flex justify-center gap-4 flex-wrap">
+          <div className="relative pt-4 flex justify-center gap-4 flex-wrap">
             <Link to="/contact">
               <Button variant="lime" size="lg" className="gap-2">
                 Start Your Project <Rocket className="w-5 h-5" />

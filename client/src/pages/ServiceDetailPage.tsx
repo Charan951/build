@@ -5,6 +5,7 @@ import { SEOHead } from '../components/seo/SEOHead';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { LeadForm } from '../components/ui/LeadForm';
 import {
   CheckCircle2,
   ArrowRight,
@@ -19,7 +20,6 @@ import {
   Code2,
   ChevronRight,
   Check,
-  Send,
   Layers,
   Layout,
   Globe
@@ -49,17 +49,8 @@ export const ServiceDetailPage: React.FC = () => {
   const [parentCategory, setParentCategory] = useState<ServiceCategory | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Proposal Form state
-  const [formName, setFormName] = useState('');
-  const [formEmail, setFormEmail] = useState('');
-  const [formPhone, setFormPhone] = useState('');
-  const [formMessage, setFormMessage] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
   useEffect(() => {
     setLoading(true);
-    setSubmitted(false);
 
     // 1. Fetch Service details by slug
     apiFetch(`/services/${activeSlug}`)
@@ -94,36 +85,6 @@ export const ServiceDetailPage: React.FC = () => {
     }
   }, [categories, service, activeSlug]);
 
-  const handleProposalSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-
-    try {
-      const data = await apiFetch('/leads', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: formName,
-          email: formEmail,
-          phone: formPhone,
-          message: `Proposal Request for [${service?.title}]: ${formMessage}`,
-          services: [service?.title || 'Custom Solution'],
-        }),
-      });
-
-      if (data.success) {
-        setSubmitted(true);
-        setFormName('');
-        setFormEmail('');
-        setFormPhone('');
-        setFormMessage('');
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center pt-32">
@@ -156,7 +117,7 @@ export const ServiceDetailPage: React.FC = () => {
 
   return (
     <div className="pt-24 pb-24 bg-background min-h-screen space-y-12">
-      <SEOHead title={`${service.title} | Build Your Thoughts`} />
+      <SEOHead title={`${service.title} | Build Your Thoughts`} canonical={`https://buildyourthoughts.com/services/${activeSlug}`} />
 
       {/* Hero Header matching bhavyawebtech.com */}
       <div className="bg-dark text-white pt-28 pb-16 px-6 relative overflow-hidden border-b border-white/10 shadow-xl">
@@ -188,7 +149,7 @@ export const ServiceDetailPage: React.FC = () => {
           {/* LEFT SIDEBAR COLUMN */}
           <div className="lg:col-span-4 space-y-8">
             {/* Sidebar Sub-Services Menu */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xl p-6 space-y-6 sticky top-28">
+            <div className="bg-white rounded-card border border-slate-200/90 shadow-soft p-6 space-y-6 sticky top-28">
               <div className="border-b border-slate-100 pb-4">
                 <span className="text-[11px] font-black uppercase tracking-widest text-slateText block mb-1">
                   CATEGORY MENU
@@ -228,55 +189,22 @@ export const ServiceDetailPage: React.FC = () => {
                   <p className="text-xs text-slateText">Get a custom quote & architecture audit within 24 hours.</p>
                 </div>
 
-                {submitted ? (
-                  <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold text-center">
-                    Thank you! Our technical team will reach out to you shortly.
-                  </div>
-                ) : (
-                  <form onSubmit={handleProposalSubmit} className="space-y-3">
-                    <input
-                      type="text"
-                      required
-                      placeholder="Your Name *"
-                      value={formName}
-                      onChange={(e) => setFormName(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200/90 text-xs text-dark focus:outline-none focus:border-dark font-semibold"
-                    />
-
-                    <input
-                      type="email"
-                      required
-                      placeholder="Work Email *"
-                      value={formEmail}
-                      onChange={(e) => setFormEmail(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200/90 text-xs text-dark focus:outline-none focus:border-dark font-semibold"
-                    />
-
-                    <input
-                      type="tel"
-                      placeholder="Phone Number (Optional)"
-                      value={formPhone}
-                      onChange={(e) => setFormPhone(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200/90 text-xs text-dark focus:outline-none focus:border-dark font-semibold"
-                    />
-
-                    <textarea
-                      rows={3}
-                      placeholder="Brief details about your project scope..."
-                      value={formMessage}
-                      onChange={(e) => setFormMessage(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200/90 text-xs text-dark focus:outline-none focus:border-dark font-semibold"
-                    />
-
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="w-full py-3.5 rounded-xl bg-primary text-dark font-black text-xs uppercase tracking-wider hover:bg-lime-400 shadow-md transition-all flex items-center justify-center gap-2"
-                    >
-                      {submitting ? 'Submitting...' : 'Submit Request'} <Send className="w-3.5 h-3.5" />
-                    </button>
-                  </form>
-                )}
+                <LeadForm
+                  variant="compact"
+                  messageLabel="Project Details"
+                  messagePlaceholder="Brief details about your project scope..."
+                  messageRequired={false}
+                  submitLabel="Submit Request"
+                  successDisplay="replace"
+                  successReplaceMessage="Thank you! Our technical team will reach out to you shortly."
+                  buildPayload={(v) => ({
+                    name: v.name,
+                    email: v.email,
+                    phone: v.phone,
+                    message: `Proposal Request for [${service?.title}]: ${v.message}`,
+                    services: [service?.title || 'Custom Solution'],
+                  })}
+                />
               </div>
             </div>
           </div>
@@ -285,7 +213,7 @@ export const ServiceDetailPage: React.FC = () => {
           <div className="lg:col-span-8 space-y-12">
             
             {/* Banner Mockup Image Card */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden p-6 md:p-10 space-y-8">
+            <div className="bg-white rounded-card border border-slate-200/90 shadow-soft overflow-hidden p-6 md:p-10 space-y-8">
               <div className="aspect-video w-full rounded-2xl overflow-hidden bg-dark relative shadow-inner">
                 <img
                   src="https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?auto=format&fit=crop&w=1200&q=80"
@@ -386,7 +314,7 @@ export const ServiceDetailPage: React.FC = () => {
             </div>
 
             {/* Our Strategic Workflow Steps */}
-            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xl p-8 space-y-8">
+            <div className="bg-white rounded-card border border-slate-200/90 shadow-soft p-8 space-y-8">
               <h3 className="font-display text-2xl font-black text-dark">
                 Our Strategic Execution Workflow
               </h3>

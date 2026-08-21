@@ -1,8 +1,8 @@
 import React from 'react';
-import { motion, HTMLMotionProps } from 'framer-motion';
+import { motion, HTMLMotionProps, useReducedMotion } from 'framer-motion';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'lime';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'lime' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   children?: React.ReactNode;
   whileHover?: HTMLMotionProps<'button'>['whileHover'];
@@ -23,6 +23,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    const prefersReducedMotion = useReducedMotion();
+    // primary/lime/danger sit on a dark or saturated fill, where the default
+    // white-offset focus ring would be invisible — use the dark-offset variant there.
+    const focusRingClass = variant === 'secondary' || variant === 'ghost' ? 'focus-ring' : 'focus-ring-inverse';
     const sizeClasses = {
       sm: 'px-5 py-2.5 text-sm font-medium',
       md: 'px-7 py-3.5 text-base font-semibold',
@@ -38,15 +42,17 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         'bg-transparent text-dark hover:text-primary transition-colors underline-offset-4 hover:underline',
       lime:
         'bg-primary text-dark font-bold hover:bg-dark hover:text-white transition-all duration-300 shadow-soft',
+      danger:
+        'bg-rose-600 text-white border border-rose-600 hover:bg-rose-700 hover:border-rose-700 transition-all duration-300 shadow-soft',
     };
 
     return (
       <motion.button
         ref={ref}
         type={type}
-        whileHover={whileHover}
-        whileTap={whileTap}
-        className={`rounded-button inline-flex items-center justify-center cursor-pointer select-none gap-2 ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
+        whileHover={prefersReducedMotion ? undefined : whileHover}
+        whileTap={prefersReducedMotion ? undefined : whileTap}
+        className={`${focusRingClass} rounded-button inline-flex items-center justify-center cursor-pointer select-none gap-2 ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
         {...(props as any)}
       >
         {children}

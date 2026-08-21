@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { Modal } from '../../components/ui/Modal';
+import { Input, Textarea } from '../../components/ui/FormField';
+import { Button } from '../../components/ui/Button';
 import {
   ChevronLeft,
   Trash2,
@@ -22,6 +26,7 @@ import {
 } from 'lucide-react';
 import { apiFetch, getApiUrl } from '../../services/api';
 import { buildDefaultQuotationPages } from './QuotationEditorPage';
+import { formatMoney } from '../../utils/format';
 
 const STATUS_LABEL: Record<string, string> = {
   planning: 'New',
@@ -111,6 +116,29 @@ export const ProjectDetailPage: React.FC = () => {
 
   const [creatingQuotation, setCreatingQuotation] = useState(false);
 
+  type DeleteRequest =
+    | { kind: 'project' }
+    | { kind: 'payment'; id: string }
+    | { kind: 'invoice'; id: string }
+    | { kind: 'quotation'; id: string };
+  const [deleteRequest, setDeleteRequest] = useState<DeleteRequest | null>(null);
+
+  const confirmDeleteCopy: Record<DeleteRequest['kind'], { title: string; description?: string }> = {
+    project: { title: 'Move this project to trash?', description: 'This cannot be undone.' },
+    payment: { title: 'Delete this payment?' },
+    invoice: { title: 'Delete this invoice?' },
+    quotation: { title: 'Delete this quotation?' },
+  };
+
+  const runDeleteRequest = () => {
+    if (!deleteRequest) return;
+    if (deleteRequest.kind === 'project') handleDelete();
+    if (deleteRequest.kind === 'payment') handleDeletePayment(deleteRequest.id);
+    if (deleteRequest.kind === 'invoice') handleDeleteInvoice(deleteRequest.id);
+    if (deleteRequest.kind === 'quotation') handleDeleteQuotation(deleteRequest.id);
+    setDeleteRequest(null);
+  };
+
   const fetchProject = () => {
     setLoading(true);
     apiFetch('/crm/projects', { token })
@@ -145,7 +173,6 @@ export const ProjectDetailPage: React.FC = () => {
   }, [id]);
 
   const handleDelete = () => {
-    if (!window.confirm('Move this project to trash? This cannot be undone.')) return;
     apiFetch(`/crm/projects/${id}`, { method: 'DELETE', token }).then((res) => {
       if (res.success) navigate('/dashboard/client-projects');
     });
@@ -186,7 +213,6 @@ export const ProjectDetailPage: React.FC = () => {
   };
 
   const handleDeletePayment = (paymentId: string) => {
-    if (!window.confirm('Delete this payment?')) return;
     apiFetch(`/crm/projects/${id}/payments/${paymentId}`, { method: 'DELETE', token }).then((res) => {
       if (res.success) fetchProject();
     });
@@ -338,7 +364,6 @@ export const ProjectDetailPage: React.FC = () => {
   };
 
   const handleDeleteInvoice = (invoiceId: string) => {
-    if (!window.confirm('Delete this invoice?')) return;
     apiFetch(`/crm/projects/${id}/invoices/${invoiceId}`, { method: 'DELETE', token }).then((res) => {
       if (res.success) fetchInvoices();
     });
@@ -424,7 +449,6 @@ export const ProjectDetailPage: React.FC = () => {
   };
 
   const handleDeleteQuotation = (quotationId: string) => {
-    if (!window.confirm('Delete this quotation?')) return;
     apiFetch(`/crm/projects/${id}/quotations/${quotationId}`, { method: 'DELETE', token }).then((res) => {
       if (res.success) fetchProject();
     });
@@ -505,7 +529,7 @@ export const ProjectDetailPage: React.FC = () => {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button
-              onClick={handleDelete}
+              onClick={() => setDeleteRequest({ kind: 'project' })}
               className="px-3 py-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 font-bold text-xs flex items-center gap-1.5"
             >
               <Trash2 className="w-3.5 h-3.5" /> Move to Trash
@@ -525,15 +549,15 @@ export const ProjectDetailPage: React.FC = () => {
             <p className="text-[9px] font-bold text-slateText uppercase flex items-center gap-1">
               <IndianRupee className="w-3 h-3" /> Budget
             </p>
-            <p className="font-bold text-sm text-dark mt-1">₹{budget.toLocaleString('en-IN')}</p>
+            <p className="font-bold text-sm text-dark mt-1">{formatMoney(budget, client?.currency)}</p>
           </div>
           <div className="p-3 rounded-xl bg-background border border-dark/10">
             <p className="text-[9px] font-bold text-slateText uppercase">Paid</p>
-            <p className="font-bold text-sm text-emerald-600 mt-1">₹{paid.toLocaleString('en-IN')}</p>
+            <p className="font-bold text-sm text-emerald-600 mt-1">{formatMoney(paid, client?.currency)}</p>
           </div>
           <div className="p-3 rounded-xl bg-background border border-dark/10">
             <p className="text-[9px] font-bold text-slateText uppercase">Remaining</p>
-            <p className="font-bold text-sm text-dark mt-1">₹{remaining.toLocaleString('en-IN')}</p>
+            <p className="font-bold text-sm text-dark mt-1">{formatMoney(remaining, client?.currency)}</p>
           </div>
           <div className="p-3 rounded-xl bg-background border border-dark/10">
             <p className="text-[9px] font-bold text-slateText uppercase flex items-center gap-1">
@@ -543,13 +567,13 @@ export const ProjectDetailPage: React.FC = () => {
           </div>
           <div className="p-3 rounded-xl bg-background border border-dark/10">
             <p className="text-[9px] font-bold text-slateText uppercase">Expenses</p>
-            <p className="font-bold text-sm text-rose-600 mt-1">₹{expenses.toLocaleString('en-IN')}</p>
+            <p className="font-bold text-sm text-rose-600 mt-1">{formatMoney(expenses, client?.currency)}</p>
           </div>
           <div className="p-3 rounded-xl bg-background border border-dark/10">
             <p className="text-[9px] font-bold text-slateText uppercase flex items-center gap-1">
               <TrendingUp className="w-3 h-3" /> Profit
             </p>
-            <p className="font-bold text-sm text-dark mt-1">₹{profit.toLocaleString('en-IN')}</p>
+            <p className="font-bold text-sm text-dark mt-1">{formatMoney(profit, client?.currency)}</p>
           </div>
         </div>
       </Card>
@@ -666,7 +690,7 @@ export const ProjectDetailPage: React.FC = () => {
                 <h3 className="font-display text-sm font-bold text-dark">Payments</h3>
                 <span className="text-[10px] font-bold text-slateText uppercase">
                   Total Received:{' '}
-                  <span className="text-emerald-600">₹{paid.toLocaleString('en-IN')}</span>
+                  <span className="text-emerald-600">{formatMoney(paid, client?.currency)}</span>
                 </span>
               </div>
 
@@ -724,7 +748,7 @@ export const ProjectDetailPage: React.FC = () => {
                     ) : (
                       <div key={p._id} className="py-3">
                         <div className="flex items-start justify-between">
-                          <p className="font-bold text-base text-dark">₹{p.amount.toLocaleString('en-IN')}</p>
+                          <p className="font-bold text-base text-dark">{formatMoney(p.amount, client?.currency)}</p>
                           <p className="text-[10px] text-slateText/70">
                             {p.date ? new Date(p.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' }) : ''}
                           </p>
@@ -747,7 +771,7 @@ export const ProjectDetailPage: React.FC = () => {
                             <Pencil className="w-3 h-3" /> Edit
                           </button>
                           <button
-                            onClick={() => handleDeletePayment(p._id)}
+                            onClick={() => setDeleteRequest({ kind: 'payment', id: p._id })}
                             className="flex items-center gap-1 text-[11px] font-bold text-slateText hover:text-rose-600"
                           >
                             <Trash2 className="w-3 h-3" /> Delete
@@ -766,7 +790,7 @@ export const ProjectDetailPage: React.FC = () => {
                             {p.history.map((h: any, idx: number) => (
                               <div key={idx} className="text-[10px] text-slateText flex items-center justify-between">
                                 <span>
-                                  ₹{(h.amount || 0).toLocaleString('en-IN')} · {h.method}
+                                  {formatMoney(h.amount || 0, client?.currency)} · {h.method}
                                   {h.note ? ` · ${h.note}` : ''}
                                 </span>
                                 <span className="text-slateText/60">
@@ -788,7 +812,7 @@ export const ProjectDetailPage: React.FC = () => {
                     <input
                       type="number"
                       required
-                      placeholder="Amount (₹)"
+                      placeholder={`Amount (${client?.currency || 'INR'})`}
                       value={paymentAmount}
                       onChange={(e) => setPaymentAmount(e.target.value)}
                       className="p-2 bg-white border border-dark/10 rounded-lg text-xs"
@@ -882,7 +906,7 @@ export const ProjectDetailPage: React.FC = () => {
                               {isPaid ? 'Paid' : overdue ? 'Overdue' : 'Unpaid'}
                             </span>
                           </p>
-                          <p className="font-bold text-sm text-dark shrink-0">₹{inv.totalAmount.toLocaleString('en-IN')}</p>
+                          <p className="font-bold text-sm text-dark shrink-0">{formatMoney(inv.totalAmount, client?.currency)}</p>
                         </div>
                         <div className="flex items-center justify-between">
                           <p className="text-[10px] text-slateText">
@@ -923,7 +947,7 @@ export const ProjectDetailPage: React.FC = () => {
                             <Pencil className="w-3 h-3" />
                           </button>
                           <button
-                            onClick={() => handleDeleteInvoice(inv._id)}
+                            onClick={() => setDeleteRequest({ kind: 'invoice', id: inv._id })}
                             className="flex items-center gap-1 text-[11px] font-bold text-slateText hover:text-rose-600"
                           >
                             <Trash2 className="w-3 h-3" />
@@ -948,7 +972,7 @@ export const ProjectDetailPage: React.FC = () => {
                     <div>
                       <p className="font-bold text-xs text-dark">{p.memberName}</p>
                       <p className="text-[10px] text-slateText">
-                        ₹{p.amount.toLocaleString('en-IN')} ·{' '}
+                        {formatMoney(p.amount)} ·{' '}
                         {p.date ? new Date(p.date).toLocaleDateString('en-GB') : ''}
                       </p>
                     </div>
@@ -1111,75 +1135,29 @@ export const ProjectDetailPage: React.FC = () => {
       )}
 
       {/* New Task Modal */}
-      {taskModalOpen && (
-        <div className="fixed inset-0 bg-dark/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-card p-6 max-w-md w-full space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-lg font-bold text-dark">New Task</h2>
-              <button onClick={() => setTaskModalOpen(false)} className="p-1 text-slateText hover:text-dark">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <form onSubmit={handleAddTask} className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-dark mb-1">Title *</label>
-                <input
-                  type="text"
-                  required
-                  value={newTaskTitle}
-                  onChange={(e) => setNewTaskTitle(e.target.value)}
-                  className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-dark mb-1">Description</label>
-                <textarea
-                  rows={2}
-                  value={newTaskDescription}
-                  onChange={(e) => setNewTaskDescription(e.target.value)}
-                  className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm resize-none"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-dark mb-1">Assignee</label>
-                  <input
-                    type="text"
-                    placeholder="Name"
-                    value={newTaskAssignee}
-                    onChange={(e) => setNewTaskAssignee(e.target.value)}
-                    className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-dark mb-1">Due Date</label>
-                  <input
-                    type="date"
-                    value={newTaskDueDate}
-                    onChange={(e) => setNewTaskDueDate(e.target.value)}
-                    className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setTaskModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-dark/20 text-dark font-bold text-xs hover:bg-dark/5"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md"
-                >
-                  Create Task
-                </button>
-              </div>
-            </form>
+      <Modal isOpen={taskModalOpen} onClose={() => setTaskModalOpen(false)} title="New Task" maxWidth="md">
+        <form onSubmit={handleAddTask} className="space-y-3">
+          <Input label="Title" required value={newTaskTitle} onChange={(e) => setNewTaskTitle(e.target.value)} />
+          <Textarea
+            label="Description"
+            rows={2}
+            value={newTaskDescription}
+            onChange={(e) => setNewTaskDescription(e.target.value)}
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="Assignee" placeholder="Name" value={newTaskAssignee} onChange={(e) => setNewTaskAssignee(e.target.value)} />
+            <Input label="Due Date" type="date" value={newTaskDueDate} onChange={(e) => setNewTaskDueDate(e.target.value)} />
           </div>
-        </div>
-      )}
+          <div className="flex items-center justify-end gap-2 pt-2">
+            <Button type="button" variant="ghost" size="sm" onClick={() => setTaskModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="lime" size="sm">
+              Create Task
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       {tab === 'team' && (
         <Card className="p-6 space-y-3">
@@ -1244,8 +1222,7 @@ export const ProjectDetailPage: React.FC = () => {
                   </p>
                 )}
                 <p>
-                  <span className="text-slateText font-semibold">Cost:</span> ₹
-                  {(project.domain.cost || 0).toLocaleString('en-IN')}
+                  <span className="text-slateText font-semibold">Cost:</span> {formatMoney(project.domain.cost || 0)}
                 </p>
               </div>
             ) : (
@@ -1260,8 +1237,7 @@ export const ProjectDetailPage: React.FC = () => {
                   <span className="text-slateText font-semibold">Provider:</span> {project.hosting.provider}
                 </p>
                 <p>
-                  <span className="text-slateText font-semibold">Cost:</span> ₹
-                  {(project.hosting.cost || 0).toLocaleString('en-IN')}
+                  <span className="text-slateText font-semibold">Cost:</span> {formatMoney(project.hosting.cost || 0)}
                 </p>
               </div>
             ) : (
@@ -1306,7 +1282,8 @@ export const ProjectDetailPage: React.FC = () => {
                       target="_blank"
                       rel="noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="p-2 rounded-lg text-dark hover:bg-dark/5"
+                      aria-label="Download PDF"
+                      className="focus-ring p-2 rounded-lg text-dark hover:bg-dark/5"
                       title="Download PDF"
                     >
                       <Download className="w-3.5 h-3.5" />
@@ -1314,9 +1291,10 @@ export const ProjectDetailPage: React.FC = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDeleteQuotation(q._id);
+                        setDeleteRequest({ kind: 'quotation', id: q._id });
                       }}
-                      className="p-2 rounded-lg text-rose-500 hover:bg-rose-50"
+                      aria-label="Delete quotation"
+                      className="focus-ring p-2 rounded-lg text-rose-500 hover:bg-rose-50"
                       title="Delete"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -1331,23 +1309,13 @@ export const ProjectDetailPage: React.FC = () => {
 
 
       {/* New / Edit Invoice Modal */}
-      {invoiceModalOpen && (
-        <div className="fixed inset-0 bg-dark/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="bg-white rounded-card p-6 max-w-2xl w-full space-y-4 shadow-2xl my-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="font-display text-lg font-bold text-dark">
-                  {editingInvoiceId ? 'Edit Invoice' : 'New Invoice'}
-                </h2>
-                <p className="text-[10px] text-slateText mt-0.5">
-                  Fill in the details, then save. You can download the PDF afterwards.
-                </p>
-              </div>
-              <button onClick={() => setInvoiceModalOpen(false)} className="p-1 text-slateText hover:text-dark">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
+      <Modal
+        isOpen={invoiceModalOpen}
+        onClose={() => setInvoiceModalOpen(false)}
+        title={editingInvoiceId ? 'Edit Invoice' : 'New Invoice'}
+        subtitle="Fill in the details, then save. You can download the PDF afterwards."
+        maxWidth="2xl"
+      >
             <form onSubmit={handleSaveInvoice} className="space-y-4">
               <div className="grid grid-cols-3 gap-3">
                 <div>
@@ -1506,7 +1474,7 @@ export const ProjectDetailPage: React.FC = () => {
                           </div>
                         </div>
                         <p className="text-right text-[10px] text-slateText">
-                          Amount: <span className="font-bold text-dark">₹{amount.toLocaleString('en-IN')}</span>
+                          Amount: <span className="font-bold text-dark">{formatMoney(amount, client?.currency)}</span>
                         </p>
                       </div>
                     );
@@ -1534,15 +1502,15 @@ export const ProjectDetailPage: React.FC = () => {
                 <div className="p-3 rounded-xl bg-background border border-dark/10 space-y-1 text-xs">
                   <div className="flex justify-between text-slateText">
                     <span>Subtotal</span>
-                    <span>₹{invoiceTotals.subtotal.toLocaleString('en-IN')}</span>
+                    <span>{formatMoney(invoiceTotals.subtotal, client?.currency)}</span>
                   </div>
                   <div className="flex justify-between text-slateText">
                     <span>Tax</span>
-                    <span>₹{invoiceTotals.tax.toLocaleString('en-IN')}</span>
+                    <span>{formatMoney(invoiceTotals.tax, client?.currency)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-dark pt-1 border-t border-dark/10">
                     <span>Total</span>
-                    <span>₹{(invoiceTotals.subtotal + invoiceTotals.tax).toLocaleString('en-IN')}</span>
+                    <span>{formatMoney(invoiceTotals.subtotal + invoiceTotals.tax, client?.currency)}</span>
                   </div>
                 </div>
               </div>
@@ -1564,9 +1532,17 @@ export const ProjectDetailPage: React.FC = () => {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+      </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteRequest}
+        onClose={() => setDeleteRequest(null)}
+        onConfirm={runDeleteRequest}
+        title={deleteRequest ? confirmDeleteCopy[deleteRequest.kind].title : ''}
+        description={deleteRequest ? confirmDeleteCopy[deleteRequest.kind].description : undefined}
+        confirmLabel="Delete"
+        destructive
+      />
     </div>
   );
 };

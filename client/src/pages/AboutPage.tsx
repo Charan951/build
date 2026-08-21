@@ -3,9 +3,11 @@ import { SEOHead } from '../components/seo/SEOHead';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
+import { IconBadge } from '../components/ui/IconBadge';
+import { StatTile } from '../components/ui/StatTile';
 import { ScrollGridShowcase } from '../components/ui/ScrollGridShowcase';
 import { ReviewsSection } from '../components/ui/ReviewsSection';
-import { ShieldCheck, Award, Target, Users, Cpu, Code2, Cloud, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Award, Target, Users, Cpu, Code2, Cloud } from 'lucide-react';
 
 export const AboutPage: React.FC = () => {
   const values = [
@@ -23,7 +25,7 @@ export const AboutPage: React.FC = () => {
 
   return (
     <div className="pt-32 max-w-7xl mx-auto px-6 space-y-24">
-      <SEOHead title="About Build Your Thoughts | India's Premium Digital Engineering" />
+      <SEOHead title="About Build Your Thoughts | India's Premium Digital Engineering" canonical="https://buildyourthoughts.com/about" />
 
       {/* Main Section Header */}
       <SectionHeader
@@ -48,9 +50,7 @@ export const AboutPage: React.FC = () => {
               const Icon = h.icon;
               return (
                 <div key={idx} className="flex items-start gap-3.5 bg-slate-50 border border-slate-200/80 p-4 rounded-2xl">
-                  <div className="w-9 h-9 rounded-xl bg-dark text-primary flex items-center justify-center shrink-0 mt-0.5">
-                    <Icon className="w-5 h-5" />
-                  </div>
+                  <IconBadge icon={Icon} size="sm" className="mt-0.5" />
                   <div>
                     <h4 className="font-display text-sm font-bold text-dark">{h.label}</h4>
                     <p className="text-xs text-slateText leading-relaxed">{h.desc}</p>
@@ -63,7 +63,7 @@ export const AboutPage: React.FC = () => {
 
         {/* Hero Visual Card */}
         <div className="space-y-6">
-          <div className="rounded-3xl overflow-hidden shadow-2xl border border-dark/10 h-80 relative group">
+          <div className="rounded-card overflow-hidden shadow-hover border border-dark/10 h-80 relative group">
             <img
               src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
               alt="Engineering Team"
@@ -76,19 +76,10 @@ export const AboutPage: React.FC = () => {
           </div>
 
           {/* Quick Metrics Bar */}
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="bg-dark text-white p-4 rounded-2xl border border-white/10">
-              <p className="font-display text-2xl md:text-3xl font-black text-primary">100+</p>
-              <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Apps Built</p>
-            </div>
-            <div className="bg-dark text-white p-4 rounded-2xl border border-white/10">
-              <p className="font-display text-2xl md:text-3xl font-black text-primary">5 Days</p>
-              <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Avg Delivery</p>
-            </div>
-            <div className="bg-dark text-white p-4 rounded-2xl border border-white/10">
-              <p className="font-display text-2xl md:text-3xl font-black text-primary">99.99%</p>
-              <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Uptime SLA</p>
-            </div>
+          <div className="grid grid-cols-3 gap-4">
+            <StatTile surface="onDark" value="100+" label="Apps Built" className="!bg-dark border-white/10 !p-4" />
+            <StatTile surface="onDark" value="5 Days" label="Avg Delivery" className="!bg-dark border-white/10 !p-4" />
+            <StatTile surface="onDark" value="99.99%" label="Uptime SLA" className="!bg-dark border-white/10 !p-4" />
           </div>
         </div>
       </div>
@@ -101,9 +92,7 @@ export const AboutPage: React.FC = () => {
             const Icon = v.icon;
             return (
               <Card key={idx} className="text-center p-8">
-                <div className="w-12 h-12 rounded-2xl bg-dark text-primary flex items-center justify-center mx-auto mb-6">
-                  <Icon className="w-6 h-6" />
-                </div>
+                <IconBadge icon={Icon} className="mx-auto mb-6" />
                 <h3 className="font-display text-xl font-bold text-dark mb-3">{v.title}</h3>
                 <p className="text-slateText text-sm leading-relaxed">{v.desc}</p>
               </Card>

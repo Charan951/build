@@ -16,6 +16,8 @@ import {
   Pencil,
 } from 'lucide-react';
 import { apiFetch } from '../../services/api';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { Modal } from '../ui/Modal';
 
 interface MeetingsPanelProps {
   /** When omitted, the panel shows meetings across every client. */
@@ -78,6 +80,7 @@ export const MeetingsPanel: React.FC<MeetingsPanelProps> = ({ clientId, clientNa
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [cancelTarget, setCancelTarget] = useState<string | null>(null);
   const [formError, setFormError] = useState('');
   const [viewingMeeting, setViewingMeeting] = useState<any | null>(null);
 
@@ -88,13 +91,17 @@ export const MeetingsPanel: React.FC<MeetingsPanelProps> = ({ clientId, clientNa
   const [connecting, setConnecting] = useState(false);
   const [googleBanner, setGoogleBanner] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  const [loadError, setLoadError] = useState(false);
+
   const fetchMeetings = () => {
     setLoading(true);
+    setLoadError(false);
     apiFetch(`/crm/meetings${clientId ? `?clientId=${clientId}` : ''}`, { token })
       .then((res) => {
         if (res.success) setMeetings(res.data || []);
+        else setLoadError(true);
       })
-      .catch(() => {})
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
   };
 
@@ -103,7 +110,9 @@ export const MeetingsPanel: React.FC<MeetingsPanelProps> = ({ clientId, clientNa
       .then((res) => {
         if (res.success) setGoogleStatus(res.data);
       })
-      .catch(() => {});
+      .catch(() => {
+        // Non-blocking: the Google-connect banner simply stays hidden if this fails.
+      });
   };
 
   useEffect(() => {
@@ -114,7 +123,9 @@ export const MeetingsPanel: React.FC<MeetingsPanelProps> = ({ clientId, clientNa
         .then((res) => {
           if (res.success) setClients(res.data || []);
         })
-        .catch(() => {});
+        .catch(() => {
+          // Non-blocking: only powers the client-picker in the New Meeting form.
+        });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientId]);
@@ -220,10 +231,11 @@ export const MeetingsPanel: React.FC<MeetingsPanelProps> = ({ clientId, clientNa
   };
 
   const handleDelete = (meetingId: string) => {
-    if (!window.confirm('Cancel this meeting?')) return;
-    apiFetch(`/crm/meetings/${meetingId}`, { method: 'DELETE', token }).then((res) => {
-      if (res.success) fetchMeetings();
-    });
+    apiFetch(`/crm/meetings/${meetingId}`, { method: 'DELETE', token })
+      .then((res) => {
+        if (res.success) fetchMeetings();
+      })
+      .finally(() => setCancelTarget(null));
   };
 
   const weekDays = useMemo(() => {
@@ -305,13 +317,15 @@ export const MeetingsPanel: React.FC<MeetingsPanelProps> = ({ clientId, clientNa
               </button>
               <button
                 onClick={() => navigateWeek(-1)}
-                className="p-1.5 rounded-lg border border-dark/10 text-dark hover:bg-dark/5"
+                aria-label="Previous week"
+                className="focus-ring p-1.5 rounded-lg border border-dark/10 text-dark hover:bg-dark/5"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => navigateWeek(1)}
-                className="p-1.5 rounded-lg border border-dark/10 text-dark hover:bg-dark/5"
+                aria-label="Next week"
+                className="focus-ring p-1.5 rounded-lg border border-dark/10 text-dark hover:bg-dark/5"
               >
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
@@ -331,7 +345,7 @@ export const MeetingsPanel: React.FC<MeetingsPanelProps> = ({ clientId, clientNa
           <div className="flex items-center justify-between px-3 py-2 bg-background border-b border-dark/10">
             <p className="text-[11px] font-bold text-slateText">{weekRangeLabel()}</p>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto custom-form-scrollbar pb-1">
             <div className="min-w-[640px] grid grid-cols-8">
               <div className="border-r border-dark/10" />
               {weekDays.map((d) => {
@@ -395,6 +409,16 @@ export const MeetingsPanel: React.FC<MeetingsPanelProps> = ({ clientId, clientNa
         <div className="rounded-xl border border-dark/10 divide-y divide-dark/5">
           {loading ? (
             <p className="text-xs text-slateText py-8 text-center">Loading meetings...</p>
+          ) : loadError ? (
+            <div className="py-8 text-center space-y-2">
+              <p className="text-rose-600 text-xs font-semibold">Couldn't load meetings.</p>
+              <button
+                onClick={fetchMeetings}
+                className="focus-ring px-3 py-1.5 rounded-lg bg-dark text-white text-[11px] font-bold hover:bg-dark/90"
+              >
+                Retry
+              </button>
+            </div>
           ) : upcoming.length === 0 ? (
             <p className="text-xs text-slateText py-8 text-center">
               {isGlobal ? 'No meetings scheduled yet.' : `No meetings scheduled with ${clientName} yet.`}
@@ -441,9 +465,10 @@ export const MeetingsPanel: React.FC<MeetingsPanelProps> = ({ clientId, clientNa
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDelete(m._id);
+                    setCancelTarget(m._id);
                   }}
-                  className="p-1.5 rounded-lg text-slateText hover:text-rose-600 hover:bg-rose-50"
+                  className="focus-ring p-1.5 rounded-lg text-slateText hover:text-rose-600 hover:bg-rose-50"
+                  aria-label="Cancel meeting"
                   title="Cancel meeting"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -464,16 +489,7 @@ export const MeetingsPanel: React.FC<MeetingsPanelProps> = ({ clientId, clientNa
         />
       )}
 
-      {showModal && (
-        <div className="fixed inset-0 bg-dark/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-card p-6 sm:p-8 max-w-lg w-full space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-xl font-bold text-dark">{editingId ? 'Edit Meeting' : 'Schedule Meeting'}</h2>
-              <button onClick={() => setShowModal(false)} className="p-1 rounded-lg hover:bg-dark/5 text-slateText">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editingId ? 'Edit Meeting' : 'Schedule Meeting'} maxWidth="lg">
             {isGlobal ? (
               <div>
                 <label className="block text-xs font-bold text-dark mb-1">Client</label>
@@ -667,20 +683,11 @@ export const MeetingsPanel: React.FC<MeetingsPanelProps> = ({ clientId, clientNa
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+      </Modal>
 
-      {viewingMeeting && (
-        <div className="fixed inset-0 bg-dark/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-card p-6 sm:p-8 max-w-md w-full space-y-5 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-xl font-bold text-dark">{viewingMeeting.title}</h2>
-              <button onClick={() => setViewingMeeting(null)} className="p-1 rounded-lg hover:bg-dark/5 text-slateText">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
+      <Modal isOpen={!!viewingMeeting} onClose={() => setViewingMeeting(null)} title={viewingMeeting?.title || ''} maxWidth="md">
+        {viewingMeeting && (
+          <>
             {isGlobal && viewingMeeting.clientId?.companyName && (
               <span className="inline-block px-2.5 py-1 rounded-full bg-background border border-dark/10 text-[10px] font-bold text-dark">
                 {viewingMeeting.clientId.companyName}
@@ -733,10 +740,7 @@ export const MeetingsPanel: React.FC<MeetingsPanelProps> = ({ clientId, clientNa
 
             <div className="flex items-center justify-between gap-3 pt-2 border-t border-dark/5">
               <button
-                onClick={() => {
-                  handleDelete(viewingMeeting._id);
-                  setViewingMeeting(null);
-                }}
+                onClick={() => setCancelTarget(viewingMeeting._id)}
                 className="px-4 py-2 rounded-xl text-rose-600 font-bold text-xs hover:bg-rose-50 flex items-center gap-1.5"
               >
                 <Trash2 className="w-3.5 h-3.5" /> Cancel Meeting
@@ -756,9 +760,21 @@ export const MeetingsPanel: React.FC<MeetingsPanelProps> = ({ clientId, clientNa
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
+
+      <ConfirmDialog
+        isOpen={!!cancelTarget}
+        onClose={() => setCancelTarget(null)}
+        onConfirm={() => {
+          if (cancelTarget) handleDelete(cancelTarget);
+          setViewingMeeting(null);
+        }}
+        title="Cancel this meeting?"
+        confirmLabel="Cancel Meeting"
+        destructive
+      />
     </div>
   );
 };
@@ -792,10 +808,10 @@ const MonthView: React.FC<{
           {firstOfMonth.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
         </p>
         <div className="flex items-center gap-1">
-          <button onClick={() => navigateMonth(-1)} className="p-1.5 rounded-lg border border-dark/10 text-dark hover:bg-dark/5">
+          <button onClick={() => navigateMonth(-1)} aria-label="Previous month" className="focus-ring p-1.5 rounded-lg border border-dark/10 text-dark hover:bg-dark/5">
             <ChevronLeft className="w-3.5 h-3.5" />
           </button>
-          <button onClick={() => navigateMonth(1)} className="p-1.5 rounded-lg border border-dark/10 text-dark hover:bg-dark/5">
+          <button onClick={() => navigateMonth(1)} aria-label="Next month" className="focus-ring p-1.5 rounded-lg border border-dark/10 text-dark hover:bg-dark/5">
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>

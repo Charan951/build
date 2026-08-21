@@ -6,6 +6,7 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { Plus, Trash2, Edit, ArrowLeft, Search, RefreshCw, Sparkles, Eye, CheckCircle2 } from 'lucide-react';
 
 interface SubServiceInput {
@@ -80,6 +81,8 @@ export const ManageServicesPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [deleteCategoryTarget, setDeleteCategoryTarget] = useState<string | null>(null);
+  const [deleteServiceTarget, setDeleteServiceTarget] = useState<string | null>(null);
 
   // Category Modal states
   const [isCatModalOpen, setIsCatModalOpen] = useState(false);
@@ -130,8 +133,12 @@ export const ManageServicesPage: React.FC = () => {
       const data = await apiFetch('/services');
       if (data.success && data.data) {
         setSingleServices(data.data);
+      } else {
+        setErrorMsg('Failed to load services.');
       }
-    } catch (err) {}
+    } catch (err) {
+      setErrorMsg('Server connection error while fetching services.');
+    }
   };
 
   // --- Category CRUD Handlers ---
@@ -243,7 +250,6 @@ export const ManageServicesPage: React.FC = () => {
   };
 
   const handleDeleteCategory = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this service category? This action cannot be undone.')) return;
     try {
       const res = await fetch(`/api/v1/service-categories/${id}`, {
         method: 'DELETE',
@@ -258,6 +264,8 @@ export const ManageServicesPage: React.FC = () => {
       }
     } catch (err) {
       setErrorMsg('Server connection error.');
+    } finally {
+      setDeleteCategoryTarget(null);
     }
   };
 
@@ -332,7 +340,6 @@ export const ManageServicesPage: React.FC = () => {
   };
 
   const handleDeleteServiceDetail = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this service detail page?')) return;
     try {
       const data = await apiFetch(`/services/${id}`, {
         method: 'DELETE',
@@ -345,6 +352,8 @@ export const ManageServicesPage: React.FC = () => {
       }
     } catch (err) {
       setErrorMsg('Server connection error.');
+    } finally {
+      setDeleteServiceTarget(null);
     }
   };
 
@@ -366,7 +375,7 @@ export const ManageServicesPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <Link to="/dashboard" className="inline-flex items-center text-xs font-bold text-slateText hover:text-dark mb-2 gap-1">
+          <Link to="/dashboard" className="focus-ring inline-flex items-center text-xs font-bold text-slateText hover:text-dark mb-2 gap-1 rounded">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
           </Link>
         </div>
@@ -382,26 +391,32 @@ export const ManageServicesPage: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-4 border-b border-dark/10 pb-4">
+      <div role="tablist" aria-label="Services view" className="flex items-center gap-1 border-b border-dark/10 overflow-x-auto no-scrollbar">
         <button
+          role="tab"
+          aria-selected={activeTab === 'categories'}
           onClick={() => setActiveTab('categories')}
-          className={`px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider transition-all ${
-            activeTab === 'categories'
-              ? 'bg-dark text-white shadow-md'
-              : 'bg-white text-slateText hover:text-dark hover:bg-slate-100'
+          className={`focus-ring flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap ${
+            activeTab === 'categories' ? 'border-primary text-dark' : 'border-transparent text-slateText hover:text-dark'
           }`}
         >
-          Categories & Sub-Services ({categories.length})
+          Categories & Sub-Services
+          <span className="px-1.5 py-0.5 rounded-full bg-dark/5 text-[9px] font-bold text-slateText">
+            {categories.length}
+          </span>
         </button>
         <button
+          role="tab"
+          aria-selected={activeTab === 'services'}
           onClick={() => setActiveTab('services')}
-          className={`px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider transition-all ${
-            activeTab === 'services'
-              ? 'bg-dark text-white shadow-md'
-              : 'bg-white text-slateText hover:text-dark hover:bg-slate-100'
+          className={`focus-ring flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap ${
+            activeTab === 'services' ? 'border-primary text-dark' : 'border-transparent text-slateText hover:text-dark'
           }`}
         >
-          Dedicated Service Pages ({singleServices.length})
+          Dedicated Service Pages
+          <span className="px-1.5 py-0.5 rounded-full bg-dark/5 text-[9px] font-bold text-slateText">
+            {singleServices.length}
+          </span>
         </button>
       </div>
 
@@ -427,13 +442,14 @@ export const ManageServicesPage: React.FC = () => {
                 <input
                   type="text"
                   placeholder="Search service categories by title..."
+                  aria-label="Search service categories"
                   value={catSearch}
                   onChange={(e) => setCatSearch(e.target.value)}
-                  className="w-full pl-11 pr-4 py-2.5 rounded-2xl bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
+                  className="focus-ring w-full pl-11 pr-4 py-2.5 rounded-2xl bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
 
-              <button onClick={fetchCategories} className="p-2.5 rounded-2xl border border-dark/10 hover:bg-background text-dark flex items-center gap-2 text-xs font-bold">
+              <button onClick={fetchCategories} className="focus-ring p-2.5 rounded-2xl border border-dark/10 hover:bg-background text-dark flex items-center gap-2 text-xs font-bold">
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Refresh Categories
               </button>
             </div>
@@ -456,20 +472,21 @@ export const ManageServicesPage: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleAddSubServiceToCategory(cat)}
-                      className="px-4 py-2 rounded-xl bg-primary/20 text-dark hover:bg-primary font-bold text-xs flex items-center gap-1.5 transition-colors"
+                      className="focus-ring px-4 py-2 rounded-xl bg-primary/20 text-dark hover:bg-primary font-bold text-xs flex items-center gap-1.5 transition-colors"
                     >
                       <Plus className="w-3.5 h-3.5" /> Add Service to {cat.title}
                     </button>
                     <button
                       onClick={() => handleOpenEditCategory(cat)}
-                      className="p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
+                      aria-label="Edit Category & Services"
+                      className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
                       title="Edit Category & Services"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDeleteCategory(cat._id)}
-                      className="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                      onClick={() => setDeleteCategoryTarget(cat._id)}
+                      className="focus-ring p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
                       title="Delete Category"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -493,7 +510,7 @@ export const ManageServicesPage: React.FC = () => {
                         </div>
                         <Link
                           to={`/services/${sub.slug}`}
-                          className="text-[10px] font-bold text-primary hover:underline shrink-0"
+                          className="focus-ring text-[10px] font-bold text-dark hover:underline shrink-0 rounded"
                           target="_blank"
                         >
                           View ↗
@@ -518,49 +535,52 @@ export const ManageServicesPage: React.FC = () => {
                 <input
                   type="text"
                   placeholder="Search service pages by title or slug..."
+                  aria-label="Search service pages"
                   value={srvSearch}
                   onChange={(e) => setSrvSearch(e.target.value)}
-                  className="w-full pl-11 pr-4 py-2.5 rounded-2xl bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
+                  className="focus-ring w-full pl-11 pr-4 py-2.5 rounded-2xl bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
 
-              <button onClick={fetchSingleServices} className="p-2.5 rounded-2xl border border-dark/10 hover:bg-background text-dark flex items-center gap-2 text-xs font-bold">
+              <button onClick={fetchSingleServices} className="focus-ring p-2.5 rounded-2xl border border-dark/10 hover:bg-background text-dark flex items-center gap-2 text-xs font-bold">
                 <RefreshCw className="w-4 h-4" /> Refresh Pages
               </button>
             </div>
           </Card>
 
           <Card className="p-6">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto custom-form-scrollbar pb-2">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-dark/10 text-xs font-bold uppercase text-slateText">
                     <th className="py-3 px-4">Service Page Title</th>
                     <th className="py-3 px-4">Category</th>
                     <th className="py-3 px-4">URL Slug</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
+                    <th className="py-3 px-4 text-right sticky right-0 bg-white border-l border-dark/10">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-dark/5 text-sm font-medium">
                   {filteredServices.map((srv) => (
-                    <tr key={srv._id} className="hover:bg-background/50 transition-colors">
+                    <tr key={srv._id} className="group hover:bg-background/50 transition-colors">
                       <td className="py-4 px-4 font-bold text-dark">{srv.title}</td>
                       <td className="py-4 px-4">
                         <Badge variant="lime">{srv.category}</Badge>
                       </td>
                       <td className="py-4 px-4 font-mono text-xs text-slateText">/services/{srv.slug}</td>
-                      <td className="py-4 px-4 text-right">
+                      <td className="py-4 px-4 text-right sticky right-0 bg-white group-hover:bg-background/50 border-l border-dark/10 transition-colors">
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleOpenEditServiceDetail(srv)}
-                            className="p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
+                            aria-label="Edit Service Page Content"
+                            className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
                             title="Edit Service Page Content"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDeleteServiceDetail(srv._id)}
-                            className="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                            onClick={() => setDeleteServiceTarget(srv._id)}
+                            aria-label="Delete Service Page"
+                            className="focus-ring p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
                             title="Delete Service Page"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -811,6 +831,26 @@ export const ManageServicesPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteCategoryTarget}
+        onClose={() => setDeleteCategoryTarget(null)}
+        onConfirm={() => deleteCategoryTarget && handleDeleteCategory(deleteCategoryTarget)}
+        title="Delete service category?"
+        description="This category and its sub-services will be permanently removed. This action cannot be undone."
+        confirmLabel="Delete"
+        destructive
+      />
+
+      <ConfirmDialog
+        isOpen={!!deleteServiceTarget}
+        onClose={() => setDeleteServiceTarget(null)}
+        onConfirm={() => deleteServiceTarget && handleDeleteServiceDetail(deleteServiceTarget)}
+        title="Delete service page?"
+        description="This service detail page will be permanently removed."
+        confirmLabel="Delete"
+        destructive
+      />
     </div>
   );
 };

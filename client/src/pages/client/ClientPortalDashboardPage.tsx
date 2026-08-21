@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Badge } from '../../components/ui/Badge';
+import { StatusPill } from '../../components/ui/StatusPill';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import {
   Receipt,
   LayoutGrid,
@@ -49,13 +51,6 @@ const formatFileSize = (bytes: number): string => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-const statusStyles: Record<string, string> = {
-  planning: 'bg-amber-50 text-amber-700 border-amber-200',
-  in_progress: 'bg-blue-50 text-blue-700 border-blue-200',
-  completed: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  on_hold: 'bg-rose-50 text-rose-700 border-rose-200',
-};
-
 export const ClientPortalDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('clientToken');
@@ -74,7 +69,9 @@ export const ClientPortalDashboardPage: React.FC = () => {
   const [files, setFiles] = useState<ClientFileItem[]>([]);
   const [meetings, setMeetings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [deleteFileTarget, setDeleteFileTarget] = useState<string | null>(null);
 
   const fetchFiles = () => {
     apiFetch('/portal/files', { token }).then((res) => {
@@ -82,7 +79,9 @@ export const ClientPortalDashboardPage: React.FC = () => {
     });
   };
 
-  useEffect(() => {
+  const fetchAll = () => {
+    setLoading(true);
+    setLoadError(false);
     Promise.all([
       apiFetch('/portal/invoices', { token }),
       apiFetch('/portal/projects', { token }),
@@ -90,13 +89,21 @@ export const ClientPortalDashboardPage: React.FC = () => {
       apiFetch('/portal/meetings', { token }),
     ])
       .then(([iRes, pRes, fRes, mRes]) => {
-        if (iRes.success) setInvoices(iRes.data || []);
-        if (pRes.success) setProjects(pRes.data || []);
-        if (fRes.success) setFiles(fRes.data || []);
-        if (mRes.success) setMeetings(mRes.data || []);
+        if (!iRes.success || !pRes.success || !fRes.success || !mRes.success) {
+          setLoadError(true);
+          return;
+        }
+        setInvoices(iRes.data || []);
+        setProjects(pRes.data || []);
+        setFiles(fRes.data || []);
+        setMeetings(mRes.data || []);
       })
-      .catch(() => {})
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -122,10 +129,11 @@ export const ClientPortalDashboardPage: React.FC = () => {
   };
 
   const handleDeleteFile = (fileId: string) => {
-    if (!window.confirm('Delete this file?')) return;
-    apiFetch(`/portal/files/${fileId}`, { method: 'DELETE', token }).then((res) => {
-      if (res.success) fetchFiles();
-    });
+    apiFetch(`/portal/files/${fileId}`, { method: 'DELETE', token })
+      .then((res) => {
+        if (res.success) fetchFiles();
+      })
+      .finally(() => setDeleteFileTarget(null));
   };
 
   const handleViewFile = (file: ClientFileItem) => {
@@ -161,6 +169,21 @@ export const ClientPortalDashboardPage: React.FC = () => {
     );
   }
 
+  if (loadError) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background px-6 text-center">
+        <p className="text-dark text-sm font-semibold">Couldn't load your dashboard.</p>
+        <p className="text-slateText text-xs">Check your connection and try again.</p>
+        <button
+          onClick={fetchAll}
+          className="focus-ring mt-1 px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead title="Client Portal | Build Your Thoughts" />
@@ -186,7 +209,8 @@ export const ClientPortalDashboardPage: React.FC = () => {
             </div>
             <button
               onClick={handleLogout}
-              className="p-2 rounded-xl border border-white/15 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+              aria-label="Log out"
+              className="focus-ring-inverse p-2 rounded-xl border border-white/15 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
               title="Log out"
             >
               <LogOut className="w-4 h-4" />
@@ -280,13 +304,11 @@ export const ClientPortalDashboardPage: React.FC = () => {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <h3 className="font-display font-bold text-base text-dark leading-tight">{p.projectName}</h3>
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase border shrink-0 ${
-                            statusStyles[p.status] || 'bg-dark/5 text-slateText border-dark/10'
-                          }`}
-                        >
-                          {(p.status || '').replace('_', ' ')}
-                        </span>
+                        <StatusPill
+                          status={p.status || ''}
+                          label={(p.status || '').replace('_', ' ')}
+                          className="shrink-0 uppercase !rounded-full !text-[9px] !px-2 !py-0.5"
+                        />
                       </div>
 
                       <div>
@@ -366,18 +388,20 @@ export const ClientPortalDashboardPage: React.FC = () => {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 shrink-0 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity">
                       <button
                         onClick={() => handleViewFile(f)}
-                        className="p-2 text-slateText hover:text-dark rounded-lg hover:bg-dark/5"
+                        aria-label="View / Download"
+                        className="focus-ring p-2 text-slateText hover:text-dark rounded-lg hover:bg-dark/5"
                         title="View / Download"
                       >
                         <Download className="w-4 h-4" />
                       </button>
                       {f.uploadedBy === 'client' && (
                         <button
-                          onClick={() => handleDeleteFile(f._id)}
-                          className="p-2 text-slateText hover:text-rose-600 rounded-lg hover:bg-rose-50"
+                          onClick={() => setDeleteFileTarget(f._id)}
+                          aria-label="Delete"
+                          className="focus-ring p-2 text-slateText hover:text-rose-600 rounded-lg hover:bg-rose-50"
                           title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -475,6 +499,15 @@ export const ClientPortalDashboardPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={!!deleteFileTarget}
+        onClose={() => setDeleteFileTarget(null)}
+        onConfirm={() => deleteFileTarget && handleDeleteFile(deleteFileTarget)}
+        title="Delete file?"
+        confirmLabel="Delete"
+        destructive
+      />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Badge } from '../../components/ui/Badge';
+import { StatusPill } from '../../components/ui/StatusPill';
 import {
   ChevronLeft,
   ListChecks,
@@ -27,15 +28,6 @@ const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: 'domain', label: 'Domain & Hosting', icon: Globe },
 ];
 
-const statusStyles: Record<string, string> = {
-  planning: 'bg-amber-50 text-amber-700 border-amber-200',
-  in_progress: 'bg-blue-50 text-blue-700 border-blue-200',
-  testing: 'bg-purple-50 text-purple-700 border-purple-200',
-  deployed: 'bg-cyan-50 text-cyan-700 border-cyan-200',
-  completed: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  on_hold: 'bg-rose-50 text-rose-700 border-rose-200',
-};
-
 export const ClientProjectDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -48,23 +40,35 @@ export const ClientProjectDetailPage: React.FC = () => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [addingTask, setAddingTask] = useState(false);
 
+  const [loadError, setLoadError] = useState(false);
+
   const fetchProject = () => {
     apiFetch(`/portal/projects/${id}`, { token }).then((res) => {
       if (res.success) setProject(res.data);
     });
   };
 
-  useEffect(() => {
+  const fetchAll = () => {
     setLoading(true);
+    setLoadError(false);
     Promise.all([
       apiFetch(`/portal/projects/${id}`, { token }),
       apiFetch('/portal/invoices', { token }),
     ])
       .then(([pRes, iRes]) => {
-        if (pRes.success) setProject(pRes.data);
-        if (iRes.success) setInvoices((iRes.data || []).filter((inv: any) => String(inv.projectId) === id));
+        if (!pRes.success || !iRes.success) {
+          setLoadError(true);
+          return;
+        }
+        setProject(pRes.data);
+        setInvoices((iRes.data || []).filter((inv: any) => String(inv.projectId) === id));
       })
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -117,13 +121,28 @@ export const ClientProjectDetailPage: React.FC = () => {
     );
   }
 
+  if (loadError) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background px-6 text-center">
+        <p className="text-sm font-semibold text-dark">Couldn't load this project.</p>
+        <p className="text-xs text-slateText">Check your connection and try again.</p>
+        <button
+          onClick={fetchAll}
+          className="focus-ring mt-1 px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   if (!project) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background">
         <p className="text-sm font-semibold text-slateText">Project not found.</p>
         <button
           onClick={() => navigate('/portal')}
-          className="px-4 py-2 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
+          className="focus-ring px-4 py-2 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
         >
           <ChevronLeft className="w-3.5 h-3.5" /> Back to Portal
         </button>
@@ -152,13 +171,11 @@ export const ClientProjectDetailPage: React.FC = () => {
             <div>
               <h1 className="font-display text-2xl sm:text-3xl font-bold text-dark">{project.projectName}</h1>
               {project.description && <p className="text-xs text-slateText mt-2 max-w-xl">{project.description}</p>}
-              <span
-                className={`inline-block mt-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border ${
-                  statusStyles[project.status] || 'bg-dark/5 text-slateText border-dark/10'
-                }`}
-              >
-                {(project.status || '').replace('_', ' ')}
-              </span>
+              <StatusPill
+                status={project.status || ''}
+                label={(project.status || '').replace('_', ' ')}
+                className="mt-3 uppercase !rounded-full !text-[10px]"
+              />
             </div>
           </div>
 

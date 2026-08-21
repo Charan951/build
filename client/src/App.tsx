@@ -1,6 +1,8 @@
 import React, { useEffect, Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Lenis from '@studio-freight/lenis';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { AdminLayout } from './components/layout/AdminLayout';
@@ -43,6 +45,8 @@ const ReportsAnalyticsPage = lazy(() => import('./pages/admin/ReportsAnalyticsPa
 const ClientPortalDashboardPage = lazy(() => import('./pages/client/ClientPortalDashboardPage').then(m => ({ default: m.ClientPortalDashboardPage })));
 const PortalProjectDetailPage = lazy(() => import('./pages/client/ClientProjectDetailPage').then(m => ({ default: m.ClientProjectDetailPage })));
 
+gsap.registerPlugin(ScrollTrigger);
+
 const PageLoader = () => (
   <div className="min-h-[60vh] flex items-center justify-center">
     <div className="w-10 h-10 border-4 border-dark/10 border-t-primary rounded-full animate-spin" />
@@ -69,6 +73,10 @@ export const App: React.FC = () => {
       smoothWheel: true,
     });
 
+    // Keep ScrollTrigger's positions in sync with Lenis's virtual scroll so any
+    // scroll-triggered animation stays aligned with what's on screen.
+    lenis.on('scroll', ScrollTrigger.update);
+
     function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);
@@ -78,7 +86,11 @@ export const App: React.FC = () => {
     // Scroll to top on route change
     window.scrollTo(0, 0);
 
+    // Recalculate trigger positions once the new page's layout (and images/fonts) settle.
+    const refreshId = requestAnimationFrame(() => ScrollTrigger.refresh());
+
     return () => {
+      cancelAnimationFrame(refreshId);
       lenis.destroy();
     };
   }, [location.pathname, isAdminRoute]);

@@ -78,7 +78,7 @@ export const ManageSettingsPage: React.FC = () => {
       <SEOHead title="Manage Company Contact Details | Admin" />
 
       {/* Back Button */}
-      <Link to="/admin" className="inline-flex items-center gap-2 text-sm text-slateText hover:text-dark font-medium transition-colors">
+      <Link to="/dashboard" className="focus-ring inline-flex items-center gap-2 text-sm text-slateText hover:text-dark font-medium transition-colors rounded">
         <ArrowLeft className="w-4 h-4" /> Back to Admin Dashboard
       </Link>
 

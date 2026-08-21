@@ -1,31 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Button } from '../../components/ui/Button';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { Modal } from '../../components/ui/Modal';
+import { Input, Select } from '../../components/ui/FormField';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { StatusPill } from '../../components/ui/StatusPill';
+import { Spinner } from '../../components/ui/Spinner';
 import {
   Plus,
   Phone,
   Search,
   Download,
   FolderKanban,
-  Loader2,
   Pencil,
   Trash2,
   Save,
   ChevronRight,
+  Users,
+  CheckSquare,
+  Check,
 } from 'lucide-react';
 import { apiFetch } from '../../services/api';
+import { CURRENCY_OPTIONS, timeAgo } from '../../utils/format';
 
 const AVATAR_PALETTE = ['#CDFB47', '#7DD3FC', '#FDBA74', '#C4B5FD', '#6EE7B7', '#F9A8D4'];
-
-const CURRENCY_OPTIONS = [
-  { code: 'INR', label: 'INR — Indian Rupee (₹)' },
-  { code: 'USD', label: 'USD — US Dollar ($)' },
-  { code: 'EUR', label: 'EUR — Euro (€)' },
-  { code: 'GBP', label: 'GBP — British Pound (£)' },
-  { code: 'AUD', label: 'AUD — Australian Dollar (A$)' },
-];
 
 const avatarColorFor = (seed: string): string => {
   let hash = 0;
@@ -39,20 +40,6 @@ const projectStage = (status?: string): 'new' | 'ongoing' | 'completed' => {
   return 'ongoing';
 };
 
-const timeAgo = (dateStr?: string): string => {
-  if (!dateStr) return '';
-  const diffMs = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  const months = Math.floor(days / 30);
-  if (months < 12) return `${months}mo ago`;
-  return `${Math.floor(months / 12)}y ago`;
-};
 
 const EMPTY_FORM = {
   companyName: '',
@@ -63,36 +50,67 @@ const EMPTY_FORM = {
 
 export const ManageClientsPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [clients, setClients] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(() => searchParams.get('q') || '');
 
   const [showModal, setShowModal] = useState(false);
   const [editingClientId, setEditingClientId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
   const [formData, setFormData] = useState(EMPTY_FORM);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedClientIds, setSelectedClientIds] = useState<string[]>([]);
+  const [bulkDeleteConfirmOpen, setBulkDeleteConfirmOpen] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const token = localStorage.getItem('adminToken');
 
   const fetchClients = () => {
     setLoading(true);
+    setLoadError(false);
     Promise.all([
       apiFetch('/crm/clients', { token }),
       apiFetch('/crm/projects', { token }),
     ])
       .then(([clientsRes, projectsRes]) => {
-        if (clientsRes.success) setClients(clientsRes.data || []);
-        if (projectsRes.success) setProjects(projectsRes.data || []);
+        if (!clientsRes.success || !projectsRes.success) {
+          setLoadError(true);
+          return;
+        }
+        setClients(clientsRes.data || []);
+        setProjects(projectsRes.data || []);
       })
-      .catch(() => {})
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     fetchClients();
   }, []);
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (e.key === '/' && !target.closest('input, textarea, [contenteditable="true"]')) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        return;
+      }
+      if (e.key === 'Escape' && isSelectMode) {
+        setIsSelectMode(false);
+        setSelectedClientIds([]);
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isSelectMode]);
 
   const openCreateModal = () => {
     setEditingClientId(null);
@@ -138,21 +156,82 @@ export const ManageClientsPage: React.FC = () => {
       .finally(() => setSaving(false));
   };
 
-  const handleDelete = (e: React.MouseEvent, clientId: string) => {
+  const [deleteError, setDeleteError] = useState('');
+
+  const requestDelete = (e: React.MouseEvent, clientId: string) => {
     e.stopPropagation();
-    if (!window.confirm('Delete this client? This cannot be undone.')) return;
-    apiFetch(`/crm/clients/${clientId}`, { method: 'DELETE', token })
-      .then((res) => {
-        if (res.success) fetchClients();
-      })
-      .catch(() => {});
+    setDeleteError('');
+    setDeleteTarget(clientId);
   };
 
-  const clientProjects = (clientId: string) => projects.filter((p) => (p.clientId?._id || p.clientId) === clientId);
+  const handleDelete = (clientId: string) => {
+    setDeleteError('');
+    apiFetch(`/crm/clients/${clientId}`, { method: 'DELETE', token })
+      .then((res) => {
+        if (res.success) {
+          setDeleteTarget(null);
+          fetchClients();
+        } else {
+          setDeleteError(res.error || res.message || 'Failed to delete client. Please try again.');
+        }
+      })
+      .catch(() => setDeleteError('Failed to delete client. Please try again.'));
+  };
+
+  const toggleSelectMode = () => {
+    setIsSelectMode((v) => !v);
+    setSelectedClientIds([]);
+  };
+
+  const handleSelectToggle = (clientId: string) => {
+    setSelectedClientIds((prev) =>
+      prev.includes(clientId) ? prev.filter((id) => id !== clientId) : [...prev, clientId]
+    );
+  };
+
+  const requestBulkDelete = () => {
+    if (selectedClientIds.length === 0) return;
+    setDeleteError('');
+    setBulkDeleteConfirmOpen(true);
+  };
+
+  const handleBulkDelete = () => {
+    setBulkDeleting(true);
+    Promise.allSettled(
+      selectedClientIds.map((id) => apiFetch(`/crm/clients/${id}`, { method: 'DELETE', token }))
+    )
+      .then((results) => {
+        const failedCount = results.filter(
+          (r) => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)
+        ).length;
+        const succeededIds = selectedClientIds.filter((_, i) => {
+          const r = results[i];
+          return r.status === 'fulfilled' && r.value.success;
+        });
+
+        if (failedCount === 0) {
+          setSelectedClientIds([]);
+          setIsSelectMode(false);
+          setBulkDeleteConfirmOpen(false);
+        } else {
+          setSelectedClientIds(selectedClientIds.filter((id) => !succeededIds.includes(id)));
+          setDeleteError(
+            `${succeededIds.length} of ${selectedClientIds.length} deleted — ${failedCount} failed. Try again for the rest.`
+          );
+        }
+        fetchClients();
+      })
+      .finally(() => setBulkDeleting(false));
+  };
+
+  const clientProjects = (clientId: string) =>
+    projects
+      .filter((p) => (p.clientId?._id || p.clientId) === clientId)
+      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
   const handleExportCsv = () => {
-    if (clients.length === 0) return;
-    const rows = clients.map((c) => {
+    if (filtered.length === 0) return;
+    const rows = filtered.map((c) => {
       const cp = clientProjects(c._id);
       return {
         'Client Name': c.companyName || '',
@@ -171,8 +250,8 @@ export const ManageClientsPage: React.FC = () => {
   };
 
   const handleExportJson = () => {
-    if (clients.length === 0) return;
-    const rows = clients.map((c) => {
+    if (filtered.length === 0) return;
+    const rows = filtered.map((c) => {
       const cp = clientProjects(c._id);
       return {
         clientName: c.companyName || '',
@@ -193,16 +272,20 @@ export const ManageClientsPage: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const normalizedSearch = searchTerm.trim().toLowerCase();
   const filtered = clients.filter(
     (c) =>
-      c.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.billingEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.phone?.includes(searchTerm)
+      c.companyName?.toLowerCase().includes(normalizedSearch) ||
+      c.billingEmail?.toLowerCase().includes(normalizedSearch) ||
+      c.phone?.includes(normalizedSearch)
   );
 
-  const totalProjects = projects.length;
-  const ongoingProjects = projects.filter((p) => projectStage(p.status) === 'ongoing').length;
-  const completedProjects = projects.filter((p) => projectStage(p.status) === 'completed').length;
+  const isFiltering = normalizedSearch.length > 0;
+  const filteredClientIds = new Set(filtered.map((c) => c._id));
+  const scopedProjects = isFiltering ? projects.filter((p) => filteredClientIds.has(p.clientId?._id || p.clientId)) : projects;
+  const totalProjects = scopedProjects.length;
+  const ongoingProjects = scopedProjects.filter((p) => projectStage(p.status) === 'ongoing').length;
+  const completedProjects = scopedProjects.filter((p) => projectStage(p.status) === 'completed').length;
 
   return (
     <div className="space-y-6">
@@ -212,20 +295,20 @@ export const ManageClientsPage: React.FC = () => {
       <div className="flex items-center justify-end">
         <button
           onClick={openCreateModal}
-          className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 shrink-0"
+          className="px-5 py-2.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md transition-all flex items-center gap-2 shrink-0"
         >
           <Plus className="w-4 h-4" /> Add Client
         </button>
       </div>
 
-      {/* Stats Row */}
+      {/* Stats Row — reflects the active search filter */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl border border-dark/10 p-4">
-          <p className="text-slateText text-[11px] font-semibold">Total clients</p>
-          <p className="font-display font-bold text-2xl text-dark mt-1">{clients.length}</p>
+          <p className="text-slateText text-[11px] font-semibold">{isFiltering ? 'Matching clients' : 'Total clients'}</p>
+          <p className="font-display font-bold text-2xl text-dark mt-1">{filtered.length}</p>
         </div>
         <div className="bg-white rounded-2xl border border-dark/10 p-4">
-          <p className="text-slateText text-[11px] font-semibold">Total projects</p>
+          <p className="text-slateText text-[11px] font-semibold">{isFiltering ? 'Their projects' : 'Total projects'}</p>
           <p className="font-display font-bold text-2xl text-dark mt-1">{totalProjects}</p>
         </div>
         <div className="bg-white rounded-2xl border border-dark/10 p-4">
@@ -243,40 +326,109 @@ export const ManageClientsPage: React.FC = () => {
         <div className="relative w-full sm:flex-1">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slateText" />
           <input
+            ref={searchInputRef}
             type="text"
             placeholder="Search by name or phone..."
+            aria-label="Search clients"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark shadow-sm"
+            onChange={(e) => {
+              const value = e.target.value;
+              setSearchTerm(value);
+              setSearchParams(
+                (prev) => {
+                  const next = new URLSearchParams(prev);
+                  if (value) next.set('q', value);
+                  else next.delete('q');
+                  return next;
+                },
+                { replace: true }
+              );
+            }}
+            className="w-full pl-10 pr-10 py-2.5 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark shadow-sm"
           />
+          {!searchTerm && (
+            <kbd className="hidden sm:flex absolute right-3.5 top-1/2 -translate-y-1/2 items-center justify-center w-4 h-4 rounded border border-dark/15 text-[9px] font-bold text-slateText/70 pointer-events-none">
+              /
+            </kbd>
+          )}
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={handleExportCsv}
-            disabled={clients.length === 0}
+            disabled={filtered.length === 0}
+            title={isFiltering ? `Export the ${filtered.length} matching client(s)` : 'Export all clients'}
             className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
           >
-            <Download className="w-3.5 h-3.5" /> CSV
+            <Download className="w-3.5 h-3.5" /> CSV{isFiltering ? ` (${filtered.length})` : ''}
           </button>
           <button
             onClick={handleExportJson}
-            disabled={clients.length === 0}
+            disabled={filtered.length === 0}
+            title={isFiltering ? `Export the ${filtered.length} matching client(s)` : 'Export all clients'}
             className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
           >
-            <Download className="w-3.5 h-3.5" /> JSON
+            <Download className="w-3.5 h-3.5" /> JSON{isFiltering ? ` (${filtered.length})` : ''}
+          </button>
+          <button
+            onClick={toggleSelectMode}
+            disabled={clients.length === 0}
+            className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50 transition-all ${
+              isSelectMode ? 'bg-primary text-dark' : 'bg-white border border-dark/15 hover:border-dark/30 text-dark'
+            }`}
+          >
+            <CheckSquare className="w-3.5 h-3.5" /> {isSelectMode ? 'Exit' : 'Select'}
           </button>
         </div>
       </div>
 
+      {isSelectMode && selectedClientIds.length > 0 && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-dark text-white text-xs font-semibold"
+        >
+          <span>{selectedClientIds.length} client{selectedClientIds.length === 1 ? '' : 's'} selected</span>
+          <button
+            onClick={requestBulkDelete}
+            className="focus-ring-inverse flex items-center gap-1.5 text-rose-300 hover:text-rose-200 font-bold rounded"
+          >
+            <Trash2 className="w-3.5 h-3.5" /> Delete selected
+          </button>
+        </div>
+      )}
+
       {/* Client Cards Grid */}
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-16 text-slateText text-sm font-semibold">
-          <Loader2 className="w-4 h-4 animate-spin" /> Loading client accounts...
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Spinner.CardSkeleton key={i} />
+          ))}
         </div>
+      ) : loadError ? (
+        <EmptyState
+          icon={Users}
+          title="Couldn't load client accounts"
+          description="Check your connection and try again."
+          action={
+            <button
+              onClick={fetchClients}
+              className="focus-ring px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+            >
+              Retry
+            </button>
+          }
+          className="border-rose-200 bg-rose-50/40"
+        />
       ) : filtered.length === 0 ? (
-        <div className="bg-white rounded-card border border-dark/10 p-12 text-center text-slateText text-sm">
-          {clients.length === 0 ? 'No client accounts registered yet. Click "Add Client" above.' : 'No clients match your search.'}
-        </div>
+        <EmptyState
+          icon={Users}
+          title={clients.length === 0 ? 'No client accounts yet' : 'No clients match your search'}
+          description={
+            clients.length === 0
+              ? 'Click "Add Client" above to create the first one.'
+              : 'Try a different name, email, or phone number.'
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filtered.map((client) => {
@@ -284,34 +436,68 @@ export const ManageClientsPage: React.FC = () => {
             const avatarColor = avatarColorFor(client.companyName || client._id);
             const cp = clientProjects(client._id);
             const latest = cp[0];
+            const isSelected = selectedClientIds.includes(client._id);
+            const handleActivate = () =>
+              isSelectMode ? handleSelectToggle(client._id) : navigate(`/dashboard/clients/${client._id}`);
             return (
               <div
                 key={client._id}
-                onClick={() => navigate(`/dashboard/clients/${client._id}`)}
-                className="text-left bg-white rounded-2xl border border-dark/10 hover:border-primary hover:shadow-lg transition-all p-5 cursor-pointer group relative"
+                role={isSelectMode ? 'checkbox' : 'link'}
+                aria-checked={isSelectMode ? isSelected : undefined}
+                aria-label={isSelectMode ? `Select ${client.companyName || 'client'}` : undefined}
+                tabIndex={0}
+                onClick={handleActivate}
+                onKeyDown={(e) => {
+                  if (e.target !== e.currentTarget) return;
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleActivate();
+                  }
+                }}
+                className={`focus-ring text-left bg-white rounded-2xl border transition-all p-5 cursor-pointer group relative ${
+                  isSelectMode
+                    ? isSelected
+                      ? 'border-primary ring-2 ring-primary/40'
+                      : 'border-dark/10 hover:border-dark/25'
+                    : 'border-dark/10 hover:border-primary hover:shadow-lg'
+                }`}
               >
-                {/* CRUD Actions */}
-                <div className="absolute top-4 right-10 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openEditModal(client);
-                    }}
-                    className="p-1.5 rounded-lg bg-white text-slateText hover:text-dark hover:bg-dark/5 shadow-sm border border-dark/10"
-                    title="Edit Client"
+                {isSelectMode ? (
+                  <div
+                    className={`absolute top-4 right-5 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${
+                      isSelected ? 'bg-primary border-primary' : 'border-dark/20 bg-white'
+                    }`}
                   >
-                    <Pencil className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={(e) => handleDelete(e, client._id)}
-                    className="p-1.5 rounded-lg bg-white text-slateText hover:text-rose-600 hover:bg-rose-50 shadow-sm border border-dark/10"
-                    title="Delete Client"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                    {isSelected && <Check className="w-3.5 h-3.5 text-dark" />}
+                  </div>
+                ) : (
+                  <>
+                    {/* CRUD Actions */}
+                    <div className="absolute top-4 right-10 flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEditModal(client);
+                        }}
+                        aria-label="Edit Client"
+                        className="focus-ring p-1.5 rounded-lg bg-white text-slateText hover:text-dark hover:bg-dark/5 shadow-sm border border-dark/10"
+                        title="Edit Client"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={(e) => requestDelete(e, client._id)}
+                        aria-label="Delete Client"
+                        className="focus-ring p-1.5 rounded-lg bg-white text-slateText hover:text-rose-600 hover:bg-rose-50 shadow-sm border border-dark/10"
+                        title="Delete Client"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
 
-                <ChevronRight className="w-4 h-4 text-slateText/40 absolute top-5 right-5" />
+                    <ChevronRight className="w-4 h-4 text-slateText/40 absolute top-5 right-5" />
+                  </>
+                )}
 
                 <div className="flex items-center gap-3 min-w-0 pr-8">
                   <div
@@ -337,17 +523,16 @@ export const ManageClientsPage: React.FC = () => {
                   {latest ? (
                     <div className="flex items-center gap-2">
                       <span className="text-dark font-semibold truncate max-w-[120px]">{latest.projectName}</span>
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide ${
+                      <StatusPill
+                        status={projectStage(latest.status)}
+                        tone={
                           projectStage(latest.status) === 'completed'
-                            ? 'bg-blue-100 text-blue-700'
+                            ? 'info'
                             : projectStage(latest.status) === 'new'
-                            ? 'bg-purple-100 text-purple-700'
-                            : 'bg-emerald-100 text-emerald-700'
-                        }`}
-                      >
-                        {projectStage(latest.status)}
-                      </span>
+                            ? 'purple'
+                            : 'success'
+                        }
+                      />
                     </div>
                   ) : (
                     <span className="text-slateText/60">No projects yet</span>
@@ -361,7 +546,7 @@ export const ManageClientsPage: React.FC = () => {
                       e.stopPropagation();
                       navigate(`/dashboard/client-projects/new?client=${client._id}`);
                     }}
-                    className="flex items-center gap-1 text-primary font-bold hover:underline"
+                    className="focus-ring flex items-center gap-1 text-dark font-bold hover:underline rounded"
                   >
                     <Plus className="w-3 h-3" /> New Project
                   </button>
@@ -373,105 +558,107 @@ export const ManageClientsPage: React.FC = () => {
       )}
 
       {/* Create / Edit Modal - fields mirror the reference "Add New Client" form */}
-      {showModal && (
-        <div className="fixed inset-0 bg-dark/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-card p-8 max-w-lg w-full space-y-6 shadow-2xl">
-            <div>
-              <h2 className="font-display text-2xl font-bold text-dark">
-                {editingClientId ? 'Edit Client' : 'Add New Client'}
-              </h2>
-              <p className="text-xs text-slateText mt-1">
-                {editingClientId ? 'Update this client profile' : 'Create a new client profile'}
-              </p>
-            </div>
-
-            {formError && (
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
-                {formError}
-              </div>
-            )}
-
-            <form onSubmit={handleSave} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-dark mb-1">
-                  Client Name <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="John Doe"
-                  value={formData.companyName}
-                  onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                  className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm focus:outline-none focus:border-dark"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-dark mb-1">
-                  Email <span className="font-normal text-slateText">(optional)</span>
-                </label>
-                <input
-                  type="email"
-                  placeholder="client@example.com"
-                  value={formData.billingEmail}
-                  onChange={(e) => setFormData({ ...formData, billingEmail: e.target.value })}
-                  className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm focus:outline-none focus:border-dark"
-                />
-                <p className="text-[10px] text-slateText mt-1 leading-relaxed">
-                  Used to send invoices, documents, and the client-portal invite. Leave it blank if you don't have
-                  one — you can add it any time.
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-dark mb-1">Phone Number</label>
-                <input
-                  type="text"
-                  placeholder="+1 (555) 123-4567"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm focus:outline-none focus:border-dark"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-dark mb-1">Invoice Currency</label>
-                <select
-                  value={formData.currency}
-                  onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                  className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm focus:outline-none focus:border-dark font-semibold"
-                >
-                  {CURRENCY_OPTIONS.map((c) => (
-                    <option key={c.code} value={c.code}>
-                      {c.label}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-[10px] text-slateText mt-1">
-                  Invoices for this client will be shown in {formData.currency}.
-                </p>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-dark/5">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    setShowModal(false);
-                    setFormError('');
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={saving} className="gap-2">
-                  <Save className="w-4 h-4" />
-                  {saving ? 'Saving...' : 'Save Client'}
-                </Button>
-              </div>
-            </form>
+      <Modal
+        isOpen={showModal}
+        onClose={() => {
+          setShowModal(false);
+          setFormError('');
+        }}
+        title={editingClientId ? 'Edit Client' : 'Add New Client'}
+        subtitle={editingClientId ? 'Update this client profile' : 'Create a new client profile'}
+        maxWidth="lg"
+      >
+        {formError && (
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+            {formError}
           </div>
-        </div>
-      )}
+        )}
+
+        <form onSubmit={handleSave} className="space-y-4">
+          <Input
+            label="Client Name"
+            required
+            placeholder="John Doe"
+            value={formData.companyName}
+            onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+          />
+
+          <Input
+            label="Email (optional)"
+            type="email"
+            placeholder="client@example.com"
+            hint="Used to send invoices, documents, and the client-portal invite. Leave it blank if you don't have one — you can add it any time."
+            value={formData.billingEmail}
+            onChange={(e) => setFormData({ ...formData, billingEmail: e.target.value })}
+          />
+
+          <Input
+            label="Phone Number"
+            placeholder="+1 (555) 123-4567"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+          />
+
+          <Select
+            label="Invoice Currency"
+            hint={`Invoices for this client will be shown in ${formData.currency}.`}
+            value={formData.currency}
+            onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+          >
+            {CURRENCY_OPTIONS.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.label}
+              </option>
+            ))}
+          </Select>
+
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-dark/5">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                setShowModal(false);
+                setFormError('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={saving} className="gap-2">
+              <Save className="w-4 h-4" />
+              {saving ? 'Saving...' : 'Save Client'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        onClose={() => {
+          setDeleteTarget(null);
+          setDeleteError('');
+        }}
+        onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
+        title="Delete client?"
+        description="This client record will be permanently removed. This cannot be undone."
+        confirmLabel="Delete"
+        destructive
+        error={deleteError}
+      />
+
+      <ConfirmDialog
+        isOpen={bulkDeleteConfirmOpen}
+        onClose={() => {
+          setBulkDeleteConfirmOpen(false);
+          setDeleteError('');
+        }}
+        onConfirm={handleBulkDelete}
+        title={`Delete ${selectedClientIds.length} client${selectedClientIds.length === 1 ? '' : 's'}?`}
+        description="These client records will be permanently removed. This cannot be undone."
+        confirmLabel="Delete"
+        destructive
+        isSubmitting={bulkDeleting}
+        error={deleteError}
+      />
     </div>
   );
 };

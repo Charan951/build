@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '../components/seo/SEOHead';
 import { SectionHeader } from '../components/ui/SectionHeader';
-import { ArrowUpRight, ArrowRight, ChevronRight } from 'lucide-react';
+import { Spinner } from '../components/ui/Spinner';
+import { EmptyState } from '../components/ui/EmptyState';
+import { ArrowUpRight, ArrowRight, ChevronRight, Layers } from 'lucide-react';
 import { apiFetch } from '../services/api';
 
 interface SubService {
@@ -42,7 +44,7 @@ export const ServicesPage: React.FC = () => {
 
   return (
     <div className="pt-32 pb-24 max-w-7xl mx-auto px-6 space-y-16">
-      <SEOHead title="Services & Capabilities | Build Your Thoughts" />
+      <SEOHead title="Services & Capabilities | Build Your Thoughts" canonical="https://buildyourthoughts.com/services" />
 
       <SectionHeader
         badge="Services & Capabilities"
@@ -51,7 +53,16 @@ export const ServicesPage: React.FC = () => {
       />
 
       {/* Main Categories Card matching image copy 9 */}
-      <div className="bg-white rounded-[2.5rem] border border-slate-200/90 shadow-2xl p-6 md:p-12">
+      <div className="bg-white rounded-card border border-slate-200/90 shadow-hover p-6 md:p-12">
+        {loading ? (
+          <Spinner.Skeleton lines={5} />
+        ) : categories.length === 0 ? (
+          <EmptyState
+            icon={Layers}
+            title="Couldn't load services"
+            description="Check your connection and refresh the page to try again."
+          />
+        ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
           {/* Left Column: Categories List */}
           <div className="lg:col-span-4 space-y-4 border-b lg:border-b-0 lg:border-r border-slate-200/80 pr-0 lg:pr-8 pb-6 lg:pb-0">
@@ -66,7 +77,8 @@ export const ServicesPage: React.FC = () => {
                   <button
                     key={cat.slug}
                     onClick={() => setActiveCategorySlug(cat.slug)}
-                    className={`w-full px-5 py-3.5 rounded-2xl flex items-center justify-between text-xs font-extrabold transition-all duration-300 ${
+                    aria-pressed={isActive}
+                    className={`focus-ring w-full px-5 py-3.5 rounded-2xl flex items-center justify-between text-xs font-extrabold transition-all duration-300 ${
                       isActive
                         ? 'bg-primary text-dark shadow-md translate-x-1'
                         : 'bg-white text-dark hover:bg-slate-50 hover:text-primary'
@@ -127,6 +139,7 @@ export const ServicesPage: React.FC = () => {
             )}
           </div>
         </div>
+        )}
       </div>
     </div>
   );

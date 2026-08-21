@@ -86,7 +86,7 @@ export const Navbar: React.FC = () => {
         {/* Mobile Hamburger Toggle */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 text-white hover:text-primary transition-colors"
+          className="focus-ring-inverse md:hidden p-3 -mr-1 text-white hover:text-primary transition-colors rounded-lg"
           aria-label="Toggle menu"
         >
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

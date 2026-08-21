@@ -53,12 +53,53 @@ export const BlogDetailPage: React.FC = () => {
     );
   }
 
+  const canonicalUrl = `https://www.buildyourthougths.in/blogs/${slug}`;
+  const blogPostingSchema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BlogPosting',
+        headline: blog.title,
+        description: blog.seoDescription || blog.excerpt,
+        image: blog.coverImage,
+        datePublished: blog.publishedAt || blog.createdAt,
+        dateModified: blog.updatedAt || blog.publishedAt || blog.createdAt,
+        author: {
+          '@type': 'Person',
+          name: blog.author?.name || 'Build Your Thoughts',
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'Build Your Thoughts',
+          logo: {
+            '@type': 'ImageObject',
+            url: 'https://www.buildyourthougths.in/logo.svg',
+          },
+        },
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': canonicalUrl,
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.buildyourthougths.in/' },
+          { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://www.buildyourthougths.in/blogs' },
+          { '@type': 'ListItem', position: 3, name: blog.title, item: canonicalUrl },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="pt-32 max-w-4xl mx-auto px-6 space-y-12">
       <SEOHead
         title={blog.seoTitle || blog.title}
         description={blog.seoDescription || blog.excerpt}
-        canonical={`https://www.buildyourthougths.in/blogs/${slug}`}
+        canonical={canonicalUrl}
+        ogImage={blog.coverImage}
+        schema={blogPostingSchema}
       />
 
       <Link to="/blogs" className="inline-flex items-center gap-2 font-bold text-dark hover:text-primary transition-colors">

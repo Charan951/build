@@ -115,9 +115,41 @@ export const ServiceDetailPage: React.FC = () => {
     { num: '04', title: 'MOBILE APP UI DESIGN', slug: 'mobile-app-ui-design' }
   ];
 
+  const canonicalUrl = `https://www.buildyourthougths.in/services/${activeSlug}`;
+  const serviceSchema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Service',
+        name: service.title,
+        description: service.shortDescription || service.fullDescription,
+        provider: {
+          '@type': 'Organization',
+          name: 'Build Your Thoughts',
+          url: 'https://www.buildyourthougths.in',
+        },
+        areaServed: 'Global',
+        serviceType: currentCategoryTitle,
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.buildyourthougths.in/' },
+          { '@type': 'ListItem', position: 2, name: 'Services', item: 'https://www.buildyourthougths.in/services' },
+          { '@type': 'ListItem', position: 3, name: service.title, item: canonicalUrl },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="pt-24 pb-24 bg-background min-h-screen space-y-12">
-      <SEOHead title={`${service.title} | Build Your Thoughts`} canonical={`https://www.buildyourthougths.in/services/${activeSlug}`} />
+      <SEOHead
+        title={`${service.title} | Build Your Thoughts`}
+        description={service.shortDescription}
+        canonical={canonicalUrl}
+        schema={serviceSchema}
+      />
 
       {/* Hero Header matching bhavyawebtech.com */}
       <div className="bg-dark text-white pt-28 pb-16 px-6 relative overflow-hidden border-b border-white/10 shadow-xl">

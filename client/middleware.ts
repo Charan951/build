@@ -32,7 +32,17 @@ interface PageMeta {
   title: string;
   description: string;
   image: string;
+  schema?: object;
 }
+
+const breadcrumb = (section: { name: string; path: string }, current: { name: string; url: string }) => ({
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL + '/' },
+    { '@type': 'ListItem', position: 2, name: section.name, item: SITE_URL + section.path },
+    { '@type': 'ListItem', position: 3, name: current.name, item: current.url },
+  ],
+});
 
 const STATIC_PAGES: Record<string, Omit<PageMeta, 'image'>> = {
   '/': { title: 'Build Your Thoughts | Enterprise Software & AI Solutions Agency', description: DEFAULT_DESCRIPTION },
@@ -69,10 +79,24 @@ async function resolveMeta(pathname: string): Promise<PageMeta | null> {
   if (serviceMatch) {
     const data = await fetchJson(`${API_BASE}/services/${serviceMatch[1]}`);
     if (data) {
+      const url = `${SITE_URL}${pathname}`;
       return {
         title: `${data.title} | ${SITE_NAME}`,
         description: data.shortDescription || DEFAULT_DESCRIPTION,
         image: DEFAULT_IMAGE,
+        schema: {
+          '@context': 'https://schema.org',
+          '@graph': [
+            {
+              '@type': 'Service',
+              name: data.title,
+              description: data.shortDescription || data.fullDescription,
+              provider: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+              areaServed: 'Global',
+            },
+            breadcrumb({ name: 'Services', path: '/services' }, { name: data.title, url }),
+          ],
+        },
       };
     }
   }
@@ -81,10 +105,26 @@ async function resolveMeta(pathname: string): Promise<PageMeta | null> {
   if (projectMatch) {
     const data = await fetchJson(`${API_BASE}/projects/${projectMatch[1]}`);
     if (data) {
+      const url = `${SITE_URL}${pathname}`;
       return {
         title: `${data.title} | ${SITE_NAME}`,
         description: data.summary || DEFAULT_DESCRIPTION,
         image: data.heroImage || DEFAULT_IMAGE,
+        schema: {
+          '@context': 'https://schema.org',
+          '@graph': [
+            {
+              '@type': 'CreativeWork',
+              name: data.title,
+              description: data.summary,
+              image: data.heroImage,
+              creator: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+              about: data.industry,
+              genre: data.category,
+            },
+            breadcrumb({ name: 'Projects', path: '/projects' }, { name: data.title, url }),
+          ],
+        },
       };
     }
   }
@@ -93,10 +133,32 @@ async function resolveMeta(pathname: string): Promise<PageMeta | null> {
   if (blogMatch) {
     const data = await fetchJson(`${API_BASE}/blogs/${blogMatch[1]}`);
     if (data) {
+      const url = `${SITE_URL}${pathname}`;
       return {
         title: data.seoTitle || `${data.title} | ${SITE_NAME}`,
         description: data.seoDescription || data.excerpt || DEFAULT_DESCRIPTION,
         image: data.coverImage || DEFAULT_IMAGE,
+        schema: {
+          '@context': 'https://schema.org',
+          '@graph': [
+            {
+              '@type': 'BlogPosting',
+              headline: data.title,
+              description: data.seoDescription || data.excerpt,
+              image: data.coverImage,
+              datePublished: data.publishedAt || data.createdAt,
+              dateModified: data.updatedAt || data.publishedAt || data.createdAt,
+              author: { '@type': 'Person', name: data.author?.name || SITE_NAME },
+              publisher: {
+                '@type': 'Organization',
+                name: SITE_NAME,
+                logo: { '@type': 'ImageObject', url: `${SITE_URL}/logo.svg` },
+              },
+              mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+            },
+            breadcrumb({ name: 'Blog', path: '/blogs' }, { name: data.title, url }),
+          ],
+        },
       };
     }
   }
@@ -107,6 +169,9 @@ async function resolveMeta(pathname: string): Promise<PageMeta | null> {
 const renderHtml = (meta: PageMeta, url: string): string => {
   const title = escapeHtml(meta.title);
   const description = escapeHtml(meta.description);
+  const schemaScript = meta.schema
+    ? `<script type="application/ld+json">${JSON.stringify(meta.schema).replace(/</g, '\\u003c')}</script>`
+    : '';
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -124,6 +189,7 @@ const renderHtml = (meta: PageMeta, url: string): string => {
 <meta name="twitter:title" content="${title}" />
 <meta name="twitter:description" content="${description}" />
 <meta name="twitter:image" content="${meta.image}" />
+${schemaScript}
 </head>
 <body></body>
 </html>`;

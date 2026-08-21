@@ -55,12 +55,42 @@ export const ProjectDetailPage: React.FC = () => {
     );
   }
 
+  const canonicalUrl = `https://www.buildyourthougths.in/projects/${slug}`;
+  const projectSchema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CreativeWork',
+        name: project.title,
+        description: project.summary,
+        image: project.heroImage,
+        creator: {
+          '@type': 'Organization',
+          name: 'Build Your Thoughts',
+          url: 'https://www.buildyourthougths.in',
+        },
+        about: project.industry,
+        genre: project.category,
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.buildyourthougths.in/' },
+          { '@type': 'ListItem', position: 2, name: 'Projects', item: 'https://www.buildyourthougths.in/projects' },
+          { '@type': 'ListItem', position: 3, name: project.title, item: canonicalUrl },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="pt-32 max-w-6xl mx-auto px-6 space-y-16">
       <SEOHead
         title={`${project.title} | Project Detail`}
         description={project.summary}
-        canonical={`https://www.buildyourthougths.in/projects/${slug}`}
+        canonical={canonicalUrl}
+        ogImage={project.heroImage}
+        schema={projectSchema}
       />
 
       <Link to="/projects" className="inline-flex items-center gap-2 font-bold text-dark hover:text-primary transition-colors">

@@ -135,7 +135,7 @@ async function withTimeout<T>(fn: (signal: AbortSignal) => Promise<T>, ms: numbe
   }
 }
 
-async function callGemini(prompt: string): Promise<string> {
+async function callGeminiOnce(prompt: string): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY not configured');
 
@@ -164,6 +164,23 @@ async function callGemini(prompt: string): Promise<string> {
   return stripCodeFence(text);
 }
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Gemini's "high demand" 503 is a common transient blip that often clears on
+// an immediate retry - worth one quick retry before giving up the preferred
+// provider and falling through to Groq/OpenRouter.
+async function callGemini(prompt: string): Promise<string> {
+  try {
+    return await callGeminiOnce(prompt);
+  } catch (error) {
+    if (error instanceof Error && /status 503/.test(error.message)) {
+      await sleep(1200);
+      return callGeminiOnce(prompt);
+    }
+    throw error;
+  }
+}
+
 // Groq's LPU inference is dramatically faster than Gemini/OpenRouter for this
 // workload (~2s vs 10s+ for the same full proposal prompt), so it goes first.
 async function callGroq(prompt: string): Promise<string> {
@@ -180,10 +197,15 @@ async function callGroq(prompt: string): Promise<string> {
         },
         signal,
         body: JSON.stringify({
-          model: 'llama-3.1-8b-instant',
+          // llama-3.1-8b-instant was retired from Groq's catalog (404s now) -
+          // openai/gpt-oss-20b is Groq's current fast, low-cost equivalent.
+          // This account's free tier caps at 8000 tokens/minute for this
+          // model, and that ceiling covers prompt + completion together, so
+          // max_tokens has to leave real headroom below it, not sit at 8192.
+          model: 'openai/gpt-oss-20b',
           messages: [{ role: 'user', content: prompt }],
           temperature: 0.6,
-          max_tokens: 8192,
+          max_tokens: 4000,
         }),
       }),
     PROVIDER_TIMEOUT_MS

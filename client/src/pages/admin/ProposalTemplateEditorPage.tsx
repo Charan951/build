@@ -75,7 +75,16 @@ const estimateLines = (str: string, fontSize: number, width: number): number => 
  * rearrange, resize, or restyle what AI dropped in. Only used by Canvas mode;
  * Document mode renders the same HTML with full fidelity instead.
  */
-const aiHtmlToPages = (html: string): QPage[] => {
+interface DocHeaderInfo {
+  title: string;
+  preparedFor: string;
+  projectType: string;
+  currency: string;
+  validityText: string;
+  companyName: string;
+}
+
+const aiHtmlToPages = (html: string, header?: DocHeaderInfo): QPage[] => {
   const container = document.createElement('div');
   container.innerHTML = html;
 
@@ -185,6 +194,58 @@ const aiHtmlToPages = (html: string): QPage[] => {
       addText((node.textContent || '').trim(), { fontSize: 10.5 });
     }
   };
+
+  // The eyebrow/title/subtitle and meta-info grid aren't part of contentHtml
+  // at all - pdfService.ts's buildProposalHtmlDocument injects them as fixed
+  // wrapper markup around the AI content, so they'd otherwise never appear
+  // on the canvas even though they're the first thing visible in the
+  // Document preview. Synthesize the same block here so a sync is complete.
+  if (header) {
+    addText('COMMERCIAL QUOTATION', { bold: true, fontSize: 9, color: '#1f9d63' });
+    addText(header.title || 'Untitled Proposal', { bold: true, fontSize: 20, color: '#0f2a3d' });
+    addText('Project Cost Estimation & Feature Scope Document', { fontSize: 10, color: '#6b7280' });
+
+    const todayFormatted = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+    const cells: Array<[string, string]> = [
+      ['QUOTATION DATE', todayFormatted],
+      ['PREPARED FOR', header.preparedFor || '-'],
+      ['PREPARED BY', header.companyName || 'Speshway Solutions'],
+      ['VALIDITY', header.validityText || '30 Days from Date of Issue'],
+      ['PROJECT TYPE', header.projectType || '-'],
+      ['CURRENCY', header.currency || 'Indian Rupees (INR)'],
+    ];
+    const gap = 12;
+    const cellW = (CONTENT_W - gap * 2) / 3;
+    const cellH = 46;
+    const gridH = cellH * 2 + 10;
+    ensureRoom(gridH);
+    const gridTop = y;
+    pages[pages.length - 1].elements.push({
+      id: uid(),
+      type: 'divider',
+      x: MARGIN_X,
+      y: gridTop,
+      w: CONTENT_W,
+      h: gridH,
+      color: '#f8fafc',
+    });
+    cells.forEach(([label, value], i) => {
+      const col = i % 3;
+      const row = Math.floor(i / 3);
+      pages[pages.length - 1].elements.push(
+        text({
+          x: MARGIN_X + 14 + col * (cellW + gap),
+          y: gridTop + 10 + row * cellH,
+          w: cellW - 20,
+          h: cellH - 10,
+          content: `${label}\n${value}`,
+          fontSize: 9,
+          color: '#374151',
+        })
+      );
+    });
+    y = gridTop + gridH + 16;
+  }
 
   Array.from(container.children).forEach(walk);
 
@@ -650,6 +711,15 @@ export const ProposalTemplateEditorPage: React.FC = () => {
     updateElement(id, { rows: next });
   };
 
+  const currentDocHeader = (): DocHeaderInfo => ({
+    title: meta.title,
+    preparedFor: meta.preparedFor,
+    projectType: meta.projectType,
+    currency: meta.currency,
+    validityText: meta.validityText,
+    companyName: branding.companyName,
+  });
+
   const handleCanvasGenerate = async () => {
     if (!canvasAiInstruction.trim()) {
       setCanvasAiError('Enter a short instruction first.');
@@ -663,7 +733,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
         body: JSON.stringify({ instruction: canvasAiInstruction, projectName, type: meta.type, currency: meta.currency }),
       });
       if (res.success) {
-        const generatedPages = aiHtmlToPages(res.contentHtml);
+        const generatedPages = aiHtmlToPages(res.contentHtml, currentDocHeader());
         commitPages(() => generatedPages);
         setPageIndex(0);
         setSelectedId(null);
@@ -687,7 +757,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
   const switchToCanvas = () => {
     const hasCanvasContent = pages.some((p) => p.elements.length > 0);
     if (!hasCanvasContent && contentHtml.trim()) {
-      commitPages(() => aiHtmlToPages(contentHtml));
+      commitPages(() => aiHtmlToPages(contentHtml, currentDocHeader()));
       setPageIndex(0);
     }
     setRenderMode('canvas');
@@ -702,7 +772,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
     ) {
       return;
     }
-    commitPages(() => aiHtmlToPages(contentHtml));
+    commitPages(() => aiHtmlToPages(contentHtml, currentDocHeader()));
     setPageIndex(0);
     setSelectedId(null);
   };

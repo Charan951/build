@@ -26,7 +26,7 @@ export const BlogListPage: React.FC = () => {
 
   return (
     <div className="pt-32 max-w-7xl mx-auto px-6 space-y-16">
-      <SEOHead title="Technical Blog & Articles | Build Your Thoughts" canonical="https://buildyourthoughts.com/blogs" />
+      <SEOHead title="Technical Blog & Articles | Build Your Thoughts" canonical="https://www.buildyourthougths.in/blogs" />
 
       <SectionHeader
         badge="Engineering Insights"

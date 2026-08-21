@@ -58,7 +58,7 @@ export const BlogDetailPage: React.FC = () => {
       <SEOHead
         title={blog.seoTitle || blog.title}
         description={blog.seoDescription || blog.excerpt}
-        canonical={`https://buildyourthoughts.com/blogs/${slug}`}
+        canonical={`https://www.buildyourthougths.in/blogs/${slug}`}
       />
 
       <Link to="/blogs" className="inline-flex items-center gap-2 font-bold text-dark hover:text-primary transition-colors">

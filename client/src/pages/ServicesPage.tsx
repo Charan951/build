@@ -44,7 +44,7 @@ export const ServicesPage: React.FC = () => {
 
   return (
     <div className="pt-32 pb-24 max-w-7xl mx-auto px-6 space-y-16">
-      <SEOHead title="Services & Capabilities | Build Your Thoughts" canonical="https://buildyourthoughts.com/services" />
+      <SEOHead title="Services & Capabilities | Build Your Thoughts" canonical="https://www.buildyourthougths.in/services" />
 
       <SectionHeader
         badge="Services & Capabilities"

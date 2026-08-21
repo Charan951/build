@@ -117,7 +117,7 @@ export const ServiceDetailPage: React.FC = () => {
 
   return (
     <div className="pt-24 pb-24 bg-background min-h-screen space-y-12">
-      <SEOHead title={`${service.title} | Build Your Thoughts`} canonical={`https://buildyourthoughts.com/services/${activeSlug}`} />
+      <SEOHead title={`${service.title} | Build Your Thoughts`} canonical={`https://www.buildyourthougths.in/services/${activeSlug}`} />
 
       {/* Hero Header matching bhavyawebtech.com */}
       <div className="bg-dark text-white pt-28 pb-16 px-6 relative overflow-hidden border-b border-white/10 shadow-xl">

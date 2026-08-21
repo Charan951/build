@@ -9,7 +9,7 @@ import { apiFetch } from '../../services/api';
 export const ManageSettingsPage: React.FC = () => {
   const [address, setAddress] = useState('Kota, Rajasthan, India');
   const [phone, setPhone] = useState('+91 98765 43210');
-  const [email, setEmail] = useState('hello@buildyourthoughts.com');
+  const [email, setEmail] = useState('hello@buildyourthougths.in');
   const [githubUrl, setGithubUrl] = useState('https://github.com');
   const [twitterUrl, setTwitterUrl] = useState('https://twitter.com');
   const [linkedinUrl, setLinkedinUrl] = useState('https://linkedin.com');
@@ -26,7 +26,7 @@ export const ManageSettingsPage: React.FC = () => {
       if (data.success && data.data) {
         setAddress(data.data.address || 'Kota, Rajasthan, India');
         setPhone(data.data.phone || '+91 98765 43210');
-        setEmail(data.data.email || 'hello@buildyourthoughts.com');
+        setEmail(data.data.email || 'hello@buildyourthougths.in');
         setGithubUrl(data.data.githubUrl || 'https://github.com');
         setTwitterUrl(data.data.twitterUrl || 'https://twitter.com');
         setLinkedinUrl(data.data.linkedinUrl || 'https://linkedin.com');
@@ -142,7 +142,7 @@ export const ManageSettingsPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="hello@buildyourthoughts.com"
+                  placeholder="hello@buildyourthougths.in"
                   className="w-full p-3.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-dark font-medium text-dark bg-slate-50/50"
                 />
               </div>

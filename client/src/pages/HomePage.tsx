@@ -337,7 +337,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="pt-24 md:pt-32 space-y-20 md:space-y-28">
-      <SEOHead title="Build Your Thoughts | Enterprise Software & AI Solutions Agency" canonical="https://buildyourthoughts.com/" />
+      <SEOHead title="Build Your Thoughts | Enterprise Software & AI Solutions Agency" canonical="https://www.buildyourthougths.in/" />
 
       {/* SECTION 3: Hero Section */}
       <section className="relative overflow-hidden bg-dark -mt-24 md:-mt-32 pt-24 md:pt-32 min-h-screen flex items-center">

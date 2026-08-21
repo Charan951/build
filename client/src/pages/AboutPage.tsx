@@ -25,7 +25,7 @@ export const AboutPage: React.FC = () => {
 
   return (
     <div className="pt-32 max-w-7xl mx-auto px-6 space-y-24">
-      <SEOHead title="About Build Your Thoughts | India's Premium Digital Engineering" canonical="https://buildyourthoughts.com/about" />
+      <SEOHead title="About Build Your Thoughts | India's Premium Digital Engineering" canonical="https://www.buildyourthougths.in/about" />
 
       {/* Main Section Header */}
       <SectionHeader

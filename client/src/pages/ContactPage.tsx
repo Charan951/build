@@ -26,7 +26,7 @@ export const ContactPage: React.FC = () => {
   const [settings, setSettings] = useState({
     address: 'Kota, Rajasthan, India',
     phone: '+91 98765 43210',
-    email: 'hello@buildyourthoughts.com',
+    email: 'hello@buildyourthougths.in',
   });
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export const ContactPage: React.FC = () => {
           setSettings({
             address: data.data.address || 'Kota, Rajasthan, India',
             phone: data.data.phone || '+91 98765 43210',
-            email: data.data.email || 'hello@buildyourthoughts.com',
+            email: data.data.email || 'hello@buildyourthougths.in',
           });
         }
       })
@@ -45,7 +45,7 @@ export const ContactPage: React.FC = () => {
 
   return (
     <div className="pt-32 max-w-7xl mx-auto px-6 space-y-16">
-      <SEOHead title="Contact & Consultation | Build Your Thoughts" canonical="https://buildyourthoughts.com/contact" />
+      <SEOHead title="Contact & Consultation | Build Your Thoughts" canonical="https://www.buildyourthougths.in/contact" />
 
       <SectionHeader
         badge="Start A Project"

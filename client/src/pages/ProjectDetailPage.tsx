@@ -60,7 +60,7 @@ export const ProjectDetailPage: React.FC = () => {
       <SEOHead
         title={`${project.title} | Project Detail`}
         description={project.summary}
-        canonical={`https://buildyourthoughts.com/projects/${slug}`}
+        canonical={`https://www.buildyourthougths.in/projects/${slug}`}
       />
 
       <Link to="/projects" className="inline-flex items-center gap-2 font-bold text-dark hover:text-primary transition-colors">

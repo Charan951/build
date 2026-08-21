@@ -31,7 +31,7 @@ export const ProjectsPage: React.FC = () => {
 
   return (
     <div className="pt-32 max-w-7xl mx-auto px-6 space-y-12">
-      <SEOHead title="Featured Projects | Build Your Thoughts" canonical="https://buildyourthoughts.com/projects" />
+      <SEOHead title="Featured Projects | Build Your Thoughts" canonical="https://www.buildyourthougths.in/projects" />
 
       <SectionHeader
         badge="Portfolio"

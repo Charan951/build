@@ -12,7 +12,7 @@ interface SEOHeadProps {
 export const SEOHead: React.FC<SEOHeadProps> = ({
   title = 'Enterprise Software Development & AI Solutions | Build Your Thoughts',
   description = 'Build enterprise software, mobile apps, AI solutions, and scalable digital products with Build Your Thoughts.',
-  canonical = 'https://buildyourthoughts.com',
+  canonical = 'https://www.buildyourthougths.in',
   ogImage = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
   schema,
 }) => {
@@ -20,8 +20,8 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Build Your Thoughts',
-    url: 'https://buildyourthoughts.com',
-    logo: 'https://buildyourthoughts.com/logo.png',
+    url: 'https://www.buildyourthougths.in',
+    logo: 'https://www.buildyourthougths.in/logo.png',
     sameAs: [
       'https://twitter.com/buildyourthoughts',
       'https://linkedin.com/company/buildyourthoughts',

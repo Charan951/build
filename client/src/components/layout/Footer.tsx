@@ -7,7 +7,7 @@ export const Footer: React.FC = () => {
   const [settings, setSettings] = useState({
     address: 'Kota, Rajasthan, India',
     phone: '+91 98765 43210',
-    email: 'hello@buildyourthoughts.com',
+    email: 'hello@buildyourthougths.in',
     githubUrl: 'https://github.com',
     twitterUrl: 'https://twitter.com',
     linkedinUrl: 'https://linkedin.com',
@@ -22,7 +22,7 @@ export const Footer: React.FC = () => {
           setSettings({
             address: data.data.address || 'Kota, Rajasthan, India',
             phone: data.data.phone || '+91 98765 43210',
-            email: data.data.email || 'hello@buildyourthoughts.com',
+            email: data.data.email || 'hello@buildyourthougths.in',
             githubUrl: data.data.githubUrl || 'https://github.com',
             twitterUrl: data.data.twitterUrl || 'https://twitter.com',
             linkedinUrl: data.data.linkedinUrl || 'https://linkedin.com',

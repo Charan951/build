@@ -1,7 +1,8 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
-import { X, Wand2, Loader2, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Wand2, Loader2, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { apiFetch, getApiUrl } from '../../services/api';
 import { ProposalContentEditor } from './ProposalContentEditor';
+import { Modal } from '../ui/Modal';
 
 export interface ProposalBrandingData {
   logoUrl?: string;
@@ -50,9 +51,6 @@ interface TemplateEditorModalProps {
 const DEFAULT_TYPES = ['website', 'app', 'website_app'];
 
 const TITLE_MAX_LENGTH = 120;
-
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 const DEFAULT_BRANDING: ProposalBrandingData = {
   logoUrl: '',
@@ -107,56 +105,12 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const objectUrlRef = useRef<string>('');
   const previewAbortRef = useRef<AbortController | null>(null);
+  const titleErrorId = React.useId();
 
-  const titleId = useId();
-  const titleErrorId = useId();
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const previouslyFocused = useRef<HTMLElement | null>(null);
-
-  // Dialog semantics: initial focus, focus restore on close, and a Tab focus
-  // trap so keyboard users can't tab out to the page behind this modal.
+  // Dialog semantics (focus trap, Escape-to-close, initial focus, scroll
+  // lock, focus restore) are owned by the shared Modal component below.
   useEffect(() => {
     if (!isOpen) return;
-    previouslyFocused.current = document.activeElement as HTMLElement | null;
-    const raf = requestAnimationFrame(() => {
-      const focusable = contentRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
-      (focusable?.[0] ?? dialogRef.current)?.focus();
-    });
-    return () => {
-      cancelAnimationFrame(raf);
-      previouslyFocused.current?.focus();
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-        return;
-      }
-      if (e.key === 'Tab' && dialogRef.current) {
-        const focusable = dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    document.body.style.overflow = 'hidden';
 
     if (template) {
       setTitle(template.title || '');
@@ -180,10 +134,6 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
     setContentEditorOpen(false);
     setBrandingOpen(false);
     setPreviewError('');
-
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
   }, [isOpen, template]);
 
   const resolvedType = type === 'custom' ? customType.trim() || 'custom' : type;
@@ -327,30 +277,34 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
     setMeta((prev) => ({ ...prev, [field]: value }));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-      <div className="fixed inset-0 bg-dark/75 backdrop-blur-md" onClick={onClose} />
-
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        tabIndex={-1}
-        className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl border border-dark/10 overflow-hidden z-10 my-auto flex flex-col max-h-[95vh] focus:outline-none"
-      >
-        <div className="flex items-center justify-between p-5 bg-dark text-white border-b border-white/10 shrink-0">
-          <div>
-            <h2 id={titleId} className="font-display text-lg font-bold">
-              {template ? 'Edit Proposal Template' : 'New Proposal Template'}
-            </h2>
-            <p className="text-xs text-gray-400 mt-0.5">{projectName}</p>
-          </div>
-          <button onClick={onClose} aria-label="Close modal" className="p-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/10">
-            <X className="w-5 h-5" />
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={template ? 'Edit Proposal Template' : 'New Proposal Template'}
+      subtitle={projectName}
+      maxWidth="6xl"
+      noBodyPadding
+      footer={
+        <div className="flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl border border-dark/20 text-dark font-bold text-xs hover:bg-dark/5"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="px-5 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md disabled:opacity-50"
+          >
+            {saving ? 'Saving' : 'Save Template'}
           </button>
         </div>
-
-        <div ref={contentRef} className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2">
+      }
+    >
+        <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2">
           {/* Left: edit form */}
           <div className="p-5 sm:p-6 overflow-y-auto space-y-4 border-b lg:border-b-0 lg:border-r border-dark/10">
             {errorMsg && (
@@ -753,25 +707,6 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
             </div>
           </div>
         </div>
-
-        <div className="flex items-center justify-end gap-3 p-5 border-t border-dark/10 shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-dark/20 text-dark font-bold text-xs hover:bg-dark/5"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="px-5 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md disabled:opacity-50"
-          >
-            {saving ? 'Saving' : 'Save Template'}
-          </button>
-        </div>
-      </div>
-    </div>
+    </Modal>
   );
 };

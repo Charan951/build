@@ -24,7 +24,13 @@ interface ModalProps {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl' | '6xl';
+  /** Skips the default p-6 space-y-4 body wrapper for content that manages
+   * its own internal layout (e.g. a two-pane grid with per-pane padding). */
+  noBodyPadding?: boolean;
+  /** Persistent action bar rendered below the scrollable body, outside it -
+   * for Cancel/Save-style footers that should stay visible while the body scrolls. */
+  footer?: React.ReactNode;
 }
 
 const FOCUSABLE_SELECTOR =
@@ -37,6 +43,8 @@ export const Modal: React.FC<ModalProps> = ({
   subtitle,
   children,
   maxWidth = '2xl',
+  noBodyPadding = false,
+  footer,
 }) => {
   const titleId = useId();
   const instanceId = useId();
@@ -109,6 +117,7 @@ export const Modal: React.FC<ModalProps> = ({
     xl: 'max-w-xl',
     '2xl': 'max-w-2xl',
     '4xl': 'max-w-4xl',
+    '6xl': 'max-w-6xl',
   }[maxWidth];
 
   return (
@@ -146,7 +155,13 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
 
         {/* Content */}
-        <div ref={contentRef} className="p-6 overflow-y-auto space-y-4">{children}</div>
+        {/* noBodyPadding content owns its own scroll regions (e.g. independently
+            scrollable panes in a two-pane layout) rather than one outer scroll box. */}
+        <div ref={contentRef} className={noBodyPadding ? 'flex-1 min-h-0 flex flex-col' : 'p-6 overflow-y-auto space-y-4'}>
+          {children}
+        </div>
+
+        {footer && <div className="p-6 border-t border-dark/10 shrink-0">{footer}</div>}
       </div>
     </div>
   );

@@ -41,6 +41,10 @@ export interface QElement {
   align?: 'left' | 'center' | 'right';
   color?: string;
   rows?: string[][];
+  /** Optional block background fill (e.g. a section-bar heading band). */
+  bg?: string;
+  /** Optional accent border on the left edge (e.g. a role/plan card). */
+  borderLeftColor?: string;
 }
 
 export interface QPage {

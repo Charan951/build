@@ -100,10 +100,19 @@ const aiHtmlToPages = (html: string): QPage[] => {
     y += h + 10;
   };
 
+  // A CSS table's rows expand past a fixed container height when content
+  // wraps - a flat rowH guess (e.g. 24px) silently overflows into whatever
+  // element comes next on the canvas. Estimate each row's height from its
+  // widest-wrapping cell instead, same technique as addText.
   const addTable = (rows: string[][]) => {
     if (rows.length === 0) return;
-    const rowH = 24;
-    const h = rows.length * rowH;
+    const numCols = Math.max(1, rows[0]?.length || 1);
+    const colWidth = Math.max(30, CONTENT_W / numCols - 20);
+    const rowHeights = rows.map((row) => {
+      const maxLines = Math.max(1, ...row.map((cell) => estimateLines(cell, 10, colWidth)));
+      return Math.max(24, maxLines * 10 * 1.4 + 14);
+    });
+    const h = rowHeights.reduce((a, b) => a + b, 0);
     ensureRoom(h);
     pages[pages.length - 1].elements.push(table(MARGIN_X, y, CONTENT_W, h, rows));
     y += h + 14;
@@ -114,28 +123,51 @@ const aiHtmlToPages = (html: string): QPage[] => {
       Array.from(tr.querySelectorAll('th,td')).map((cell) => (cell.textContent || '').trim())
     );
 
-  const cardGroupToText = (group: Element): string =>
-    Array.from(group.children)
-      .map((card) => {
+  // Renders role/plan cards as an actual row of bordered blocks (like the
+  // reference document's cards) instead of one flattened paragraph - up to
+  // 3 per row, wrapping to additional rows, each row's height set from its
+  // tallest card so every card in the row lines up evenly.
+  const CARD_ACCENT = '#1f9d63';
+  const addCardRow = (cards: Element[]) => {
+    const perRow = Math.min(3, cards.length) || 1;
+    const gap = 12;
+    const cardW = (CONTENT_W - gap * (perRow - 1)) / perRow;
+    for (let i = 0; i < cards.length; i += perRow) {
+      const rowCards = cards.slice(i, i + perRow);
+      const cardTexts = rowCards.map((card) => {
         const heading = card.querySelector('h4, .plan-name');
         const body = card.querySelector('p');
         const items = Array.from(card.querySelectorAll('li')).map((li) => (li.textContent || '').trim());
-        const bodyText = body ? (body.textContent || '').trim() : items.join(', ');
+        const bodyText = body ? (body.textContent || '').trim() : items.join('\n');
         const price = card.querySelector('.plan-price')?.textContent?.trim();
         const label = [heading?.textContent?.trim(), price].filter(Boolean).join(' — ');
-        return label ? `${label}: ${bodyText}` : bodyText;
-      })
-      .filter(Boolean)
-      .join('\n');
+        return label ? `${label}\n${bodyText}` : bodyText;
+      });
+      const rowH = Math.max(60, ...cardTexts.map((t) => estimateLines(t, 9.5, cardW - 20) * 9.5 * 1.5 + 20));
+      ensureRoom(rowH);
+      cardTexts.forEach((txt, idx) => {
+        pages[pages.length - 1].elements.push(
+          text({ x: MARGIN_X + idx * (cardW + gap), y, w: cardW, h: rowH, content: txt, fontSize: 9.5, borderLeftColor: CARD_ACCENT })
+        );
+      });
+      y += rowH + 10;
+    }
+  };
 
   const walk = (node: Element) => {
     const cls = node.classList;
     const tag = node.tagName.toLowerCase();
 
     if (cls.contains('section-bar')) {
-      addText((node.textContent || '').trim(), { bold: true, fontSize: 13, color: '#0f2a3d' });
+      addText((node.textContent || '').trim(), {
+        bold: true,
+        fontSize: 12,
+        color: '#ffffff',
+        align: 'left',
+        bg: 'linear-gradient(90deg, #0f2a3d, #1f9d63)',
+      });
     } else if (cls.contains('roles-grid') || cls.contains('plans-grid')) {
-      addText(cardGroupToText(node), { fontSize: 10.5 });
+      addCardRow(Array.from(node.children));
     } else if (cls.contains('info-box')) {
       addText((node.textContent || '').trim(), { fontSize: 10, italic: true, color: '#b45309' });
     } else if (cls.contains('highlight-box')) {
@@ -1217,7 +1249,18 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                       className={`absolute ${selectedId === el.id ? 'outline outline-2 outline-primary' : 'hover:outline hover:outline-1 hover:outline-dark/20'} ${
                         el.type === 'divider' ? 'cursor-default' : 'cursor-move'
                       }`}
-                      style={{ left: el.x, top: el.y, width: el.w, height: el.h }}
+                      style={{
+                        left: el.x,
+                        top: el.y,
+                        width: el.w,
+                        height: el.h,
+                        background: el.bg,
+                        display: el.bg ? 'flex' : undefined,
+                        alignItems: el.bg ? 'center' : undefined,
+                        padding: el.bg ? '0 12px' : el.borderLeftColor ? '8px 10px' : undefined,
+                        borderLeft: el.borderLeftColor ? `3px solid ${el.borderLeftColor}` : undefined,
+                        boxSizing: el.bg || el.borderLeftColor ? 'border-box' : undefined,
+                      }}
                     >
                       {el.type === 'divider' && <div className="w-full h-full" style={{ backgroundColor: el.color }} />}
 

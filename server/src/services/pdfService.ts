@@ -467,6 +467,18 @@ const renderQuotationElementHtml = (el: any): string => {
     return `<div style="${style}"><table class="q-table"><tbody>${rowsHtml}</tbody></table></div>`;
   }
 
+  const blockStyle = [
+    el.bg ? `background:${el.bg}` : '',
+    el.bg ? 'box-sizing:border-box' : '',
+    el.bg ? 'display:flex' : '',
+    el.bg ? 'align-items:center' : '',
+    el.bg ? 'padding:0 12px' : '',
+    el.borderLeftColor ? `border-left:3px solid ${el.borderLeftColor}` : '',
+    el.borderLeftColor ? 'box-sizing:border-box' : '',
+    el.borderLeftColor ? 'padding:8px 10px' : '',
+  ]
+    .filter(Boolean)
+    .join(';');
   const textStyle = [
     `font-size:${el.fontSize || 11}px`,
     `font-weight:${el.bold ? 700 : 400}`,
@@ -474,9 +486,12 @@ const renderQuotationElementHtml = (el: any): string => {
     `text-decoration:${el.underline ? 'underline' : 'none'}`,
     `text-align:${el.align || 'left'}`,
     `color:${el.color || '#1f2937'}`,
-  ].join(';');
+    el.bg ? 'width:100%' : '',
+  ]
+    .filter(Boolean)
+    .join(';');
   const content = escapeHtml(el.content || '').replace(/\n/g, '<br/>');
-  return `<div style="${style}"><div style="${textStyle};white-space:pre-wrap;">${content}</div></div>`;
+  return `<div style="${style};${blockStyle}"><div style="${textStyle};white-space:pre-wrap;">${content}</div></div>`;
 };
 
 const buildProjectQuotationHtmlDocument = ({ quotation }: ProjectQuotationPdfInput): string => {

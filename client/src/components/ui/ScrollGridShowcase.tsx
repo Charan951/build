@@ -67,7 +67,7 @@ export const ScrollGridShowcase: React.FC = () => {
           >
             {/* Top-Left */}
             <div className="col-start-1 row-start-1 rounded-2xl overflow-hidden border border-white/15 relative group bg-white/5">
-              <img src={layer1Data[0].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              <img loading="lazy" src={layer1Data[0].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-transparent to-transparent p-3 flex flex-col justify-end">
                 <span className="text-[9px] font-mono text-primary uppercase font-bold">{layer1Data[0].tag}</span>
                 <p className="text-[11px] font-bold text-white leading-tight">{layer1Data[0].title}</p>
@@ -76,7 +76,7 @@ export const ScrollGridShowcase: React.FC = () => {
 
             {/* Bottom-Left */}
             <div className="col-start-1 row-start-3 rounded-2xl overflow-hidden border border-white/15 relative group bg-white/5">
-              <img src={layer1Data[1].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              <img loading="lazy" src={layer1Data[1].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-transparent to-transparent p-3 flex flex-col justify-end">
                 <span className="text-[9px] font-mono text-primary uppercase font-bold">{layer1Data[1].tag}</span>
                 <p className="text-[11px] font-bold text-white leading-tight">{layer1Data[1].title}</p>
@@ -85,7 +85,7 @@ export const ScrollGridShowcase: React.FC = () => {
 
             {/* Top-Right */}
             <div className="col-start-3 md:col-start-5 row-start-1 rounded-2xl overflow-hidden border border-white/15 relative group bg-white/5">
-              <img src={layer1Data[2].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              <img loading="lazy" src={layer1Data[2].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-transparent to-transparent p-3 flex flex-col justify-end">
                 <span className="text-[9px] font-mono text-primary uppercase font-bold">{layer1Data[2].tag}</span>
                 <p className="text-[11px] font-bold text-white leading-tight">{layer1Data[2].title}</p>
@@ -94,7 +94,7 @@ export const ScrollGridShowcase: React.FC = () => {
 
             {/* Bottom-Right */}
             <div className="col-start-3 md:col-start-5 row-start-3 rounded-2xl overflow-hidden border border-white/15 relative group bg-white/5">
-              <img src={layer1Data[3].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              <img loading="lazy" src={layer1Data[3].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-transparent to-transparent p-3 flex flex-col justify-end">
                 <span className="text-[9px] font-mono text-primary uppercase font-bold">{layer1Data[3].tag}</span>
                 <p className="text-[11px] font-bold text-white leading-tight">{layer1Data[3].title}</p>
@@ -103,7 +103,7 @@ export const ScrollGridShowcase: React.FC = () => {
 
             {/* Mid-Left Outer */}
             <div className="hidden md:block col-start-1 row-start-2 rounded-2xl overflow-hidden border border-white/15 relative group bg-white/5">
-              <img src={layer1Data[4].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              <img loading="lazy" src={layer1Data[4].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-transparent to-transparent p-3 flex flex-col justify-end">
                 <span className="text-[9px] font-mono text-primary uppercase font-bold">{layer1Data[4].tag}</span>
                 <p className="text-[11px] font-bold text-white leading-tight">{layer1Data[4].title}</p>
@@ -112,7 +112,7 @@ export const ScrollGridShowcase: React.FC = () => {
 
             {/* Mid-Right Outer */}
             <div className="hidden md:block col-start-5 row-start-2 rounded-2xl overflow-hidden border border-white/15 relative group bg-white/5">
-              <img src={layer1Data[5].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              <img loading="lazy" src={layer1Data[5].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-transparent to-transparent p-3 flex flex-col justify-end">
                 <span className="text-[9px] font-mono text-primary uppercase font-bold">{layer1Data[5].tag}</span>
                 <p className="text-[11px] font-bold text-white leading-tight">{layer1Data[5].title}</p>
@@ -127,7 +127,7 @@ export const ScrollGridShowcase: React.FC = () => {
           >
             {/* Left Inner Top */}
             <div className="col-start-2 row-start-1 rounded-2xl overflow-hidden border border-white/20 relative group bg-white/5">
-              <img src={layer2Data[0].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              <img loading="lazy" src={layer2Data[0].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-transparent to-transparent p-3 flex flex-col justify-end">
                 <span className="text-[9px] font-mono text-primary uppercase font-bold">{layer2Data[0].tag}</span>
                 <p className="text-[11px] font-bold text-white leading-tight">{layer2Data[0].title}</p>
@@ -136,7 +136,7 @@ export const ScrollGridShowcase: React.FC = () => {
 
             {/* Left Inner Bottom */}
             <div className="col-start-2 row-start-3 rounded-2xl overflow-hidden border border-white/20 relative group bg-white/5">
-              <img src={layer2Data[1].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              <img loading="lazy" src={layer2Data[1].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-transparent to-transparent p-3 flex flex-col justify-end">
                 <span className="text-[9px] font-mono text-primary uppercase font-bold">{layer2Data[1].tag}</span>
                 <p className="text-[11px] font-bold text-white leading-tight">{layer2Data[1].title}</p>
@@ -145,7 +145,7 @@ export const ScrollGridShowcase: React.FC = () => {
 
             {/* Right Inner Top */}
             <div className="col-start-2 md:col-start-4 row-start-1 rounded-2xl overflow-hidden border border-white/20 relative group bg-white/5">
-              <img src={layer2Data[2].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              <img loading="lazy" src={layer2Data[2].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-transparent to-transparent p-3 flex flex-col justify-end">
                 <span className="text-[9px] font-mono text-primary uppercase font-bold">{layer2Data[2].tag}</span>
                 <p className="text-[11px] font-bold text-white leading-tight">{layer2Data[2].title}</p>
@@ -154,7 +154,7 @@ export const ScrollGridShowcase: React.FC = () => {
 
             {/* Right Inner Bottom */}
             <div className="col-start-2 md:col-start-4 row-start-3 rounded-2xl overflow-hidden border border-white/20 relative group bg-white/5">
-              <img src={layer2Data[3].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              <img loading="lazy" src={layer2Data[3].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-transparent to-transparent p-3 flex flex-col justify-end">
                 <span className="text-[9px] font-mono text-primary uppercase font-bold">{layer2Data[3].tag}</span>
                 <p className="text-[11px] font-bold text-white leading-tight">{layer2Data[3].title}</p>
@@ -169,7 +169,7 @@ export const ScrollGridShowcase: React.FC = () => {
           >
             {/* Center Top */}
             <div className="col-start-2 md:col-start-3 row-start-1 rounded-2xl overflow-hidden border border-primary/40 relative group bg-white/5 shadow-lg">
-              <img src={layer3Data[0].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              <img loading="lazy" src={layer3Data[0].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark/95 via-transparent to-transparent p-3 flex flex-col justify-end">
                 <span className="text-[9px] font-mono text-primary uppercase font-bold">{layer3Data[0].tag}</span>
                 <p className="text-[11px] font-bold text-white leading-tight">{layer3Data[0].title}</p>
@@ -178,7 +178,7 @@ export const ScrollGridShowcase: React.FC = () => {
 
             {/* Center Bottom */}
             <div className="col-start-2 md:col-start-3 row-start-3 rounded-2xl overflow-hidden border border-primary/40 relative group bg-white/5 shadow-lg">
-              <img src={layer3Data[1].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              <img loading="lazy" src={layer3Data[1].url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark/95 via-transparent to-transparent p-3 flex flex-col justify-end">
                 <span className="text-[9px] font-mono text-primary uppercase font-bold">{layer3Data[1]?.tag || 'Quality'}</span>
                 <p className="text-[11px] font-bold text-white leading-tight">{layer3Data[1].title}</p>

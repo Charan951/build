@@ -250,6 +250,7 @@ export const ServiceDetailPage: React.FC = () => {
                 <img
                   src="https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?auto=format&fit=crop&w=1200&q=80"
                   alt={service.title}
+                  loading="lazy"
                   className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/40 to-transparent flex items-end p-8">

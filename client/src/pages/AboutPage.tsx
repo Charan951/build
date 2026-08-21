@@ -67,6 +67,7 @@ export const AboutPage: React.FC = () => {
             <img
               src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
               alt="Engineering Team"
+              loading="lazy"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent p-6 flex flex-col justify-end">

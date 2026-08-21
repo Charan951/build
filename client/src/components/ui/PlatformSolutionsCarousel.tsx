@@ -221,6 +221,7 @@ export const PlatformSolutionsCarousel: React.FC = () => {
                   <img
                     src={activeSolution.image || activeSolution.heroImage}
                     alt={activeSolution.title}
+                    loading="lazy"
                     className="w-full h-full object-cover"
                     draggable={false}
                   />

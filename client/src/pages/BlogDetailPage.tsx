@@ -114,7 +114,7 @@ export const BlogDetailPage: React.FC = () => {
         <h1 className="font-display text-4xl md:text-5xl font-bold text-dark leading-tight">{blog.title}</h1>
         <div className="flex items-center justify-between pt-4 border-t border-dark/10">
           <div className="flex items-center gap-3">
-            {blog.author?.avatar && <img src={blog.author.avatar} alt={blog.author.name} className="w-10 h-10 rounded-full object-cover" />}
+            {blog.author?.avatar && <img src={blog.author.avatar} alt={blog.author.name} loading="lazy" className="w-10 h-10 rounded-full object-cover" />}
             <div>
               <span className="font-bold text-sm text-dark block">{blog.author?.name}</span>
               <span className="text-xs text-slateText">{blog.author?.role}</span>

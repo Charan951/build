@@ -31,50 +31,43 @@ Produce ONLY the inner section HTML for a project estimation document. Do NOT in
 <style>, <title>, any header/footer markup, or a meta-info grid - those are rendered by the template separately.
 Do not wrap the output in markdown code fences.
 
-Use EXACTLY these CSS classes (already defined by the template) so the content renders correctly:
+There is NO fixed template or required section list. Read the admin's instruction below and decide for
+yourself which sections this specific document actually needs, in whatever order and count makes sense for
+that instruction - do not default to a generic "Overview / Roles / Features / Plans / Payment / Terms" shape
+unless the instruction actually calls for those things. A short instruction should produce a short, focused
+document; a detailed instruction covering many topics should produce a document that covers all of them.
+Invent whatever section titles fit the content (e.g. "Tech Stack", "Timeline", "Risks & Mitigations",
+"Future Scope") - you are not limited to the examples below.
 
-1. <div class="section-bar">1. Project Overview</div> followed by a <p> paragraph summarizing the project.
+You have this CSS class toolkit available (already styled by the template) - use only the pieces that fit
+what you're building, never all of them, and feel free to fall back to plain <p>/<ul>/<table> for anything
+that doesn't match one of these shapes:
 
-2. <div class="section-bar">2. User Roles</div> followed by <div class="roles-grid"> containing 3 or more
-   <div class="role-card"><h4>Role Name</h4><p>Short description</p></div> blocks.
-
-3. <div class="section-bar">3. Complete Feature List — Included in Scope</div> followed by
-   <table class="feature-table"> with a header row (<th>#</th><th>Feature</th><th>Description</th>) and
-   one <tr><td>#</td><td><strong>Feature</strong></td><td>Description</td></tr> row per feature (aim for
-   a thorough list covering all major modules).
-
-4. <div class="section-bar">4. Investment Plans</div> followed by an intro <p>, then
-   <div class="plans-grid"> containing 2 <div class="plan-card"> blocks (one may additionally have class
-   "plan-card recommended" and include <div class="badge">RECOMMENDED</div>), each with:
-   <div class="plan-header"><div class="plan-name">Plan Name</div><div class="plan-price">Price</div></div>
-   <div class="plan-body"><ul><li>Inclusion...</li></ul></div>
-
-5. <div class="section-bar">5. Plan Comparison</div> followed by <table class="comparison-table"> with a
-   "Deliverable" column plus one column per plan, using checkmarks (✔) or dashes (—) per cell, and a final
-   bold row (<tr class="total-row"><td>Total Investment</td>...) showing the total price per plan.
-   Omit this section if the proposal has only a single plan.
-
-6. <div class="section-bar">6. Payment Terms</div> followed by a <ul> of payment milestones
-   (e.g. advance, on UAT, on final delivery).
-
-7. <div class="section-bar">7. Terms &amp; Conditions</div> followed by a <ul> covering validity period,
-   timeline estimate, exclusions, support window, change-of-scope clause, and source-code handover.
-
-Two additional callout classes are available and should be used where they fit naturally (e.g. an
-"What's Excluded" section, or a "Post-Launch Support" note) instead of a plain paragraph:
-- <div class="info-box"> — a soft warning-tint callout, best for exclusions/out-of-scope items.
-- <div class="highlight-box"> — a soft success-tint callout, best for support/guarantee/inclusion notes.
-Both accept a <p> or <ul> inside them directly.
-
-Section numbers, titles, and count may flex based on the admin instruction (e.g. skip section 5 for a
-single-plan proposal, or add a section) but the overall shape and CSS classes above must be preserved.
+- <div class="section-bar">Section Title</div> - a section heading band. Number sections sequentially
+  (1., 2., 3. ...) only if you use more than one; a single-topic document doesn't need a number at all.
+- <div class="roles-grid"> of <div class="role-card"><h4>Role Name</h4><p>Description</p></div> - for
+  distinct user roles/personas, only when the instruction actually involves multiple roles.
+- <table class="feature-table"> with <th>#</th><th>Feature</th><th>Description</th> and matching rows -
+  for an itemized feature/scope list.
+- <div class="plans-grid"> of <div class="plan-card"> (optionally "plan-card recommended" with a
+  <div class="badge">RECOMMENDED</div>) each containing <div class="plan-header"><div class="plan-name">...
+  </div><div class="plan-price">...</div></div><div class="plan-body"><ul>...</ul></div> - only when the
+  instruction asks for multiple pricing/investment options.
+- <table class="comparison-table"> with a "Deliverable" column plus one column per option, ✔/— cells, and
+  a bold <tr class="total-row"> - only alongside plans-grid, and only when there's more than one plan to
+  compare.
+- <ul> of milestones - for payment terms, when payment is relevant to the instruction.
+- <ul> covering things like validity, timeline, exclusions, support window, or handover - for terms &
+  conditions, when the instruction implies a formal quotation rather than a short internal note.
+- <div class="info-box"> - a soft warning-tint callout, best for exclusions/out-of-scope items.
+- <div class="highlight-box"> - a soft success-tint callout, best for support/guarantee/inclusion notes.
 
 Project name: ${projectName || 'the client project'}
 Proposal type: ${type || 'general'}
 Currency: ${currency || 'Indian Rupees (INR)'}
 Instruction from the admin: ${instruction}
 
-Respond with ONLY the HTML section content described above, nothing else.`;
+Respond with ONLY the HTML content described above, shaped by the instruction above - nothing else.`;
 };
 
 const buildRefinePrompt = ({ contentHtml, selectedHtml, instruction, projectName, type }: AIRefineSectionInput): string => {

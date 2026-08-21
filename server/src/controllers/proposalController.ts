@@ -202,12 +202,22 @@ export class ProposalController {
         return ProposalController.sendStoredPdf(template.fileData, template.title, res);
       }
 
-      const pdfBuffer = await PdfService.renderProposalPdf({
-        title: template.title,
-        contentHtml: template.contentHtml,
-        branding: template.branding,
-        meta: template.meta,
-      });
+      const pdfBuffer =
+        Array.isArray(template.pages) && template.pages.length > 0
+          ? await PdfService.renderProjectQuotationPdf({
+              quotation: {
+                pages: template.pages,
+                fontFamily: template.fontFamily || 'Helvetica',
+                documentTitle: template.title,
+                quotationNumber: template.title,
+              },
+            })
+          : await PdfService.renderProposalPdf({
+              title: template.title,
+              contentHtml: template.contentHtml,
+              branding: template.branding,
+              meta: template.meta,
+            });
 
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `inline; filename="${template.title.replace(/[^a-z0-9]/gi, '_')}.pdf"`);
@@ -220,9 +230,24 @@ export class ProposalController {
   // --- AD-HOC PDF PREVIEW (unsaved edits, used by the split-pane editor) ---
   public static async previewPdf(req: Request, res: Response) {
     try {
-      const { title, contentHtml, branding, meta } = req.body;
+      const { title, contentHtml, branding, meta, pages, fontFamily } = req.body;
+
+      if (Array.isArray(pages) && pages.length > 0) {
+        const pdfBuffer = await PdfService.renderProjectQuotationPdf({
+          quotation: {
+            pages,
+            fontFamily: fontFamily || 'Helvetica',
+            documentTitle: title || 'Proposal Preview',
+            quotationNumber: title || 'Proposal Preview',
+          },
+        });
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline; filename="preview.pdf"');
+        return res.send(pdfBuffer);
+      }
+
       if (!contentHtml) {
-        return res.status(400).json({ success: false, message: 'contentHtml is required to render a preview.' });
+        return res.status(400).json({ success: false, message: 'contentHtml or pages is required to render a preview.' });
       }
 
       const pdfBuffer = await PdfService.renderProposalPdf({

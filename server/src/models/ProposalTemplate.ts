@@ -28,6 +28,17 @@ export interface IProposalTemplate extends Document {
   kind: 'generated' | 'uploaded';
   title: string;
   contentHtml: string;
+  /**
+   * Freeform canvas pages (absolutely-positioned text/table elements), same
+   * shape as ProjectWorkspace's quotation canvas. Left `Mixed` because the
+   * element shape is owned by the editor UI, not the database - see the
+   * identical rationale on ProjectWorkspace.IProjectQuotation.pages. When
+   * non-empty, this is the source of truth for rendering; contentHtml
+   * becomes a legacy fallback for templates authored before the canvas
+   * editor existed.
+   */
+  pages?: any[];
+  fontFamily?: string;
   fileUrl?: string;
   fileName?: string;
   fileData?: Buffer;
@@ -80,6 +91,8 @@ const ProposalTemplateSchema: Schema = new Schema(
     kind: { type: String, enum: ['generated', 'uploaded'], default: 'generated' },
     title: { type: String, required: true, trim: true, maxlength: 120 },
     contentHtml: { type: String, default: '' },
+    pages: { type: [Schema.Types.Mixed], default: () => [] },
+    fontFamily: { type: String, default: 'Helvetica', maxlength: 60 },
     fileUrl: { type: String, default: '' },
     fileName: { type: String, default: '' },
     fileData: { type: Buffer, select: false },

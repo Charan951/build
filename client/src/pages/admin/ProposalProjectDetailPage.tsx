@@ -10,8 +10,18 @@ import { Button } from '../../components/ui/Button';
 import { FadeIn } from '../../components/ui/motion';
 import { ArrowLeft, Plus, Pencil, Trash2, FileText, Upload, Eye, X, Loader2 } from 'lucide-react';
 import { apiFetch, getApiUrl } from '../../services/api';
-import { TemplateEditorModal, ProposalTemplateData } from '../../components/crm/TemplateEditorModal';
 import { Spinner } from '../../components/ui/Spinner';
+
+export interface ProposalTemplateData {
+  _id?: string;
+  proposalProjectId: string;
+  type: string;
+  kind?: 'generated' | 'uploaded';
+  title: string;
+  contentHtml: string;
+  fileUrl?: string;
+  fileName?: string;
+}
 
 interface ProposalProjectItem {
   _id: string;
@@ -204,8 +214,6 @@ export const ProposalProjectDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [templatesLoading, setTemplatesLoading] = useState(false);
 
-  const [editorOpen, setEditorOpen] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<ProposalTemplateData | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [viewingTemplate, setViewingTemplate] = useState<ProposalTemplateData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -325,10 +333,7 @@ export const ProposalProjectDetailPage: React.FC = () => {
             <Upload className="w-3.5 h-3.5" /> Upload PDF
           </button>
           <button
-            onClick={() => {
-              setEditingTemplate(null);
-              setEditorOpen(true);
-            }}
+            onClick={() => navigate(`/dashboard/proposals/${project._id}/templates/new`)}
             className="px-4 py-2.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5"
           >
             <Plus className="w-3.5 h-3.5" /> New Template
@@ -390,10 +395,7 @@ export const ProposalProjectDetailPage: React.FC = () => {
                         </button>
                       ) : (
                         <button
-                          onClick={() => {
-                            setEditingTemplate(t);
-                            setEditorOpen(true);
-                          }}
+                          onClick={() => navigate(`/dashboard/proposals/${project._id}/templates/${t._id}`)}
                           className="flex-1 px-3 py-1.5 rounded-lg bg-dark/5 hover:bg-dark/10 text-dark font-bold text-[10px] flex items-center justify-center gap-1"
                         >
                           <Pencil className="w-3 h-3" /> Edit
@@ -414,14 +416,6 @@ export const ProposalProjectDetailPage: React.FC = () => {
         )}
       </div>
 
-      <TemplateEditorModal
-        isOpen={editorOpen}
-        onClose={() => setEditorOpen(false)}
-        proposalProjectId={project._id}
-        projectName={project.name}
-        template={editingTemplate}
-        onSaved={() => fetchTemplates()}
-      />
       <UploadTemplateModal
         isOpen={uploadOpen}
         onClose={() => setUploadOpen(false)}

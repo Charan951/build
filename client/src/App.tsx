@@ -28,6 +28,7 @@ const ManageBlogsPage = lazy(() => import('./pages/admin/ManageBlogsPage').then(
 const ManageLeadsPage = lazy(() => import('./pages/admin/ManageLeadsPage').then(m => ({ default: m.ManageLeadsPage })));
 const ManageProposalsPage = lazy(() => import('./pages/admin/ManageProposalsPage').then(m => ({ default: m.ManageProposalsPage })));
 const ProposalProjectDetailPage = lazy(() => import('./pages/admin/ProposalProjectDetailPage').then(m => ({ default: m.ProposalProjectDetailPage })));
+const ProposalTemplateEditorPage = lazy(() => import('./pages/admin/ProposalTemplateEditorPage').then(m => ({ default: m.ProposalTemplateEditorPage })));
 const ManagePlatformSolutionsPage = lazy(() => import('./pages/admin/ManagePlatformSolutionsPage').then(m => ({ default: m.ManagePlatformSolutionsPage })));
 const ManagePricingPlansPage = lazy(() => import('./pages/admin/ManagePricingPlansPage').then(m => ({ default: m.ManagePricingPlansPage })));
 const ManageSettingsPage = lazy(() => import('./pages/admin/ManageSettingsPage').then(m => ({ default: m.ManageSettingsPage })));
@@ -128,6 +129,7 @@ export const App: React.FC = () => {
               <Route path="leads" element={<ManageLeadsPage />} />
               <Route path="proposals" element={<ManageProposalsPage />} />
               <Route path="proposals/:id" element={<ProposalProjectDetailPage />} />
+              <Route path="proposals/:id/templates/:templateId" element={<ProposalTemplateEditorPage />} />
               <Route path="solutions" element={<ManagePlatformSolutionsPage />} />
               <Route path="plans" element={<ManagePricingPlansPage />} />
               <Route path="settings" element={<ManageSettingsPage />} />

@@ -23,10 +23,25 @@
 
       gtag('config', 'G-SZ8D6QQXXF');
     </script>
-    <!-- Google Fonts: Fraunces (display), Inter (body), JetBrains Mono (CRM data/numbers) -->
+    <!-- Google Fonts: Fraunces (display), Inter (body), JetBrains Mono (CRM data/numbers).
+         Loaded non-render-blocking: the stylesheet is fetched as a low-priority
+         preload and swapped to an active stylesheet once it arrives, instead of
+         a synchronous <link rel="stylesheet"> that would block first paint on a
+         third-party round trip. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      />
+    </noscript>
   </head>
   <body class="bg-background text-dark antialiased font-sans selection:bg-primary selection:text-dark overflow-x-hidden">
     <!-- Google Tag Manager (noscript) -->

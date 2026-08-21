@@ -239,9 +239,11 @@ async function callOpenRouter(prompt: string): Promise<string> {
   return stripCodeFence(text);
 }
 
+// Gemini is the preferred provider; Groq and OpenRouter are fallbacks tried
+// only if Gemini fails, in this priority order.
 const PROVIDER_CHAIN: Array<{ name: AIProvider; call: (prompt: string) => Promise<string> }> = [
-  { name: 'groq', call: callGroq },
   { name: 'gemini', call: callGemini },
+  { name: 'groq', call: callGroq },
   { name: 'openrouter', call: callOpenRouter },
 ];
 

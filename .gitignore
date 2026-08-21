@@ -6,6 +6,10 @@ node_modules/
 dist/
 **/dist/
 
+# Puppeteer's downloaded Chrome binary (redirected into the project so it
+# survives Render's build->runtime handoff; see server/.puppeteerrc.cjs)
+server/.cache/
+
 # Environment files
 .env
 .env.local

@@ -92,7 +92,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
   const [meta, setMeta] = useState<ProposalMetaData>(DEFAULT_META);
   const [brandingOpen, setBrandingOpen] = useState(false);
 
-  const [aiPromptOpen, setAiPromptOpen] = useState(false);
+  const [contentEditorOpen, setContentEditorOpen] = useState(false);
   const [aiInstruction, setAiInstruction] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState('');
@@ -177,7 +177,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
     setErrorMsg('');
     setAiError('');
     setAiInstruction('');
-    setAiPromptOpen(false);
+    setContentEditorOpen(false);
     setBrandingOpen(false);
     setPreviewError('');
 
@@ -274,7 +274,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
       if (res.success) {
         setContentHtml(res.contentHtml);
         setAiProvider(res.provider);
-        setAiPromptOpen(false);
+        setContentEditorOpen(false);
         setAiInstruction('');
       } else {
         setAiError(res.message || 'AI generation failed.');
@@ -359,6 +359,11 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
               </div>
             )}
 
+            {/* Document identity: title/type and the quotation meta fields read as
+                one tight group (they're all "what is this document") - a smaller
+                inner gap than the space before the AI content section keeps that
+                relationship legible instead of every gap carrying equal weight. */}
+            <div className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label htmlFor="tpl-title" className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">
@@ -385,7 +390,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                     id="tpl-type"
                     value={type}
                     onChange={(e) => setType(e.target.value)}
-                    className="flex-1 px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark font-semibold"
+                    className="flex-1 px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark font-semibold"
                   >
                     <option value="website">Website</option>
                     <option value="app">App</option>
@@ -477,6 +482,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                 />
               </div>
             </div>
+            </div>
 
             {/* AI content prompt - the primary way to write/refine the document */}
             <div>
@@ -525,7 +531,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
             <div className="rounded-2xl bg-background border border-dark/10 overflow-hidden">
               <button
                 type="button"
-                onClick={() => setAiPromptOpen((v) => !v)}
+                onClick={() => setContentEditorOpen((v) => !v)}
                 className="w-full flex items-center justify-between p-4"
               >
                 <div>
@@ -534,13 +540,13 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                     Select any text below to refine just that part with AI.
                   </p>
                 </div>
-                {aiPromptOpen ? (
+                {contentEditorOpen ? (
                   <ChevronUp className="w-4 h-4 text-dark" />
                 ) : (
                   <ChevronDown className="w-4 h-4 text-dark" />
                 )}
               </button>
-              {aiPromptOpen && (
+              {contentEditorOpen && (
                 <div className="px-4 pb-4">
                   <ProposalContentEditor
                     contentHtml={contentHtml}

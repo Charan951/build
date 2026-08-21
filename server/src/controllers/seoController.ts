@@ -5,7 +5,7 @@ import Blog from '../models/Blog';
 
 export const getSitemap = async (req: Request, res: Response): Promise<void> => {
   try {
-    const baseUrl = process.env.CLIENT_URL || 'https://buildyourthoughts.com';
+    const baseUrl = process.env.CLIENT_URL || 'https://www.buildyourthougths.in';
 
     const projects = await Project.find({ status: 'published' }).select('slug updatedAt');
     const services = await Service.find({ isActive: true }).select('slug updatedAt');
@@ -45,7 +45,7 @@ export const getSitemap = async (req: Request, res: Response): Promise<void> => 
 };
 
 export const getRobots = (req: Request, res: Response): void => {
-  const baseUrl = process.env.CLIENT_URL || 'https://buildyourthoughts.com';
+  const baseUrl = process.env.CLIENT_URL || 'https://www.buildyourthougths.in';
   const txt = `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /dashboard\nDisallow: /api/\n\nSitemap: ${baseUrl}/sitemap.xml\n`;
 
   res.header('Content-Type', 'text/plain');

@@ -153,6 +153,38 @@ const aiHtmlToPages = (html: string): QPage[] => {
   return pages;
 };
 
+interface ProposalBranding {
+  logoUrl: string;
+  headerGradientFrom: string;
+  headerGradientTo: string;
+  companyName: string;
+  companyTagline: string;
+  contactEmail: string;
+  contactPhone: string;
+  website: string;
+  footerAddress: string;
+  footerAddressLine2: string;
+}
+
+const DEFAULT_BRANDING: ProposalBranding = {
+  logoUrl: '',
+  headerGradientFrom: '#0f2a3d',
+  headerGradientTo: '#1f9d63',
+  companyName: 'Speshway Solutions',
+  companyTagline: 'Website & App Development Company | Hyderabad, India',
+  contactEmail: 'info@speshway.com',
+  contactPhone: '+91 91000 06020',
+  website: 'www.speshway.com',
+  footerAddress: 'T-Hub, Plot No 1/C, Sy No 83/1, Raidurgam, Knowledge City Road,',
+  footerAddressLine2: 'Serilingampalle (M), Hyderabad, Telangana 500032, India',
+};
+
+// Mirrors server/src/services/pdfService.ts's Puppeteer header/footer margins
+// (90px / 80px) at the same 96dpi scale the canvas already uses, so the bands
+// shown here occupy exactly the space the exported PDF reserves for them.
+const HEADER_BAND_H = 90;
+const FOOTER_BAND_H = 80;
+
 interface ProposalMeta {
   title: string;
   type: string;
@@ -184,6 +216,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
   const [resolvedId, setResolvedId] = useState<string | null>(isNew ? null : templateId || null);
   const [loading, setLoading] = useState(true);
   const [meta, setMeta] = useState<ProposalMeta>(EMPTY_META);
+  const [branding, setBranding] = useState<ProposalBranding>(DEFAULT_BRANDING);
   const [pages, setPages] = useState<QPage[]>([{ id: uid(), elements: [] }]);
   const [pageIndex, setPageIndex] = useState(0);
   const [zoom, setZoom] = useState(76);
@@ -225,6 +258,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
             validityText: t.meta?.validityText || '30 Days from Date of Issue',
             fontFamily: t.fontFamily || 'Helvetica',
           });
+          setBranding({ ...DEFAULT_BRANDING, ...(t.branding || {}) });
           const initialPages = Array.isArray(t.pages) && t.pages.length ? t.pages : [{ id: uid(), elements: [] }];
           setPages(initialPages);
           historyRef.current = [JSON.parse(JSON.stringify(initialPages))];
@@ -502,11 +536,17 @@ export const ProposalTemplateEditorPage: React.FC = () => {
 
   const downloadUrl = resolvedId ? getApiUrl(`/proposals/templates/${resolvedId}/pdf`) : '';
 
+  // Header/footer bands and the page itself all scale together as one unit,
+  // so the on-canvas preview stays a true WYSIWYG match for the exported PDF
+  // (which reserves this exact band height via Puppeteer's margin/header/footer).
+  const scaledStackStyle: React.CSSProperties = {
+    transform: `scale(${zoom / 100})`,
+    transformOrigin: 'top center',
+  };
+
   const pageCanvasStyle: React.CSSProperties = {
     width: PAGE_W,
     height: PAGE_H,
-    transform: `scale(${zoom / 100})`,
-    transformOrigin: 'top center',
     fontFamily: meta.fontFamily,
   };
 
@@ -644,7 +684,83 @@ export const ProposalTemplateEditorPage: React.FC = () => {
         {/* Canvas */}
         <div className="flex-1 min-h-0 overflow-auto py-8" onPointerDown={() => setSelectedId(null)}>
           <div className="mx-auto" style={{ width: PAGE_W * (zoom / 100) }}>
-            <div className="bg-white shadow-xl relative" style={pageCanvasStyle} onPointerDown={(e) => e.stopPropagation()}>
+            <div style={scaledStackStyle}>
+              {/* Non-interactive preview of the branded header band the exported
+                  PDF adds via Puppeteer's displayHeaderFooter - shown here purely
+                  so the canvas matches the final document, never draggable/selectable. */}
+              <div
+                className="pointer-events-none shadow-xl"
+                style={{
+                  width: PAGE_W,
+                  height: HEADER_BAND_H,
+                  background: `linear-gradient(90deg, ${branding.headerGradientFrom}, ${branding.headerGradientTo})`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0 28px',
+                  boxSizing: 'border-box',
+                  fontFamily: "'Segoe UI', Arial, sans-serif",
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, overflow: 'hidden' }}>
+                  <div
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: 8,
+                      background: '#fff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {branding.logoUrl ? (
+                      <img src={branding.logoUrl} alt="" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                    ) : (
+                      <span style={{ fontWeight: 700, fontSize: 14, color: branding.headerGradientFrom }}>
+                        {branding.companyName.charAt(0).toUpperCase() || 'S'}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ minWidth: 0, overflow: 'hidden' }}>
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        fontSize: 12,
+                        color: '#fff',
+                        lineHeight: 1.2,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {branding.companyName.toUpperCase()}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 8,
+                        color: '#e2e8f0',
+                        lineHeight: 1.3,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {branding.companyTagline}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: '#fff', whiteSpace: 'nowrap' }}>COMMERCIAL QUOTATION</div>
+                  <div style={{ fontSize: 8, color: '#e2e8f0', whiteSpace: 'nowrap' }}>
+                    Date: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white shadow-xl relative" style={pageCanvasStyle} onPointerDown={(e) => e.stopPropagation()}>
               {currentPage?.elements.map((el) => (
                 <div
                   key={el.id}
@@ -721,6 +837,44 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                   )}
                 </div>
               ))}
+              </div>
+
+              {/* Footer band preview - mirrors buildFooterTemplate in pdfService.ts. */}
+              <div
+                className="pointer-events-none"
+                style={{ width: PAGE_W, fontFamily: "'Segoe UI', Arial, sans-serif" }}
+              >
+                <div style={{ width: '100%', height: 2, background: `linear-gradient(90deg, ${branding.headerGradientFrom}, ${branding.headerGradientTo})` }} />
+                <div
+                  style={{
+                    width: PAGE_W,
+                    height: FOOTER_BAND_H - 2,
+                    background: '#0f1f2e',
+                    padding: '8px 28px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    boxSizing: 'border-box',
+                    color: '#fff',
+                  }}
+                >
+                  <div style={{ maxWidth: '60%', overflowWrap: 'break-word' }}>
+                    <div style={{ fontWeight: 700, fontSize: 9, color: '#fff' }}>{branding.companyName}</div>
+                    <div style={{ fontSize: 7, color: '#cbd5e1', lineHeight: 1.4 }}>
+                      {branding.footerAddress}
+                      <br />
+                      {branding.footerAddressLine2}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right', maxWidth: '40%', overflowWrap: 'break-word' }}>
+                    <div style={{ fontWeight: 700, fontSize: 9, color: '#fff' }}>Contact</div>
+                    <div style={{ fontSize: 7, color: '#cbd5e1' }}>
+                      {branding.contactEmail} | {branding.contactPhone}
+                    </div>
+                    <div style={{ fontSize: 7, color: '#cbd5e1' }}>{branding.website}</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

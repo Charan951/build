@@ -345,7 +345,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
             </h2>
             <p className="text-xs text-gray-400 mt-0.5">{projectName}</p>
           </div>
-          <button onClick={onClose} aria-label="Close dialog" className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10">
+          <button onClick={onClose} aria-label="Close modal" className="p-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/10">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -375,7 +375,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                   aria-required="true"
                   aria-invalid={!!errorMsg && !title.trim()}
                   aria-describedby={errorMsg ? titleErrorId : undefined}
-                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
               <div>
@@ -399,7 +399,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                       onChange={(e) => setCustomType(e.target.value)}
                       placeholder="Custom type"
                       aria-label="Custom type"
-                      className="flex-1 px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                      className="flex-1 px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                     />
                   )}
                 </div>
@@ -419,7 +419,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                   onChange={(e) => setMetaField('preparedFor', e.target.value)}
                   placeholder="Client or company name"
                   maxLength={120}
-                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
               <div>
@@ -433,7 +433,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                   onChange={(e) => setMetaField('projectType', e.target.value)}
                   placeholder="e.g., Web + Mobile App"
                   maxLength={120}
-                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
               <div>
@@ -446,7 +446,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                   value={meta.currency || ''}
                   onChange={(e) => setMetaField('currency', e.target.value)}
                   maxLength={60}
-                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
               <div>
@@ -460,7 +460,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                   onChange={(e) => setMetaField('docRef', e.target.value)}
                   placeholder="SPW/EST/PROJECT/2026"
                   maxLength={80}
-                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
               <div className="sm:col-span-2">
@@ -473,7 +473,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                   value={meta.validityText || ''}
                   onChange={(e) => setMetaField('validityText', e.target.value)}
                   maxLength={120}
-                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
             </div>
@@ -493,7 +493,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                   maxLength={2000}
                   aria-invalid={!!aiError}
                   aria-describedby={aiError ? 'tpl-ai-error' : undefined}
-                  className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark resize-none"
+                  className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark resize-none"
                 />
                 {aiError && <p id="tpl-ai-error" role="alert" className="text-[10px] font-semibold text-rose-600">{aiError}</p>}
                 <div className="flex items-center justify-between gap-2">
@@ -581,7 +581,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                         value={branding.companyName || ''}
                         onChange={(e) => setBrandingField('companyName', e.target.value)}
                         maxLength={120}
-                        className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                        className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                       />
                     </div>
                     <div>
@@ -594,7 +594,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                         value={branding.companyTagline || ''}
                         onChange={(e) => setBrandingField('companyTagline', e.target.value)}
                         maxLength={160}
-                        className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                        className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                       />
                     </div>
                   </div>
@@ -609,7 +609,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                       value={branding.logoUrl || ''}
                       onChange={(e) => setBrandingField('logoUrl', e.target.value)}
                       placeholder="https://res.cloudinary.com/.../logo.png"
-                      className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                      className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                     />
                   </div>
 
@@ -650,7 +650,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                         type="email"
                         value={branding.contactEmail || ''}
                         onChange={(e) => setBrandingField('contactEmail', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                        className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                       />
                     </div>
                     <div>
@@ -662,7 +662,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                         type="tel"
                         value={branding.contactPhone || ''}
                         onChange={(e) => setBrandingField('contactPhone', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                        className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                       />
                     </div>
                   </div>
@@ -676,7 +676,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                       type="text"
                       value={branding.website || ''}
                       onChange={(e) => setBrandingField('website', e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                      className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                     />
                   </div>
 
@@ -690,7 +690,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                       value={branding.footerAddress || ''}
                       onChange={(e) => setBrandingField('footerAddress', e.target.value)}
                       maxLength={160}
-                      className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                      className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                     />
                   </div>
                   <div>
@@ -703,7 +703,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
                       value={branding.footerAddressLine2 || ''}
                       onChange={(e) => setBrandingField('footerAddressLine2', e.target.value)}
                       maxLength={160}
-                      className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                      className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
                     />
                   </div>
                 </div>

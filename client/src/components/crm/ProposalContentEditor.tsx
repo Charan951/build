@@ -317,7 +317,7 @@ export const ProposalContentEditor: React.FC<ProposalContentEditorProps> = ({
               disabled={loading}
               aria-label="Refine instruction"
               maxLength={500}
-              className="flex-1 px-2.5 py-1.5 rounded-lg bg-white/10 border border-white/10 text-xs text-white placeholder:text-gray-400 focus:outline-none focus:border-primary disabled:opacity-60"
+              className="flex-1 px-2.5 py-1.5 rounded-lg bg-white/10 border border-white/10 text-sm text-white placeholder:text-gray-400 focus:outline-none focus:border-primary disabled:opacity-60"
             />
             <button
               type="submit"

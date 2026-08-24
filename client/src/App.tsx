@@ -21,6 +21,7 @@ const BlogDetailPage = lazy(() => import('./pages/BlogDetailPage').then(m => ({ 
 const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage').then(m => ({ default: m.PrivacyPolicyPage })));
 const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage').then(m => ({ default: m.TermsOfServicePage })));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage').then(m => ({ default: m.AdminLoginPage })));
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
@@ -153,6 +154,11 @@ export const App: React.FC = () => {
             <Route path="/portal/login" element={<Navigate to="/login" replace />} />
             <Route path="/portal" element={<ClientPortalDashboardPage />} />
             <Route path="/portal/projects/:id" element={<PortalProjectDetailPage />} />
+
+            {/* Catch-all: React Router ranks exact/param routes above this
+                regardless of declaration order, so this only ever matches a
+                genuinely unrecognized path. */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
       </main>

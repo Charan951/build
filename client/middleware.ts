@@ -203,13 +203,32 @@ ${schemaScript}
 </html>`;
 };
 
+const NOT_FOUND_HTML = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Page Not Found | ${SITE_NAME}</title>
+<meta name="robots" content="noindex, nofollow" />
+</head>
+<body></body>
+</html>`;
+
 export default async function middleware(request: Request) {
   const userAgent = request.headers.get('user-agent') || '';
   if (!BOT_REGEX.test(userAgent)) return next();
 
   const url = new URL(request.url);
   const meta = await resolveMeta(url.pathname);
-  if (!meta) return next();
+  // Previously fell through to next() here, handing non-JS crawlers a blank
+  // SPA shell with no signal at all for an unrecognized path or a dynamic
+  // slug that doesn't exist (e.g. a deleted/deactivated service). A real
+  // 404 + noindex is the correct signal instead of a silent 200.
+  if (!meta) {
+    return new Response(NOT_FOUND_HTML, {
+      status: 404,
+      headers: { 'content-type': 'text/html; charset=utf-8' },
+    });
+  }
 
   return new Response(renderHtml(meta, `${SITE_URL}${url.pathname}`), {
     status: 200,

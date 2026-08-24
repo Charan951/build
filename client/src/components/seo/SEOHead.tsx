@@ -7,6 +7,9 @@ interface SEOHeadProps {
   canonical?: string;
   ogImage?: string;
   schema?: object;
+  /** Set for pages that exist for real visitors but shouldn't be indexed
+   * (e.g. a 404/not-found page rendered at an arbitrary, unmatched URL). */
+  noindex?: boolean;
 }
 
 export const SEOHead: React.FC<SEOHeadProps> = ({
@@ -15,6 +18,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   canonical = 'https://www.buildyourthougths.in',
   ogImage = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
   schema,
+  noindex = false,
 }) => {
   const organizationSchema = {
     '@context': 'https://schema.org',
@@ -42,6 +46,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={canonical} />
+      {noindex && <meta name="robots" content="noindex, nofollow" />}
 
       {/* Open Graph Tags */}
       <meta property="og:site_name" content="Build Your Thoughts" />

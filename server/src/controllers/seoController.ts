@@ -46,7 +46,11 @@ export const getSitemap = async (req: Request, res: Response): Promise<void> => 
 
 export const getRobots = (req: Request, res: Response): void => {
   const baseUrl = process.env.CLIENT_URL || 'https://www.buildyourthougths.in';
-  const txt = `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /dashboard\nDisallow: /api/\n\nSitemap: ${baseUrl}/sitemap.xml\n`;
+  // /admin was a stale rule left from an earlier route layout - this app's admin
+  // area actually lives under /dashboard (already covered below), so it did
+  // nothing. /login and /portal are the two real account-gated surfaces that
+  // were previously left fully crawlable/indexable.
+  const txt = `User-agent: *\nAllow: /\nDisallow: /dashboard\nDisallow: /login\nDisallow: /portal\nDisallow: /api/\n\nSitemap: ${baseUrl}/sitemap.xml\n`;
 
   res.header('Content-Type', 'text/plain');
   res.status(200).send(txt);

@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import Service from '../models/Service';
-import ServiceCategory from '../models/ServiceCategory';
 
 const seedInitialServices = async () => {
   const count = await Service.countDocuments();
@@ -127,72 +126,10 @@ export const getServices = async (req: Request, res: Response): Promise<void> =>
 
 export const getServiceBySlug = async (req: Request, res: Response): Promise<void> => {
   try {
-    let service = await Service.findOne({ slug: req.params.slug });
-    
+    const service = await Service.findOne({ slug: req.params.slug, isActive: true });
     if (!service) {
-      // 1. Check if slug matches a ServiceCategory (e.g. ui-ux-product-design)
-      const category = await ServiceCategory.findOne({ slug: req.params.slug });
-      if (category) {
-        service = await Service.create({
-          title: category.title,
-          slug: category.slug,
-          category: 'Category Overview',
-          shortDescription: category.description,
-          fullDescription: `Build Your Thoughts provides high-impact, custom ${category.title} solutions tailored for high-growth startups and enterprises. Designed with modern standards and SLA-backed engineering precision.`,
-          icon: category.icon || 'Code2',
-          features: category.subServices?.map((sub: any) => sub.title) || [
-            'High Performance & Sub-second Response Speeds',
-            'Enterprise Security Compliance & Hardened Architecture'
-          ],
-          benefits: [
-            'Accelerated Time to Market',
-            '100/100 Core Web Vitals Performance',
-            'Dedicated Senior Engineering & Design Team'
-          ],
-          techStack: ['Figma', 'React 19', 'TypeScript', 'Node.js', 'TailwindCSS'],
-          processSteps: [
-            { title: 'Discovery & Wireframing', description: 'Mapping user journeys and high-fidelity prototypes.' },
-            { title: 'System Build & Tokens', description: 'Developing design tokens and production components.' },
-            { title: 'Production Rollout', description: 'Deploying edge-cached applications with continuous monitoring.' }
-          ],
-          isActive: true,
-          order: category.order || 1
-        });
-      } else {
-        // 2. Auto-generate dedicated service page object for this unique sub-service
-        const formattedTitle = req.params.slug
-          .split('-')
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ');
-
-        service = await Service.create({
-          title: formattedTitle,
-          slug: req.params.slug,
-          category: 'Development & Engineering',
-          shortDescription: `Custom ${formattedTitle} solutions engineered for enterprise growth, high throughput, and seamless performance.`,
-          fullDescription: `Build Your Thoughts delivers end-to-end ${formattedTitle} services tailored for high-growth startups and enterprise clients. Built with modern cloud-native architecture, sub-second API speeds, and 99.999% uptime availability.`,
-          icon: 'Code2',
-          features: [
-            'High Performance & Sub-second Response Speeds',
-            'Enterprise Security Compliance & Hardened Architecture',
-            'Decoupled Microservices & Clean TypeScript Codebase',
-            '24/7 SLA Technical Monitoring & Disaster Recovery'
-          ],
-          benefits: [
-            'Accelerated Time to Market',
-            '100/100 Core Web Vitals Performance',
-            'Dedicated Senior Engineering & Support Team'
-          ],
-          techStack: ['React 19', 'TypeScript', 'Node.js', 'MongoDB', 'Redis', 'AWS', 'TailwindCSS'],
-          processSteps: [
-            { title: 'Architecture & Specifications', description: 'Auditing legacy bottlenecks and mapping high-availability system specs.' },
-            { title: 'Modular Agile Build', description: 'Developing decoupled microservices with strict static typing.' },
-            { title: 'Production Launch & SLA', description: 'Deploying edge-cached applications with 24/7 continuous monitoring.' }
-          ],
-          isActive: true,
-          order: 99
-        });
-      }
+      res.status(404).json({ success: false, message: 'Service not found.' });
+      return;
     }
     res.status(200).json({ success: true, data: service });
   } catch (error) {

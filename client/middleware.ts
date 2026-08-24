@@ -51,6 +51,14 @@ const STATIC_PAGES: Record<string, Omit<PageMeta, 'image'>> = {
   '/projects': { title: 'Featured Projects | Build Your Thoughts', description: DEFAULT_DESCRIPTION },
   '/blogs': { title: 'Technical Blog & Articles | Build Your Thoughts', description: DEFAULT_DESCRIPTION },
   '/contact': { title: 'Contact & Consultation | Build Your Thoughts', description: DEFAULT_DESCRIPTION },
+  '/privacy-policy': {
+    title: 'Privacy Policy | Build Your Thoughts',
+    description: 'How Build Your Thoughts collects, uses, and protects your personal information.',
+  },
+  '/terms-of-service': {
+    title: 'Terms of Service | Build Your Thoughts',
+    description: 'The terms and conditions governing your use of the Build Your Thoughts website and services.',
+  },
 };
 
 const escapeHtml = (value: string): string =>

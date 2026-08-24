@@ -11,7 +11,7 @@ export const getSitemap = async (req: Request, res: Response): Promise<void> => 
     const services = await Service.find({ isActive: true }).select('slug updatedAt');
     const blogs = await Blog.find({ isPublished: true }).select('slug updatedAt');
 
-    const staticPages = ['', '/about', '/services', '/projects', '/blogs', '/contact'];
+    const staticPages = ['', '/about', '/services', '/projects', '/blogs', '/contact', '/privacy-policy', '/terms-of-service'];
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;

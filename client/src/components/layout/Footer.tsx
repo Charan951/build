@@ -160,9 +160,8 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between text-xs text-gray-400 gap-4">
         <p>© {new Date().getFullYear()} Build Your Thoughts. All rights reserved.</p>
         <div className="flex items-center gap-6">
-          <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-          <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
-          <a href="#" className="hover:text-primary transition-colors">Security</a>
+          <Link to="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+          <Link to="/terms-of-service" className="hover:text-primary transition-colors">Terms of Service</Link>
         </div>
       </div>
     </footer>

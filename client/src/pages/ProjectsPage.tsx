@@ -34,6 +34,7 @@ export const ProjectsPage: React.FC = () => {
       <SEOHead title="Featured Projects | Build Your Thoughts" canonical="https://www.buildyourthougths.in/projects" />
 
       <SectionHeader
+        as="h1"
         badge="Portfolio"
         title="Our Projects"
         subtitle="Explore how we have engineered scalable digital solutions across Fintech, Healthcare AI, and SaaS."

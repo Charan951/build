@@ -48,6 +48,7 @@ export const ContactPage: React.FC = () => {
       <SEOHead title="Contact & Consultation | Build Your Thoughts" canonical="https://www.buildyourthougths.in/contact" />
 
       <SectionHeader
+        as="h1"
         badge="Start A Project"
         title="Let's Build Something Extraordinary Together"
         subtitle="Fill out the project inquiry form and our lead software architect will respond within 24 hours."

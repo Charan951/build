@@ -29,6 +29,7 @@ export const AboutPage: React.FC = () => {
 
       {/* Main Section Header */}
       <SectionHeader
+        as="h1"
         badge="About Build Your Thoughts"
         title="India's Premium Digital Engineering"
         subtitle="We engineer high-availability software platforms, intelligent microservices, and 3D web applications for visionary founders and enterprise leaders."

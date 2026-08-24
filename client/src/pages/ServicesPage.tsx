@@ -47,6 +47,7 @@ export const ServicesPage: React.FC = () => {
       <SEOHead title="Services & Capabilities | Build Your Thoughts" canonical="https://www.buildyourthougths.in/services" />
 
       <SectionHeader
+        as="h1"
         badge="Services & Capabilities"
         title="Explore all of Build Your Thoughts Services"
         subtitle="Build Your Thoughts transforms ideas into digital realities through custom design and enterprise engineering."

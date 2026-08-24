@@ -29,6 +29,7 @@ export const BlogListPage: React.FC = () => {
       <SEOHead title="Technical Blog & Articles | Build Your Thoughts" canonical="https://www.buildyourthougths.in/blogs" />
 
       <SectionHeader
+        as="h1"
         badge="Engineering Insights"
         title="Technical Articles & Architecture Deep-Dives"
         subtitle="Insights on React 19, Three.js WebGL performance, Node.js microservices, and AI fine-tuning."

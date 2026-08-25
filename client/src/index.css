@@ -103,3 +103,13 @@ html, body {
   outline: none;
   box-shadow: 0 0 0 2px #0F1412, 0 0 0 4px #CDFB47;
 }
+/* Operate mode (/dashboard, /portal) never uses the marketing lime glow -
+   every focusable element under AdminLayout's data-operate-mode root gets a
+   quiet dark outline instead, no matter which component rendered it. This
+   is scoped structurally so a future hand-rolled button/select can't
+   reintroduce the glow the way Button.tsx and ~150 admin-page elements did
+   before this only being fixed per-component left most of them unpatched. */
+[data-operate-mode] .focus-ring:focus-visible,
+[data-operate-mode] .focus-ring-inverse:focus-visible {
+  box-shadow: 0 0 0 2px #0F1412;
+}

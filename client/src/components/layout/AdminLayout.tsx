@@ -147,7 +147,7 @@ export const AdminLayout: React.FC = () => {
 
   return (
     <OperateModeProvider>
-    <div className="h-[100dvh] w-full bg-[#F5F6F4] flex overflow-hidden">
+    <div data-operate-mode="true" className="h-[100dvh] w-full bg-[#F5F6F4] flex overflow-hidden">
       {/* Mobile backdrop */}
       <AnimatePresence>
         {sidebarOpen && (

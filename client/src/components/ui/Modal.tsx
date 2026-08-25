@@ -128,7 +128,7 @@ export const Modal: React.FC<ModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-dark/75 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
+        className={`fixed inset-0 bg-dark/75 ${isOperate ? '' : 'backdrop-blur-md'} transition-opacity animate-in fade-in duration-200`}
         onClick={onClose}
       />
 

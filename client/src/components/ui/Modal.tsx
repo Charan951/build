@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useRef } from 'react';
 import { X } from 'lucide-react';
+import { useOperateMode } from './OperateModeContext';
 
 /** Keeps the latest onClose without making it an effect dependency — an inline
  * arrow passed by nearly every caller would otherwise re-run the open/close
@@ -52,6 +53,9 @@ export const Modal: React.FC<ModalProps> = ({
   const contentRef = useRef<HTMLDivElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
   const onCloseRef = useLatest(onClose);
+  // Under /dashboard or /portal, Operate mode's tight 16px radius replaces
+  // Persuade's 36px dialog radius — see DESIGN.md's Operate radius scale.
+  const isOperate = useOperateMode();
 
   // Lifecycle: scroll lock, initial focus, and focus restore — runs once per
   // open/close transition, never on an unrelated parent re-render.
@@ -135,7 +139,7 @@ export const Modal: React.FC<ModalProps> = ({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`relative w-full ${maxWidthClasses} bg-white rounded-dialog shadow-hover border border-dark/10 overflow-hidden z-10 my-auto animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] focus:outline-none`}
+        className={`relative w-full ${maxWidthClasses} bg-white ${isOperate ? 'rounded-operateLg' : 'rounded-dialog'} shadow-hover border border-dark/10 overflow-hidden z-10 my-auto animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] focus:outline-none`}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 bg-dark text-white border-b border-white/10">

@@ -1066,7 +1066,7 @@ export const ProjectDetailPage: React.FC = () => {
                     const taskId = e.dataTransfer.getData('text/plain');
                     if (taskId) handleSetTaskStatus(taskId, col.dropStatus);
                   }}
-                  className={`p-4 space-y-3 min-h-[220px] rounded-card border bg-white shadow-glass transition-all ${
+                  className={`p-4 space-y-3 min-h-[220px] rounded-operateLg border bg-white shadow-soft transition-all ${
                     isDropTarget ? 'border-primary ring-4 ring-primary/40 bg-lime-50/30' : 'border-dark/10'
                   }`}
                 >

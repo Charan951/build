@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion, HTMLMotionProps, useReducedMotion } from 'framer-motion';
+import { useOperateMode } from './OperateModeContext';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'lime' | 'danger';
@@ -24,6 +25,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const prefersReducedMotion = useReducedMotion();
+    // Under /dashboard or /portal, swap Persuade's 20px pill radius and glass
+    // shadow for Operate's tighter radius and flat soft shadow.
+    const isOperate = useOperateMode();
     // primary/lime/danger sit on a dark or saturated fill, where the default
     // white-offset focus ring would be invisible — use the dark-offset variant there.
     const focusRingClass = variant === 'secondary' || variant === 'ghost' ? 'focus-ring' : 'focus-ring-inverse';
@@ -52,7 +56,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         type={type}
         whileHover={prefersReducedMotion ? undefined : whileHover}
         whileTap={prefersReducedMotion ? undefined : whileTap}
-        className={`${focusRingClass} rounded-button inline-flex items-center justify-center cursor-pointer select-none gap-2 ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
+        className={`${focusRingClass} ${isOperate ? 'rounded-operateMd' : 'rounded-button'} inline-flex items-center justify-center cursor-pointer select-none gap-2 ${sizeClasses[size]} ${
+          isOperate && variant === 'secondary'
+            ? variantClasses.secondary.replace('shadow-glass', 'shadow-soft')
+            : variantClasses[variant]
+        } ${className}`}
         {...(props as any)}
       >
         {children}

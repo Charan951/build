@@ -1,4 +1,5 @@
 import React, { useId } from 'react';
+import { useOperateMode } from './OperateModeContext';
 
 interface FieldChromeProps {
   label?: string;
@@ -14,6 +15,11 @@ const fieldBase =
 
 const borderClass = (hasError?: boolean) =>
   hasError ? 'border-rose-300 focus:border-rose-500' : 'border-dark/10 focus:border-dark';
+
+// Persuade's lime focus-ring glow is a bold marketing accent; Operate mode's
+// spec calls for a quiet border-color-only focus state instead (see
+// DESIGN.md's Operate input treatment), so Operate fields skip .focus-ring.
+const focusClass = (isOperate: boolean) => (isOperate ? '' : 'focus-ring');
 
 const Label: React.FC<{ htmlFor: string; required?: boolean; children: React.ReactNode }> = ({
   htmlFor,
@@ -42,6 +48,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const autoId = useId();
     const fieldId = id ?? autoId;
     const descId = `${fieldId}-desc`;
+    const isOperate = useOperateMode();
     return (
       <div className={className}>
         {label && (
@@ -55,7 +62,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           required={required}
           aria-invalid={!!error}
           aria-describedby={error || hint ? descId : undefined}
-          className={`${fieldBase} ${borderClass(!!error)} focus-ring`}
+          className={`${fieldBase} ${borderClass(!!error)} ${focusClass(isOperate)}`}
           {...props}
         />
         <Hint id={descId} error={error} hint={hint} />
@@ -72,6 +79,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     const autoId = useId();
     const fieldId = id ?? autoId;
     const descId = `${fieldId}-desc`;
+    const isOperate = useOperateMode();
     return (
       <div className={className}>
         {label && (
@@ -86,7 +94,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           required={required}
           aria-invalid={!!error}
           aria-describedby={error || hint ? descId : undefined}
-          className={`${fieldBase} ${borderClass(!!error)} focus-ring resize-none`}
+          className={`${fieldBase} ${borderClass(!!error)} ${focusClass(isOperate)} resize-none`}
           {...props}
         />
         <Hint id={descId} error={error} hint={hint} />
@@ -105,6 +113,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     const autoId = useId();
     const fieldId = id ?? autoId;
     const descId = `${fieldId}-desc`;
+    const isOperate = useOperateMode();
     return (
       <div className={className}>
         {label && (
@@ -118,7 +127,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           required={required}
           aria-invalid={!!error}
           aria-describedby={error || hint ? descId : undefined}
-          className={`${fieldBase} ${borderClass(!!error)} focus-ring`}
+          className={`${fieldBase} ${borderClass(!!error)} ${focusClass(isOperate)}`}
           {...props}
         >
           {children}

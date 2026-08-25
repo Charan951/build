@@ -273,7 +273,7 @@ export const AdminLayout: React.FC = () => {
 
       {/* Main content column: header stays put, only this column scrolls */}
       <div className="flex-1 min-w-0 h-full flex flex-col overflow-hidden">
-        <header className="h-16 shrink-0 bg-white/80 backdrop-blur-glass border-b border-dark/8 flex items-center gap-3 px-4 sm:px-6 z-20">
+        <header className="h-16 shrink-0 bg-white border-b border-dark/10 flex items-center gap-3 px-4 sm:px-6 z-20">
           <button
             onClick={() => setSidebarOpen((v) => !v)}
             aria-label="Toggle sidebar"

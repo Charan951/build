@@ -199,7 +199,7 @@ export const ClientProjectsPage: React.FC = () => {
                   }}
                   onDragLeave={(e) => e.preventDefault()}
                   onDrop={(e) => handleDrop(e, col.id)}
-                  className={`w-[320px] shrink-0 bg-white rounded-card border transition-all flex flex-col p-4 h-full min-h-0 ${
+                  className={`w-[320px] shrink-0 bg-white rounded-operateLg border transition-all flex flex-col p-4 h-full min-h-0 ${
                     isDropTarget
                       ? 'border-[#CDFB47] ring-4 ring-[#CDFB47]/60 shadow-2xl bg-lime-100/30 scale-[1.02] border-2'
                       : 'border-dark/10 hover:border-dark/20'

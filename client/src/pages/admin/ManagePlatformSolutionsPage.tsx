@@ -236,7 +236,7 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
           {filteredSolutions.map((sol) => (
             <Card
               key={sol._id}
-              className={`p-6 bg-white border flex flex-col justify-between space-y-4 rounded-card relative ${
+              className={`p-6 bg-white border flex flex-col justify-between space-y-4 relative ${
                 sol.isHighlighted ? 'border-primary shadow-hover' : 'border-dark/10'
               }`}
             >

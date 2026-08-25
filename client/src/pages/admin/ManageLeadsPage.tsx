@@ -571,7 +571,7 @@ export const ManageLeadsPage: React.FC = () => {
 
       {/* Bulk Action Banner */}
       {isSelectMode && selectedLeadIds.length > 0 && (
-        <div className="shrink-0 p-3 bg-lime-50 border border-primary/40 rounded-card flex items-center justify-between shadow-sm animate-in fade-in">
+        <div className="shrink-0 p-3 bg-lime-50 border border-primary/40 rounded-operateLg flex items-center justify-between shadow-sm animate-in fade-in">
           <span className="text-xs font-bold text-dark">
             {selectedLeadIds.length} lead(s) selected
           </span>
@@ -610,7 +610,7 @@ export const ManageLeadsPage: React.FC = () => {
                   onDragOver={(e) => handleDragOver(e, stage.name)}
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, stage.name)}
-                  className={`w-[300px] shrink-0 bg-white rounded-card border transition-all flex flex-col p-4 h-full min-h-0 ${
+                  className={`w-[300px] shrink-0 bg-white rounded-operateLg border transition-all flex flex-col p-4 h-full min-h-0 ${
                     isDropTarget
                       ? 'border-[#CDFB47] ring-4 ring-[#CDFB47]/60 shadow-2xl bg-lime-100/30 scale-[1.02] border-2 transition-all'
                       : 'border-dark/10 hover:border-dark/20'
@@ -747,6 +747,30 @@ export const ManageLeadsPage: React.FC = () => {
                                     >
                                       <Pencil className="w-3.5 h-3.5" />
                                     </button>
+                                    {/* Keyboard/screen-reader path for the pipeline stage-change that
+                                        drag-and-drop otherwise gates entirely - same handler as handleDrop. */}
+                                    <select
+                                      value={stage.name}
+                                      aria-label={`Move ${lead.name || 'lead'} to a different stage`}
+                                      title="Move to stage"
+                                      onClick={(e) => e.stopPropagation()}
+                                      onChange={(e) => {
+                                        const targetStageName = e.target.value;
+                                        if (targetStageName === stage.name) return;
+                                        const previousStatus = lead.status;
+                                        setLeads((prevLeads) =>
+                                          prevLeads.map((l) => (l._id === lead._id ? { ...l, status: targetStageName } : l))
+                                        );
+                                        handleStageChange(lead._id, targetStageName, previousStatus);
+                                      }}
+                                      className="focus-ring text-[10px] font-bold text-slateText/60 hover:text-dark bg-transparent border-none rounded-lg cursor-pointer max-w-[72px] truncate"
+                                    >
+                                      {stages.map((s) => (
+                                        <option key={s._id} value={s.name}>
+                                          {s.name}
+                                        </option>
+                                      ))}
+                                    </select>
                                   </>
                                 )}
                               </div>

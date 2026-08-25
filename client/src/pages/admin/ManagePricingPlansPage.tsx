@@ -244,7 +244,7 @@ export const ManagePricingPlansPage: React.FC = () => {
           {filteredPlans.map((plan) => (
             <Card
               key={plan._id}
-              className={`p-8 bg-white border flex flex-col justify-between space-y-6 rounded-card relative ${
+              className={`p-8 bg-white border flex flex-col justify-between space-y-6 relative ${
                 plan.isPopular ? 'border-primary shadow-hover' : 'border-dark/10'
               }`}
             >

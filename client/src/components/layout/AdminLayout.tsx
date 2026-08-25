@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { OperateModeProvider } from '../ui/OperateModeContext';
+import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
+import { useHotkey } from '../../hooks/useHotkey';
 import {
   LayoutDashboard,
   FolderGit2,
@@ -22,6 +24,7 @@ import {
   PanelLeftClose,
   ChevronDown,
   ExternalLink,
+  HelpCircle,
 } from 'lucide-react';
 
 interface NavItem {
@@ -139,6 +142,9 @@ export const AdminLayout: React.FC = () => {
   // panels, zoomable page canvas) - it must not inherit the shell's padding
   // or max-width constraint the way a normal content page does.
   const isFullBleedPage = /^\/dashboard\/client-projects\/[^/]+\/quotations\/[^/]+$/.test(location.pathname);
+
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  useHotkey('?', () => setShortcutsOpen(true));
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
@@ -282,6 +288,14 @@ export const AdminLayout: React.FC = () => {
             {sidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
           <span className="font-display text-base font-bold text-dark">{activeLabel}</span>
+          <button
+            onClick={() => setShortcutsOpen(true)}
+            aria-label="Keyboard shortcuts and help"
+            title="Keyboard shortcuts (?)"
+            className="focus-ring ml-auto p-2 rounded-lg hover:bg-dark/5 transition-colors text-slateText hover:text-dark"
+          >
+            <HelpCircle className="w-4.5 h-4.5" />
+          </button>
         </header>
 
         <main
@@ -300,6 +314,8 @@ export const AdminLayout: React.FC = () => {
           </div>
         </main>
       </div>
+
+      <KeyboardShortcutsModal isOpen={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
     </div>
     </OperateModeProvider>
   );

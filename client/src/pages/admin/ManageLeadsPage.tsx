@@ -25,6 +25,7 @@ import {
   ArrowRightLeft,
 } from 'lucide-react';
 import { NewLeadModal } from '../../components/crm/NewLeadModal';
+import { useHotkey } from '../../hooks/useHotkey';
 import { ManageStagesModal, StageItem } from '../../components/crm/ManageStagesModal';
 import { EditLeadModal, LeadData } from '../../components/crm/EditLeadModal';
 import { SendProposalModal } from '../../components/crm/SendProposalModal';
@@ -79,6 +80,7 @@ export const ManageLeadsPage: React.FC = () => {
   // can actually preventDefault() the browser's vertical scroll, which React's
   // synthetic onWheel cannot reliably do.
   const boardRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const board = boardRef.current;
@@ -338,10 +340,12 @@ export const ManageLeadsPage: React.FC = () => {
     e.preventDefault();
   };
 
-  const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const showToast = (type: 'success' | 'error', text: string) => {
-    setToast({ type, text });
-    setTimeout(() => setToast(null), 5000);
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string; action?: { label: string; onClick: () => void } } | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showToast = (type: 'success' | 'error', text: string, action?: { label: string; onClick: () => void }) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ type, text, action });
+    toastTimerRef.current = setTimeout(() => setToast(null), action ? 6000 : 5000);
   };
 
   const handleDrop = async (e: React.DragEvent, targetStageName: string) => {
@@ -349,21 +353,36 @@ export const ManageLeadsPage: React.FC = () => {
     setDragOverStage(null);
     setDraggingLeadId(null);
     const leadId = e.dataTransfer.getData('text/plain');
-
     if (!leadId) return;
+    await moveLead(leadId, targetStageName);
+  };
 
-    const previousStatus = leads.find((l) => l._id === leadId)?.status;
+  // Shared by drag-drop and the keyboard "Move to stage" select so both paths
+  // get the same optimistic update, server persistence, and an Undo toast on
+  // success (a stage move is easy to trigger by accident, so the emergency
+  // exit needs to be one click, not "drag it back and hope you remember where
+  // it was").
+  const moveLead = async (leadId: string, targetStageName: string) => {
+    const lead = leads.find((l) => l._id === leadId);
+    const previousStatus = lead?.status;
+    if (!lead || previousStatus === targetStageName) return;
 
-    // Optimistic UI Update
     setLeads((prevLeads) =>
       prevLeads.map((l) => (l._id === leadId ? { ...l, status: targetStageName } : l))
     );
 
-    // Server Persistence
-    await handleStageChange(leadId, targetStageName, previousStatus);
+    await handleStageChange(leadId, targetStageName, previousStatus, {
+      showUndo: true,
+      leadName: lead.name || 'Lead',
+    });
   };
 
-  const handleStageChange = async (leadId: string, newStageName: string, revertToStatus?: string) => {
+  const handleStageChange = async (
+    leadId: string,
+    newStageName: string,
+    revertToStatus?: string,
+    options?: { showUndo?: boolean; leadName?: string }
+  ) => {
     try {
       const response = await fetch(getApiUrl(`/leads/${leadId}/status`), {
         method: 'PATCH',
@@ -377,6 +396,12 @@ export const ManageLeadsPage: React.FC = () => {
       const data = await response.json();
       if (response.ok && data.success) {
         fetchPipelineData(true);
+        if (options?.showUndo && revertToStatus !== undefined) {
+          showToast('success', `${options.leadName || 'Lead'} moved to ${newStageName}.`, {
+            label: 'Undo',
+            onClick: () => moveLead(leadId, revertToStatus),
+          });
+        }
       } else {
         throw new Error(data.message || 'Failed to move lead.');
       }
@@ -455,17 +480,34 @@ export const ManageLeadsPage: React.FC = () => {
   // Sent stage (or moved further along) - earlier stages shouldn't offer it.
   const proposalSentStage = stages.find((s) => s.name.trim().toLowerCase() === 'proposal sent');
 
+  useHotkey('/', () => searchInputRef.current?.focus());
+  useHotkey('n', () => {
+    setTargetStageForNewLead(stages.length > 0 ? stages[0].name : 'New');
+    setIsNewLeadOpen(true);
+  });
+
   return (
     <div className="h-full min-h-0 flex flex-col gap-2">
       {toast && (
         <div
           role="status"
           aria-live="assertive"
-          className={`fixed top-20 right-6 z-50 max-w-sm px-4 py-3 rounded-2xl text-white text-xs font-semibold shadow-2xl ${
+          className={`fixed top-20 right-6 z-50 max-w-sm flex items-center gap-3 px-4 py-3 rounded-operateLg text-white text-xs font-semibold shadow-hover ${
             toast.type === 'error' ? 'bg-rose-600' : 'bg-dark'
           }`}
         >
-          {toast.text}
+          <span className="flex-1">{toast.text}</span>
+          {toast.action && (
+            <button
+              onClick={() => {
+                toast.action!.onClick();
+                setToast(null);
+              }}
+              className="focus-ring shrink-0 underline underline-offset-2 hover:text-primary transition-colors"
+            >
+              {toast.action.label}
+            </button>
+          )}
         </div>
       )}
       <SEOHead
@@ -487,11 +529,12 @@ export const ManageLeadsPage: React.FC = () => {
         <div className="relative w-full sm:flex-1">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slateText" />
           <input
+            ref={searchInputRef}
             type="text"
-            placeholder="Search leads by name, company, email, or phone..."
+            placeholder="Search leads by name, company, email, or phone... (press / to focus)"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark shadow-sm"
+            className="focus-ring w-full pl-10 pr-4 py-2.5 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark shadow-sm"
           />
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
@@ -760,15 +803,7 @@ export const ManageLeadsPage: React.FC = () => {
                                         aria-label={`Move ${lead.name || 'lead'} to a different stage`}
                                         title="Move to stage"
                                         onClick={(e) => e.stopPropagation()}
-                                        onChange={(e) => {
-                                          const targetStageName = e.target.value;
-                                          if (targetStageName === stage.name) return;
-                                          const previousStatus = lead.status;
-                                          setLeads((prevLeads) =>
-                                            prevLeads.map((l) => (l._id === lead._id ? { ...l, status: targetStageName } : l))
-                                          );
-                                          handleStageChange(lead._id, targetStageName, previousStatus);
-                                        }}
+                                        onChange={(e) => moveLead(lead._id, e.target.value)}
                                         className="focus-ring absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                       >
                                         {stages.map((s) => (

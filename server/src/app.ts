@@ -18,6 +18,7 @@ import crmRoutes from './routes/crmRoutes';
 import proposalRoutes from './routes/proposalRoutes';
 import portalRoutes from './routes/portalRoutes';
 import googleIntegrationRoutes from './routes/googleIntegrationRoutes';
+import metaWebhookRoutes from './routes/metaWebhookRoutes';
 import seoRoutes from './routes/seoRoutes';
 import { corsOptions } from './config/cors';
 import { errorHandler } from './middleware/errorHandler';
@@ -32,7 +33,16 @@ const app: Application = express();
 // Security Middlewares
 app.use(helmet({ contentSecurityPolicy: false })); // Allowed for R3F Canvas, WebSockets, and Cloudinary media
 app.use(cors(corsOptions));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({
+  limit: '10mb',
+  // Meta's webhook signature is computed over the exact raw bytes; stash them
+  // for verification without adding a second body parser just for this route.
+  verify: (req: any, _res, buf) => {
+    if (req.url?.startsWith('/api/v1/integrations/meta/webhook')) {
+      req.rawBody = buf;
+    }
+  },
+}));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 app.use(mongoSanitize()); // Prevent MongoDB Operator Injection ($gt, $ne, etc.)
@@ -52,6 +62,7 @@ app.use('/api/v1/crm', crmRoutes);
 app.use('/api/v1/proposals', proposalRoutes);
 app.use('/api/v1/portal', portalRoutes);
 app.use('/api/v1/integrations/google', googleIntegrationRoutes);
+app.use('/api/v1/integrations/meta', metaWebhookRoutes);
 app.use('/', seoRoutes);
 
 // Health check endpoint

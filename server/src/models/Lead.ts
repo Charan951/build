@@ -20,6 +20,9 @@ export interface ILead extends Document {
   convertedAt?: Date;
   lostReason?: string;
   ipAddress?: string;
+  metaLeadId?: string;
+  metaFormId?: string;
+  metaAdId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -45,6 +48,11 @@ const LeadSchema: Schema = new Schema(
     convertedAt: { type: Date },
     lostReason: { type: String },
     ipAddress: { type: String },
+    // Meta's leadgen_id - unique+sparse so it dedupes webhook redeliveries
+    // without colliding across the many leads that have no Meta origin.
+    metaLeadId: { type: String, unique: true, sparse: true, index: true },
+    metaFormId: { type: String },
+    metaAdId: { type: String },
   },
   { timestamps: true }
 );

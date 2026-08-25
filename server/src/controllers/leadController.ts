@@ -28,21 +28,30 @@ const promoteLeadToClientIfWon = async (lead: any): Promise<void> => {
   }
 };
 
+// Shared by the public contact-form handler below and by external ingestion
+// paths (e.g. the Meta Lead Ads webhook) so every lead - regardless of origin -
+// gets the same document shape and the same live admin notification.
+export const createLeadInternal = async (data: Record<string, any>) => {
+  const lead = await Lead.create(data);
+
+  notifyAdmins('new_lead_received', {
+    id: lead._id,
+    name: lead.name,
+    email: lead.email,
+    projectType: lead.projectType,
+    budgetRange: lead.budgetRange,
+    source: lead.source,
+    createdAt: lead.createdAt,
+  });
+
+  return lead;
+};
+
 export const createLead = async (req: Request, res: Response): Promise<void> => {
   try {
-    const lead = await Lead.create({
+    const lead = await createLeadInternal({
       ...req.body,
       ipAddress: req.ip || req.socket.remoteAddress,
-    });
-
-    // Trigger real-time socket alert to logged in admin users
-    notifyAdmins('new_lead_received', {
-      id: lead._id,
-      name: lead.name,
-      email: lead.email,
-      projectType: lead.projectType,
-      budgetRange: lead.budgetRange,
-      createdAt: lead.createdAt,
     });
 
     res.status(201).json({

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useHotkey } from '../../hooks/useHotkey';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiFetch } from '../../services/api';
 import { SEOHead } from '../../components/seo/SEOHead';
@@ -114,6 +115,10 @@ export const ManageProjectsPage: React.FC = () => {
     setSuccessMsg('');
     setIsFormOpen(true);
   };
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  useHotkey('/', () => searchInputRef.current?.focus());
+  useHotkey('n', () => handleOpenCreate());
 
   const handleOpenEdit = (proj: any) => {
     setEditingId(proj._id);
@@ -278,8 +283,9 @@ export const ManageProjectsPage: React.FC = () => {
           <div className="relative w-full md:w-96">
             <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slateText" />
             <input
+              ref={searchInputRef}
               type="text"
-              placeholder="Search projects by title, client..."
+              placeholder="Search projects by title, client... (press / to focus)"
               aria-label="Search projects"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

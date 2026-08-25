@@ -198,7 +198,7 @@ export const ClientProjectsPage: React.FC = () => {
       {toast && (
         <div
           role="status"
-          aria-live="assertive"
+          aria-live={toast.type === 'error' ? 'assertive' : 'polite'}
           className={`fixed top-20 right-6 z-50 max-w-sm flex items-center gap-3 px-4 py-3 rounded-operateLg text-white text-xs font-semibold shadow-hover ${
             toast.type === 'error' ? 'bg-rose-600' : 'bg-dark'
           }`}

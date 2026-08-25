@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiFetch } from '../../services/api';
+import { useHotkey } from '../../hooks/useHotkey';
 import {
   ArrowLeft,
   Plus,
@@ -84,6 +85,10 @@ export const ManagePricingPlansPage: React.FC = () => {
     resetForm();
     setIsModalOpen(true);
   };
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  useHotkey('/', () => searchInputRef.current?.focus());
+  useHotkey('n', () => handleOpenCreateModal());
 
   const handleOpenEditModal = (plan: any) => {
     setEditingId(plan._id);
@@ -221,10 +226,11 @@ export const ManagePricingPlansPage: React.FC = () => {
       <div className="relative">
         <Search className="w-5 h-5 text-mutedOnLight absolute left-4 top-3.5" />
         <input
+          ref={searchInputRef}
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search pricing plans by name or price..."
+          placeholder="Search pricing plans by name or price... (press / to focus)"
           aria-label="Search pricing plans"
           className="focus-ring w-full pl-12 pr-4 py-3 rounded-xl bg-background border border-dark/10 text-dark placeholder:text-mutedOnLight text-sm focus:outline-none focus:border-dark"
         />

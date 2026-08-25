@@ -22,10 +22,15 @@ const GROUPS: ShortcutGroup[] = [
     ],
   },
   {
-    title: 'Leads Pipeline & Client Projects',
+    title: 'On any list page (Leads, Projects, Blogs, Clients, Services...)',
     rows: [
       { keys: ['/'], description: 'Jump to the search field' },
-      { keys: ['n'], description: 'Add a new lead or project' },
+      { keys: ['n'], description: 'Add a new item (where the page has one primary "Add" action)' },
+    ],
+  },
+  {
+    title: 'Leads Pipeline & Client Projects boards',
+    rows: [
       { keys: ['Enter'], description: 'Open the focused card (or Space)' },
       {
         keys: [],

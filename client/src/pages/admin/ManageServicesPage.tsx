@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useHotkey } from '../../hooks/useHotkey';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiFetch } from '../../services/api';
 import { SEOHead } from '../../components/seo/SEOHead';
@@ -73,6 +74,11 @@ export const ManageServicesPage: React.FC = () => {
   // Category state
   const [categories, setCategories] = useState<any[]>([]);
   const [catSearch, setCatSearch] = useState('');
+  // Two independent create actions live on this page (category vs. service),
+  // so unlike the single-entity admin pages there's no unambiguous "n" target
+  // - only "/" (jump to category search, the page's primary list) is wired.
+  const catSearchInputRef = useRef<HTMLInputElement>(null);
+  useHotkey('/', () => catSearchInputRef.current?.focus());
   
   // Single Service details state
   const [singleServices, setSingleServices] = useState<any[]>([]);
@@ -440,8 +446,9 @@ export const ManageServicesPage: React.FC = () => {
               <div className="relative w-full md:w-96">
                 <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slateText" />
                 <input
+                  ref={catSearchInputRef}
                   type="text"
-                  placeholder="Search service categories by title..."
+                  placeholder="Search service categories by title... (press / to focus)"
                   aria-label="Search service categories"
                   value={catSearch}
                   onChange={(e) => setCatSearch(e.target.value)}

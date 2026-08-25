@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
+import { useHotkey } from '../../hooks/useHotkey';
 import { Button } from '../../components/ui/Button';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { Modal } from '../../components/ui/Modal';
@@ -97,12 +98,6 @@ export const ManageClientsPage: React.FC = () => {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (e.key === '/' && !target.closest('input, textarea, [contenteditable="true"]')) {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-        return;
-      }
       if (e.key === 'Escape' && isSelectMode) {
         setIsSelectMode(false);
         setSelectedClientIds([]);
@@ -112,12 +107,16 @@ export const ManageClientsPage: React.FC = () => {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [isSelectMode]);
 
+  useHotkey('/', () => searchInputRef.current?.focus());
+
   const openCreateModal = () => {
     setEditingClientId(null);
     setFormData(EMPTY_FORM);
     setFormError('');
     setShowModal(true);
   };
+
+  useHotkey('n', () => openCreateModal());
 
   const openEditModal = (client: any) => {
     setEditingClientId(client._id);
@@ -328,7 +327,7 @@ export const ManageClientsPage: React.FC = () => {
           <input
             ref={searchInputRef}
             type="text"
-            placeholder="Search by name or phone..."
+            placeholder="Search by name or phone... (press / to focus)"
             aria-label="Search clients"
             value={searchTerm}
             onChange={(e) => {

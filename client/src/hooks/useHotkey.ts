@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 const isEditableTarget = (target: EventTarget | null): boolean => {
   if (!(target instanceof HTMLElement)) return false;
@@ -19,6 +19,14 @@ interface HotkeyOptions {
 export function useHotkey(key: string, handler: () => void, options: HotkeyOptions = {}) {
   const { ignoreInEditable = true, enabled = true } = options;
 
+  // Callers pass a fresh inline arrow on every render (the common, natural
+  // way to write these call sites) - keep the latest handler in a ref
+  // instead of the effect's dependency array, so the listener is only ever
+  // added/removed when key/ignoreInEditable/enabled actually change, not on
+  // every unrelated re-render of the component using the hotkey.
+  const handlerRef = useRef(handler);
+  handlerRef.current = handler;
+
   useEffect(() => {
     if (!enabled) return;
 
@@ -27,10 +35,10 @@ export function useHotkey(key: string, handler: () => void, options: HotkeyOptio
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (ignoreInEditable && isEditableTarget(e.target)) return;
       e.preventDefault();
-      handler();
+      handlerRef.current();
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [key, handler, ignoreInEditable, enabled]);
+  }, [key, ignoreInEditable, enabled]);
 }

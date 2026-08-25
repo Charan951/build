@@ -9,13 +9,20 @@ import { verifySignature, fetchLeadData, mapLeadFieldsToLeadSchema } from '../se
  */
 export const verifyWebhook = (req: Request, res: Response): void => {
   const mode = req.query['hub.mode'];
-  const token = req.query['hub.verify_token'];
+  const token = String(req.query['hub.verify_token'] ?? '').trim();
   const challenge = req.query['hub.challenge'];
+  const expected = String(process.env.FB_WEBHOOK_VERIFY_TOKEN ?? '').trim();
 
-  if (mode === 'subscribe' && token === process.env.FB_WEBHOOK_VERIFY_TOKEN) {
+  if (mode === 'subscribe' && expected && token === expected) {
     res.status(200).send(challenge);
     return;
   }
+  console.warn('[metaWebhookController] Webhook verify failed', {
+    modeMatches: mode === 'subscribe',
+    tokenLength: token.length,
+    expectedLength: expected.length,
+    tokenMatches: token === expected,
+  });
   res.sendStatus(403);
 };
 

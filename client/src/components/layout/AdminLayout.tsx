@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { OperateModeProvider } from '../ui/OperateModeContext';
 import {
   LayoutDashboard,
   FolderGit2,
@@ -145,6 +146,7 @@ export const AdminLayout: React.FC = () => {
     }`;
 
   return (
+    <OperateModeProvider>
     <div className="h-[100dvh] w-full bg-[#F5F6F4] flex overflow-hidden">
       {/* Mobile backdrop */}
       <AnimatePresence>
@@ -299,5 +301,6 @@ export const AdminLayout: React.FC = () => {
         </main>
       </div>
     </div>
+    </OperateModeProvider>
   );
 };

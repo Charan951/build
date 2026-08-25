@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
+import { FormField } from '../../components/ui/FormField';
 import { Lock, Mail, AlertCircle } from 'lucide-react';
 import { apiFetch } from '../../services/api';
 
@@ -73,33 +74,37 @@ export const AdminLoginPage: React.FC = () => {
         )}
 
         <form onSubmit={handleLogin} className="space-y-5">
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-dark mb-2">Email Address</label>
-            <div className="relative">
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-form bg-background border border-dark/10 text-dark text-sm focus:outline-none focus:border-primary"
-              />
-              <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" />
-            </div>
-          </div>
+          <FormField label="Email Address">
+            {(fieldId) => (
+              <div className="relative">
+                <input
+                  id={fieldId}
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-form bg-background border border-dark/10 text-dark text-sm transition-colors focus:outline-none focus:border-dark focus-ring"
+                />
+                <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-3" />
+              </div>
+            )}
+          </FormField>
 
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-dark mb-2">Password</label>
-            <div className="relative">
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-form bg-background border border-dark/10 text-dark text-sm focus:outline-none focus:border-primary"
-              />
-              <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" />
-            </div>
-          </div>
+          <FormField label="Password">
+            {(fieldId) => (
+              <div className="relative">
+                <input
+                  id={fieldId}
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-form bg-background border border-dark/10 text-dark text-sm transition-colors focus:outline-none focus:border-dark focus-ring"
+                />
+                <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-3" />
+              </div>
+            )}
+          </FormField>
 
           <Button variant="lime" type="submit" disabled={loading} className="w-full font-bold">
             {loading ? 'Authenticating...' : 'Log In'}

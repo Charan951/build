@@ -74,7 +74,7 @@ const table = (x: number, y: number, w: number, h: number, rows: string[][]): QE
   rows,
 });
 
-const divider = (x: number, y: number, w: number, h: number, color = '#e8622c'): QElement => ({
+const divider = (x: number, y: number, w: number, h: number, color = '#0F1412'): QElement => ({
   id: uid(),
   type: 'divider',
   x,
@@ -132,16 +132,16 @@ export const buildDefaultQuotationPages = (): QPage[] => [
         fontSize: 10,
         content: `No. \n${new Date().toLocaleDateString('en-GB')}\nValid until: `,
       }),
-      text({ x: 40, y: 286, w: 714, h: 22, align: 'center', bold: true, fontSize: 11, color: '#e8622c', content: 'PROJECT SUMMARY' }),
+      text({ x: 40, y: 286, w: 714, h: 22, align: 'center', bold: true, fontSize: 11, color: '#0F1412', content: 'PROJECT SUMMARY' }),
       text({ x: 40, y: 314, w: 714, h: 90, fontSize: 10, content: 'Click to add a project summary...' }),
-      text({ x: 40, y: 420, w: 714, h: 22, align: 'center', bold: true, fontSize: 11, color: '#e8622c', content: 'TECHNOLOGY STACK' }),
+      text({ x: 40, y: 420, w: 714, h: 22, align: 'center', bold: true, fontSize: 11, color: '#0F1412', content: 'TECHNOLOGY STACK' }),
       table(40, 448, 714, 320, TECH_ROWS),
     ],
   },
   {
     id: uid(),
     elements: [
-      text({ x: 40, y: 40, w: 714, h: 22, align: 'center', bold: true, fontSize: 11, color: '#e8622c', content: 'PROJECT SCOPE' }),
+      text({ x: 40, y: 40, w: 714, h: 22, align: 'center', bold: true, fontSize: 11, color: '#0F1412', content: 'PROJECT SCOPE' }),
       text({
         x: 40,
         y: 76,
@@ -155,7 +155,7 @@ export const buildDefaultQuotationPages = (): QPage[] => [
   {
     id: uid(),
     elements: [
-      text({ x: 40, y: 40, w: 714, h: 22, align: 'center', bold: true, fontSize: 11, color: '#e8622c', content: 'COST BREAKDOWN' }),
+      text({ x: 40, y: 40, w: 714, h: 22, align: 'center', bold: true, fontSize: 11, color: '#0F1412', content: 'COST BREAKDOWN' }),
       table(40, 76, 714, 260, COST_ROWS),
       text({ x: 554, y: 350, w: 200, h: 30, align: 'right', bold: true, fontSize: 11, content: 'TOTAL: ' }),
       text({ x: 40, y: 400, w: 714, h: 40, fontSize: 9, color: '#6b7280', content: 'Note: ' }),
@@ -164,14 +164,14 @@ export const buildDefaultQuotationPages = (): QPage[] => [
   {
     id: uid(),
     elements: [
-      text({ x: 40, y: 40, w: 714, h: 22, bold: true, fontSize: 11, color: '#e8622c', content: 'MAINTENANCE & SUPPORT POLICY' }),
+      text({ x: 40, y: 40, w: 714, h: 22, bold: true, fontSize: 11, color: '#0F1412', content: 'MAINTENANCE & SUPPORT POLICY' }),
       text({ x: 40, y: 70, w: 714, h: 60, fontSize: 10, content: '' }),
       text({ x: 40, y: 136, w: 714, h: 30, fontSize: 9, color: '#6b7280', content: 'Note: ' }),
-      text({ x: 40, y: 190, w: 714, h: 22, bold: true, fontSize: 11, color: '#e8622c', content: 'TERMS AND CONDITIONS' }),
+      text({ x: 40, y: 190, w: 714, h: 22, bold: true, fontSize: 11, color: '#0F1412', content: 'TERMS AND CONDITIONS' }),
       text({ x: 40, y: 220, w: 714, h: 140, fontSize: 10, content: '' }),
-      text({ x: 40, y: 380, w: 714, h: 22, bold: true, fontSize: 11, color: '#e8622c', content: 'PAYMENT TERMS' }),
+      text({ x: 40, y: 380, w: 714, h: 22, bold: true, fontSize: 11, color: '#0F1412', content: 'PAYMENT TERMS' }),
       text({ x: 40, y: 410, w: 714, h: 80, fontSize: 10, content: '' }),
-      text({ x: 40, y: 510, w: 714, h: 22, bold: true, fontSize: 11, color: '#e8622c', content: 'AGREEMENT NOTE' }),
+      text({ x: 40, y: 510, w: 714, h: 22, bold: true, fontSize: 11, color: '#0F1412', content: 'AGREEMENT NOTE' }),
       text({ x: 40, y: 540, w: 714, h: 80, fontSize: 10, content: '' }),
       text({ x: 40, y: 660, w: 300, h: 50, fontSize: 10, bold: true, content: '' }),
     ],
@@ -205,7 +205,7 @@ const EMPTY_META: QuotationMeta = {
   clientName: '',
   clientEmail: '',
   validUntil: '',
-  accentColor: '#e8622c',
+  accentColor: '#0F1412',
   fontFamily: 'Helvetica',
   showTotalAmount: true,
   totalAmount: '',
@@ -250,7 +250,7 @@ export const QuotationEditorPage: React.FC = () => {
           clientName: q.clientName || '',
           clientEmail: q.clientEmail || '',
           validUntil: q.validUntil ? String(q.validUntil).slice(0, 10) : '',
-          accentColor: q.accentColor || '#e8622c',
+          accentColor: q.accentColor || '#0F1412',
           fontFamily: q.fontFamily || 'Helvetica',
           showTotalAmount: q.showTotalAmount !== false,
           totalAmount: q.totalAmount || '',

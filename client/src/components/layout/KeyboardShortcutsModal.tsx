@@ -25,7 +25,8 @@ const GROUPS: ShortcutGroup[] = [
     title: 'Leads Pipeline & Client Projects',
     rows: [
       { keys: ['/'], description: 'Jump to the search field' },
-      { keys: ['N'], description: 'Add a new lead or project' },
+      { keys: ['n'], description: 'Add a new lead or project' },
+      { keys: ['Enter'], description: 'Open the focused card (or Space)' },
       {
         keys: [],
         description:

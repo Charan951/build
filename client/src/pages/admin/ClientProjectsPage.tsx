@@ -138,7 +138,13 @@ export const ClientProjectsPage: React.FC = () => {
       })
       .catch((err: any) => {
         console.error('Failed to change project status:', err);
-        setProjects((prev) => prev.map((p) => (p._id === projectId ? { ...p, status: previousStatus! } : p)));
+        // Only revert if this project is still showing the status *this*
+        // request set - if a second, faster move already landed and changed
+        // it again, reverting unconditionally would stomp that newer,
+        // server-confirmed value with stale local state and no visible sign.
+        setProjects((prev) =>
+          prev.map((p) => (p._id === projectId && p.status === status ? { ...p, status: previousStatus! } : p))
+        );
         showToast('error', err.message || 'Failed to move project. It has been moved back.');
       });
   };

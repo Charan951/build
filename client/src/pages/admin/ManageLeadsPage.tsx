@@ -408,8 +408,12 @@ export const ManageLeadsPage: React.FC = () => {
     } catch (err: any) {
       console.error('Failed to change lead stage:', err);
       if (revertToStatus !== undefined) {
+        // Only revert if this lead is still showing the status *this* request
+        // set - if a second, faster move already landed and changed it again,
+        // reverting unconditionally would stomp that newer, server-confirmed
+        // value with stale local state and no way for the user to notice.
         setLeads((prevLeads) =>
-          prevLeads.map((l) => (l._id === leadId ? { ...l, status: revertToStatus } : l))
+          prevLeads.map((l) => (l._id === leadId && l.status === newStageName ? { ...l, status: revertToStatus } : l))
         );
       }
       showToast('error', err.message || 'Failed to move lead. It has been moved back.');

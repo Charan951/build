@@ -288,13 +288,18 @@ export const AdminLayout: React.FC = () => {
             {sidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
           <span className="font-display text-base font-bold text-dark">{activeLabel}</span>
+          {/* Labeled, bordered - not icon-only - so this is actually discoverable
+              on a first visit rather than something you have to already know
+              to look for (the prior icon-only version was flagged as too easy
+              to miss for anyone who wants documentation before acting). */}
           <button
             onClick={() => setShortcutsOpen(true)}
             aria-label="Keyboard shortcuts and help"
             title="Keyboard shortcuts (?)"
-            className="focus-ring ml-auto p-2 rounded-lg hover:bg-dark/5 transition-colors text-slateText hover:text-dark"
+            className="focus-ring ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-operateMd border border-dark/10 text-slateText hover:text-dark hover:border-dark/20 hover:bg-dark/[0.02] transition-colors text-xs font-semibold"
           >
-            <HelpCircle className="w-4.5 h-4.5" />
+            <HelpCircle className="w-4 h-4" />
+            <span className="hidden sm:inline">Help</span>
           </button>
         </header>
 

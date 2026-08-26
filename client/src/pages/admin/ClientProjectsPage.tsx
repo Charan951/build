@@ -111,6 +111,15 @@ export const ClientProjectsPage: React.FC = () => {
     moveProject(projectId, status);
   };
 
+  // Per-project request-sequence counter - see ManageLeadsPage's moveSeqRef
+  // for the full rationale. A status-string guard can't tell two requests
+  // apart when they target the *same* column (e.g. an impatient
+  // double-click), so a late failure from the first could still revert a
+  // newer, server-confirmed success from the second. A monotonic sequence
+  // number identifies which request is actually newest regardless of
+  // whether its target value happens to match an earlier one.
+  const moveSeqRef = useRef<Record<string, number>>({});
+
   // Shared move-with-undo path: optimistic update, server persistence, revert
   // + error toast on failure, or a success toast with an Undo action on
   // success - a stage move is easy to trigger by accident (a stray drag),
@@ -121,30 +130,38 @@ export const ClientProjectsPage: React.FC = () => {
     const previousStatus = project?.status;
     if (!project || previousStatus === status) return;
 
+    const seq = (moveSeqRef.current[projectId] || 0) + 1;
+    moveSeqRef.current[projectId] = seq;
+
     setProjects((prev) => prev.map((p) => (p._id === projectId ? { ...p, status } : p)));
 
     apiFetch(`/crm/projects/${projectId}`, { method: 'PUT', token, body: JSON.stringify({ status }) })
       .then((res) => {
         if (res.success) {
           fetchProjects();
-          const columnLabel = COLUMNS.find((c) => c.id === columnOf(status))?.label || status;
-          showToast('success', `${project.projectName} moved to ${columnLabel}.`, {
-            label: 'Undo',
-            onClick: () => moveProject(projectId, previousStatus!),
-          });
+          const isLatest = moveSeqRef.current[projectId] === seq;
+          // A newer move for this project may have started since this
+          // request was sent - if so, don't offer an Undo that would stomp it.
+          if (isLatest) {
+            const columnLabel = COLUMNS.find((c) => c.id === columnOf(status))?.label || status;
+            showToast('success', `${project.projectName} moved to ${columnLabel}.`, {
+              label: 'Undo',
+              onClick: () => moveProject(projectId, previousStatus!),
+            });
+          }
         } else {
           throw new Error(res.message || 'Failed to move project.');
         }
       })
       .catch((err: any) => {
         console.error('Failed to change project status:', err);
-        // Only revert if this project is still showing the status *this*
-        // request set - if a second, faster move already landed and changed
-        // it again, reverting unconditionally would stomp that newer,
-        // server-confirmed value with stale local state and no visible sign.
-        setProjects((prev) =>
-          prev.map((p) => (p._id === projectId && p.status === status ? { ...p, status: previousStatus! } : p))
-        );
+        const isLatest = moveSeqRef.current[projectId] === seq;
+        // Only revert if no newer move for this project has started since -
+        // otherwise a late failure from a superseded request would stomp a
+        // newer, possibly already-successful move.
+        if (isLatest) {
+          setProjects((prev) => prev.map((p) => (p._id === projectId ? { ...p, status: previousStatus! } : p)));
+        }
         showToast('error', err.message || 'Failed to move project. It has been moved back.');
       });
   };

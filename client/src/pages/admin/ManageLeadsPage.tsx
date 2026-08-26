@@ -357,6 +357,20 @@ export const ManageLeadsPage: React.FC = () => {
     await moveLead(leadId, targetStageName);
   };
 
+  // Per-lead request-sequence counter. A status-string comparison ("is this
+  // lead still showing the value I set?") looked like enough of a guard
+  // against a stale failure clobbering a newer success, but it breaks when
+  // two requests target the *same* stage (e.g. an impatient double-click
+  // firing before the first optimistic update re-renders): both requests
+  // read the same previousStatus, both set the same newStageName, so a
+  // status-string check can't tell them apart - a late failure from the
+  // first can still revert a real, server-confirmed success from the
+  // second. A monotonic per-lead sequence number identifies which request
+  // is actually the newest, regardless of what value it happens to share
+  // with an earlier one, so only the request that's still "latest" when it
+  // resolves is allowed to touch state.
+  const moveSeqRef = useRef<Record<string, number>>({});
+
   // Shared by drag-drop and the keyboard "Move to stage" select so both paths
   // get the same optimistic update, server persistence, and an Undo toast on
   // success (a stage move is easy to trigger by accident, so the emergency
@@ -367,6 +381,9 @@ export const ManageLeadsPage: React.FC = () => {
     const previousStatus = lead?.status;
     if (!lead || previousStatus === targetStageName) return;
 
+    const seq = (moveSeqRef.current[leadId] || 0) + 1;
+    moveSeqRef.current[leadId] = seq;
+
     setLeads((prevLeads) =>
       prevLeads.map((l) => (l._id === leadId ? { ...l, status: targetStageName } : l))
     );
@@ -374,6 +391,7 @@ export const ManageLeadsPage: React.FC = () => {
     await handleStageChange(leadId, targetStageName, previousStatus, {
       showUndo: true,
       leadName: lead.name || 'Lead',
+      seq,
     });
   };
 
@@ -381,7 +399,7 @@ export const ManageLeadsPage: React.FC = () => {
     leadId: string,
     newStageName: string,
     revertToStatus?: string,
-    options?: { showUndo?: boolean; leadName?: string }
+    options?: { showUndo?: boolean; leadName?: string; seq?: number }
   ) => {
     try {
       const response = await fetch(getApiUrl(`/leads/${leadId}/status`), {
@@ -396,7 +414,11 @@ export const ManageLeadsPage: React.FC = () => {
       const data = await response.json();
       if (response.ok && data.success) {
         fetchPipelineData(true);
-        if (options?.showUndo && revertToStatus !== undefined) {
+        // A newer move for this lead may have started since this request was
+        // sent - if so, this one is superseded and shouldn't offer an Undo
+        // that would stomp whatever the newer move is doing.
+        const isLatest = options?.seq === undefined || moveSeqRef.current[leadId] === options.seq;
+        if (options?.showUndo && revertToStatus !== undefined && isLatest) {
           showToast('success', `${options.leadName || 'Lead'} moved to ${newStageName}.`, {
             label: 'Undo',
             onClick: () => moveLead(leadId, revertToStatus),
@@ -407,13 +429,13 @@ export const ManageLeadsPage: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Failed to change lead stage:', err);
-      if (revertToStatus !== undefined) {
-        // Only revert if this lead is still showing the status *this* request
-        // set - if a second, faster move already landed and changed it again,
-        // reverting unconditionally would stomp that newer, server-confirmed
-        // value with stale local state and no way for the user to notice.
+      const isLatest = options?.seq === undefined || moveSeqRef.current[leadId] === options.seq;
+      if (revertToStatus !== undefined && isLatest) {
+        // Only revert if no newer move for this lead has started since -
+        // otherwise a late failure from a superseded request would stomp a
+        // newer, possibly already-successful move.
         setLeads((prevLeads) =>
-          prevLeads.map((l) => (l._id === leadId && l.status === newStageName ? { ...l, status: revertToStatus } : l))
+          prevLeads.map((l) => (l._id === leadId ? { ...l, status: revertToStatus } : l))
         );
       }
       showToast('error', err.message || 'Failed to move lead. It has been moved back.');

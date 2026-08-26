@@ -299,7 +299,7 @@ export const AdminLayout: React.FC = () => {
             className="focus-ring ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-operateMd border border-dark/10 text-slateText hover:text-dark hover:border-dark/20 hover:bg-dark/[0.02] transition-colors text-xs font-semibold"
           >
             <HelpCircle className="w-4 h-4" />
-            <span className="hidden sm:inline">Help</span>
+            <span>Help</span>
           </button>
         </header>
 

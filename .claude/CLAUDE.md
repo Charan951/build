@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Design tokens and visual rules live in `DESIGN.md`. Product context, users, and positioning live in `PRODUCT.md`. Current state, decision history, and known issues live in `MEMORY.md`. This file holds only what's permanent and not already covered there: commands, the code map, and structural rules a session needs before making changes.
+Design tokens and visual rules live in `DESIGN.md`. Product context, users, and positioning live in `PRODUCT.md`. Current state, decision history, and known issues live in `MEMORY.md`. A chronological, append-only record of shipped features lives in `log.md` — after every feature or fix lands (verified and committed), add one entry to `log.md`; keep it a running log, not a curated summary (that's `MEMORY.md`'s job). This file holds only what's permanent and not already covered there: commands, the code map, and structural rules a session needs before making changes.
 
 ## Commands
 

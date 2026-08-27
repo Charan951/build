@@ -2,6 +2,10 @@
 
 Append-only, reverse-chronological record of shipped features and fixes. Each entry is `YYYY-MM-DD HH:MM (timezone) — Task/Feature Name`, one entry per feature — updated after every feature lands. For current state, engineering decisions, and known issues, see `MEMORY.md` instead; this file is the chronological trail, not the curated summary.
 
+## 2026-08-27 12:40 IST — Enhance client portal (all pages)
+
+`/impeccable` polish/delight pass on `ClientPortalDashboardPage` and `ClientProjectDetailPage` (already Operate-mode compliant and audit/critique-clean from earlier passes — this was a genuine craft uplift, not bug fixing). Added a shared `PortalTabs` component with real `role="tablist"` semantics, arrow-key navigation, and a sliding active-tab indicator (Navbar's existing `layoutId` pattern); added an "Up Next" strip surfacing the nearest upcoming meeting and nearest unpaid invoice; file list now picks an icon by mimeType instead of one generic glyph; project-card progress bars animate their width in on mount; money/percentage figures use `tabular-nums`; replaced the bare loading spinner with a proper skeleton matching the page layout, and made `Spinner.CardSkeleton` itself Operate-mode aware.
+
 ## 2026-08-27 12:28 IST — Set up standard 3-tier CLAUDE.md structure
 
 Moved `CLAUDE.md` from `.claude/CLAUDE.md` back to the repo root (Claude Code's documented auto-load convention), and added an empty, gitignored `CLAUDE.local.md` at the root for personal/machine-local overrides. Completes the standard tier: `~/.claude/CLAUDE.md` (global, untouched) → `./CLAUDE.md` (project) → `./CLAUDE.local.md` (personal). Updated `MEMORY.md`'s cross-references to match.

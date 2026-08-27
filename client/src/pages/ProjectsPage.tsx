@@ -56,9 +56,18 @@ export const ProjectsPage: React.FC = () => {
             <Spinner.CardSkeleton key={i} />
           ))}
         </div>
+      ) : projects.length > 0 && filteredProjects.length === 0 ? (
+        // Real projects exist but none match this category - show that
+        // honestly instead of silently falling through to
+        // FeaturedProjectsSection's unrelated sample fallback data, which
+        // would look like a match for the filter the visitor just picked.
+        <div className="py-16 text-center">
+          <p className="text-lg font-semibold text-dark">No {selectedCategory} projects yet.</p>
+          <p className="text-slateText text-sm mt-2">Check back soon, or explore another category above.</p>
+        </div>
       ) : (
         <FeaturedProjectsSection
-          projects={filteredProjects.length > 0 ? filteredProjects : undefined}
+          projects={projects.length > 0 ? filteredProjects : undefined}
           showHeadings={false}
           showViewAllBtn={false}
         />

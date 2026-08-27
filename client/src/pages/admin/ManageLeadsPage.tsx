@@ -564,32 +564,36 @@ export const ManageLeadsPage: React.FC = () => {
           />
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-2.5 rounded-operateMd bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
-            title="Import leads from Excel (.xlsx, .xls) or CSV"
-          >
-            <Upload className="w-3.5 h-3.5" /> Import
-          </button>
-
+          {/* Import and Export used to be two separate always-visible buttons;
+              combined into one "Data" menu since this toolbar was stacking
+              6+ top-level actions at once - past the cognitive-load
+              guideline of ~4 simultaneous choices for a first-time admin. */}
           <div className="relative" ref={exportDropdownRef}>
             <button
               onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
               aria-expanded={isExportDropdownOpen}
               aria-haspopup="menu"
               className="px-3 py-2.5 rounded-operateMd bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
-              title={
-                searchTerm.trim()
-                  ? `Export the ${filteredLeads.length} matching lead(s)`
-                  : 'Export leads to Excel or CSV'
-              }
+              title="Import or export leads"
             >
-              <Download className="w-3.5 h-3.5" /> Export{searchTerm.trim() ? ` (${filteredLeads.length})` : ''}
+              <Download className="w-3.5 h-3.5" /> Data{searchTerm.trim() ? ` (${filteredLeads.length} shown)` : ''}
               <ChevronDown className="w-3 h-3 text-slateText ml-0.5" />
             </button>
 
             {isExportDropdownOpen && (
-              <div role="menu" className="absolute right-0 mt-2 w-48 bg-white rounded-operateMd shadow-2xl border border-dark/10 py-1.5 z-50 animate-in fade-in zoom-in duration-150">
+              <div role="menu" className="absolute right-0 mt-2 w-56 bg-white rounded-operateMd shadow-2xl border border-dark/10 py-1.5 z-50 animate-in fade-in zoom-in duration-150">
+                <button
+                  role="menuitem"
+                  onClick={() => {
+                    setIsExportDropdownOpen(false);
+                    fileInputRef.current?.click();
+                  }}
+                  className="w-full px-4 py-2 text-left text-xs font-bold text-dark hover:bg-lime-50 hover:text-dark transition-colors flex items-center gap-2"
+                >
+                  <Upload className="w-4 h-4 text-slateText" />
+                  Import (.xlsx, .xls, .csv)
+                </button>
+                <div className="my-1 border-t border-dark/5" />
                 <button
                   role="menuitem"
                   onClick={() => handleExport('xlsx')}

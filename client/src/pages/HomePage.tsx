@@ -327,7 +327,7 @@ export const HomePage: React.FC = () => {
     },
     {
       q: 'How long does a typical software project take to deliver?',
-      a: 'Initial MVPs and phase-1 agency builds typically launch within 6 to 10 weeks depending on scope, with iterative weekly deployment milestones.',
+      a: 'A complete MVP — website, admin panel, and Android & iOS apps — ships in 5 days. That’s a standard commitment, not a best-case estimate.',
     },
     {
       q: 'Do you provide ongoing support and maintenance after release?',

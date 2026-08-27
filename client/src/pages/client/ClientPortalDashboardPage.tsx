@@ -74,6 +74,19 @@ export const ClientPortalDashboardPage: React.FC = () => {
   const [uploadingFile, setUploadingFile] = useState(false);
   const [deleteFileTarget, setDeleteFileTarget] = useState<string | null>(null);
 
+  // Replaces raw alert()/silent-failure error handling on file actions - this
+  // is the highest-stakes moment in the portal (a client checking whether
+  // their own file action worked), so it gets the same styled, announced
+  // toast pattern used everywhere else in the admin/portal surfaces rather
+  // than a jarring native dialog or no feedback at all.
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showToast = (type: 'success' | 'error', text: string) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ type, text });
+    toastTimerRef.current = setTimeout(() => setToast(null), 5000);
+  };
+
   const fetchFiles = () => {
     apiFetch('/portal/files', { token }).then((res) => {
       if (res.success) setFiles(res.data || []);
@@ -119,10 +132,14 @@ export const ClientPortalDashboardPage: React.FC = () => {
         body: formData,
       });
       const data = await response.json();
-      if (data.success) fetchFiles();
-      else alert(data.message || 'Failed to upload file.');
+      if (data.success) {
+        fetchFiles();
+        showToast('success', 'File uploaded successfully.');
+      } else {
+        showToast('error', data.message || 'Failed to upload file.');
+      }
     } catch (err: any) {
-      alert(err.message || 'Error uploading file.');
+      showToast('error', err.message || 'Error uploading file.');
     } finally {
       setUploadingFile(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -132,8 +149,16 @@ export const ClientPortalDashboardPage: React.FC = () => {
   const handleDeleteFile = (fileId: string) => {
     apiFetch(`/portal/files/${fileId}`, { method: 'DELETE', token })
       .then((res) => {
-        if (res.success) fetchFiles();
+        if (res.success) {
+          fetchFiles();
+          showToast('success', 'File deleted.');
+        } else {
+          // Previously failed completely silently here - no alert, no
+          // message, nothing - the worst version of this gap.
+          showToast('error', res.message || 'Failed to delete file.');
+        }
       })
+      .catch(() => showToast('error', 'Failed to delete file.'))
       .finally(() => setDeleteFileTarget(null));
   };
 
@@ -193,6 +218,18 @@ export const ClientPortalDashboardPage: React.FC = () => {
     <OperateModeProvider>
     <div data-operate-mode="true" className="min-h-screen bg-background">
       <SEOHead title="Client Portal | Build Your Thoughts" />
+
+      {toast && (
+        <div
+          role="status"
+          aria-live={toast.type === 'error' ? 'assertive' : 'polite'}
+          className={`fixed top-6 right-6 z-50 max-w-sm px-4 py-3 rounded-operateLg text-white text-xs font-semibold shadow-hover ${
+            toast.type === 'error' ? 'bg-rose-600' : 'bg-dark'
+          }`}
+        >
+          {toast.text}
+        </div>
+      )}
 
       {/* Top bar */}
       <div className="sticky top-0 z-20 bg-dark text-white border-b border-white/10">

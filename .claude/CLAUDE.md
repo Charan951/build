@@ -4,6 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Design tokens and visual rules live in `DESIGN.md`. Product context, users, and positioning live in `PRODUCT.md`. Current state, decision history, and known issues live in `MEMORY.md`. A chronological, append-only record of shipped features lives in `log.md` — after every feature or fix lands (verified and committed), add one entry to `log.md`; keep it a running log, not a curated summary (that's `MEMORY.md`'s job). This file holds only what's permanent and not already covered there: commands, the code map, and structural rules a session needs before making changes.
 
+**Before starting any new task, skim `log.md` first.** It's the fastest way to check whether something similar was already built, already fixed, or already tried and rejected, without re-reading the source files or re-deriving context from scratch — cheaper in tokens and avoids redoing settled work. Cross-check against the actual code before relying on it for anything that affects current behavior (the log records what shipped, not necessarily what's still true if something changed since) — treat it as a lead to verify, not a fact to assume.
+
 ## Commands
 
 Two-app monorepo (`client/`, `server/`); root `package.json` only has passthrough scripts:

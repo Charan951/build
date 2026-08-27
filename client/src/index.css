@@ -89,6 +89,16 @@ html, body {
   animation-play-state: paused;
 }
 
+/* Non-essential, perpetually-scrolling motion - a vestibular-sensitive
+   visitor who has set the OS-level reduce-motion preference gets a static
+   row instead of an unstoppable ticker (the site's Reveal/Stagger/FadeIn
+   entrance primitives already do this; this is the same rule for marquees). */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+}
+
 /* Canonical keyboard-focus treatment — apply instead of reinventing a
    focus-visible ring per component. Use .focus-ring-inverse on dark/lime
    surfaces where the default offset color (white) would be invisible. */

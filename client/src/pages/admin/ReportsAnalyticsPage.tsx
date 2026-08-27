@@ -78,7 +78,7 @@ export const ReportsAnalyticsPage: React.FC = () => {
           <p className="text-slateText text-sm">Failed to load financial analytics.</p>
           <button
             onClick={fetchAnalytics}
-            className="focus-ring px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+            className="focus-ring px-4 py-2 rounded-operateMd bg-dark text-white text-xs font-bold hover:bg-dark/90"
           >
             Retry
           </button>
@@ -91,7 +91,7 @@ export const ReportsAnalyticsPage: React.FC = () => {
               <Card key={tile.label} className="h-full min-h-[128px] p-5 flex flex-col justify-between">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-[11px] font-bold text-slateText uppercase tracking-wide leading-tight">{tile.label}</p>
-                  <div className={`w-9 h-9 rounded-xl ${tile.iconBg} flex items-center justify-center ${tile.accent} shrink-0`}>
+                  <div className={`w-9 h-9 rounded-operateMd ${tile.iconBg} flex items-center justify-center ${tile.accent} shrink-0`}>
                     <tile.icon className="w-4.5 h-4.5" />
                   </div>
                 </div>
@@ -107,7 +107,7 @@ export const ReportsAnalyticsPage: React.FC = () => {
               {summaryRows.map((row) => (
                 <div key={row.label} className="flex items-center justify-between py-3.5">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-background flex items-center justify-center text-dark shrink-0">
+                    <div className="w-9 h-9 rounded-operateMd bg-background flex items-center justify-center text-dark shrink-0">
                       <row.icon className="w-4 h-4" />
                     </div>
                     <span className="text-xs font-bold text-slateText">{row.label}</span>

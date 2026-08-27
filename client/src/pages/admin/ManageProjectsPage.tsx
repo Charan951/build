@@ -266,13 +266,13 @@ export const ManageProjectsPage: React.FC = () => {
       </div>
 
       {errorMsg && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-sm font-medium">
+        <div className="p-4 rounded-operateMd bg-rose-50 border border-rose-200 text-rose-600 text-sm font-medium">
           {errorMsg}
         </div>
       )}
 
       {successMsg && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 text-sm font-medium">
+        <div className="p-4 rounded-operateMd bg-emerald-50 border border-emerald-200 text-emerald-600 text-sm font-medium">
           {successMsg}
         </div>
       )}
@@ -289,7 +289,7 @@ export const ManageProjectsPage: React.FC = () => {
               aria-label="Search projects"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="focus-ring w-full pl-11 pr-4 py-2.5 rounded-2xl bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
+              className="focus-ring w-full pl-11 pr-4 py-2.5 rounded-operateLg bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -301,7 +301,7 @@ export const ManageProjectsPage: React.FC = () => {
               id="project-category-filter"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="focus-ring px-4 py-2 rounded-2xl bg-background border border-dark/10 text-xs font-bold text-dark focus:outline-none"
+              className="focus-ring px-4 py-2 rounded-operateLg bg-background border border-dark/10 text-xs font-bold text-dark focus:outline-none"
             >
               <option value="All">All Categories</option>
               <option value="Enterprise">Enterprise</option>
@@ -311,7 +311,7 @@ export const ManageProjectsPage: React.FC = () => {
               <option value="UI/UX">UI/UX</option>
             </select>
 
-            <button onClick={fetchProjects} aria-label="Refresh" className="focus-ring p-2.5 rounded-2xl border border-dark/10 hover:bg-background text-dark" title="Refresh">
+            <button onClick={fetchProjects} aria-label="Refresh" className="focus-ring p-2.5 rounded-operateLg border border-dark/10 hover:bg-background text-dark" title="Refresh">
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
           </div>
@@ -329,7 +329,7 @@ export const ManageProjectsPage: React.FC = () => {
                 <th className="py-3 px-4">Category</th>
                 <th className="py-3 px-4">Home Showcase</th>
                 <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right sticky right-0 bg-white border-l border-dark/10">Actions</th>
+                <th className="py-3 px-4 text-right sticky right-0 bg-white border-l border-dark/10 shadow-[-6px_0_8px_-4px_rgba(0,0,0,0.08)]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-dark/5 text-sm font-medium">
@@ -347,7 +347,7 @@ export const ManageProjectsPage: React.FC = () => {
                         <img
                           src={proj.heroImage}
                           alt={proj.title}
-                          className="w-12 h-12 rounded-xl object-cover border border-dark/10 bg-dark/5 shrink-0"
+                          className="w-12 h-12 rounded-operateMd object-cover border border-dark/10 bg-dark/5 shrink-0"
                         />
                         <div className="min-w-0">
                           <span className="font-bold text-dark text-base block truncate max-w-xs">{proj.title}</span>
@@ -367,7 +367,7 @@ export const ManageProjectsPage: React.FC = () => {
                         type="button"
                         onClick={() => handleToggleFeatured(proj)}
                         aria-pressed={proj.featured}
-                        className={`focus-ring px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors shrink-0 ${
+                        className={`focus-ring px-3 py-1.5 rounded-operateMd text-xs font-bold border transition-colors shrink-0 ${
                           proj.featured
                             ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/20'
                             : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200'
@@ -379,12 +379,12 @@ export const ManageProjectsPage: React.FC = () => {
                     <td className="py-4 px-4">
                       <Badge variant={proj.status === 'published' ? 'lime' : 'dark'}>{proj.status}</Badge>
                     </td>
-                    <td className="py-4 px-4 text-right sticky right-0 bg-white group-hover:bg-background/50 border-l border-dark/10 transition-colors">
+                    <td className="py-4 px-4 text-right sticky right-0 bg-white group-hover:bg-background/50 border-l border-dark/10 shadow-[-6px_0_8px_-4px_rgba(0,0,0,0.08)] transition-colors">
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => handleOpenView(proj)}
                           aria-label="View Details"
-                          className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
+                          className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-operateMd transition-colors"
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />
@@ -392,7 +392,7 @@ export const ManageProjectsPage: React.FC = () => {
                         <button
                           onClick={() => handleOpenEdit(proj)}
                           aria-label="Edit"
-                          className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
+                          className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-operateMd transition-colors"
                           title="Edit"
                         >
                           <Edit className="w-4 h-4" />
@@ -400,7 +400,7 @@ export const ManageProjectsPage: React.FC = () => {
                         <button
                           onClick={() => setDeleteTarget(proj._id)}
                           aria-label="Delete"
-                          className="focus-ring p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                          className="focus-ring p-2 text-rose-600 hover:bg-rose-50 rounded-operateMd transition-colors"
                           title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -433,7 +433,7 @@ export const ManageProjectsPage: React.FC = () => {
                 value={formData.title}
                 onChange={handleTitleChange}
                 placeholder="e.g. Fintech Mobile Platform"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
 
@@ -445,7 +445,7 @@ export const ManageProjectsPage: React.FC = () => {
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                 placeholder="e.g. fintech-mobile-platform"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
 
@@ -457,7 +457,7 @@ export const ManageProjectsPage: React.FC = () => {
                 value={formData.client}
                 onChange={(e) => setFormData({ ...formData, client: e.target.value })}
                 placeholder="e.g. Apex Global Bank"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
 
@@ -469,7 +469,7 @@ export const ManageProjectsPage: React.FC = () => {
                 value={formData.industry}
                 onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
                 placeholder="e.g. Financial Services"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
 
@@ -478,7 +478,7 @@ export const ManageProjectsPage: React.FC = () => {
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm font-semibold text-dark focus:outline-none"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm font-semibold text-dark focus:outline-none"
               >
                 <option value="Enterprise">Enterprise</option>
                 <option value="AI">AI</option>
@@ -496,7 +496,7 @@ export const ManageProjectsPage: React.FC = () => {
                 value={formData.location || ''}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 placeholder="e.g. Kota, India or San Francisco, USA"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
 
@@ -507,7 +507,7 @@ export const ManageProjectsPage: React.FC = () => {
                 value={formData.websiteUrl || ''}
                 onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
                 placeholder="e.g. https://www.buildyourthougths.in/"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
 
@@ -518,7 +518,7 @@ export const ManageProjectsPage: React.FC = () => {
                 value={formData.playStoreUrl || ''}
                 onChange={(e) => setFormData({ ...formData, playStoreUrl: e.target.value })}
                 placeholder="e.g. https://play.google.com/store/apps/details?id=..."
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
 
@@ -529,7 +529,7 @@ export const ManageProjectsPage: React.FC = () => {
                 value={formData.appStoreUrl || ''}
                 onChange={(e) => setFormData({ ...formData, appStoreUrl: e.target.value })}
                 placeholder="e.g. https://apps.apple.com/app/..."
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
 
@@ -538,7 +538,7 @@ export const ManageProjectsPage: React.FC = () => {
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm font-semibold text-dark focus:outline-none"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm font-semibold text-dark focus:outline-none"
               >
                 <option value="published">Published</option>
                 <option value="draft">Draft</option>
@@ -550,7 +550,7 @@ export const ManageProjectsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, featured: !formData.featured })}
-                className={`w-full px-4 py-2.5 rounded-xl text-xs font-bold border transition-colors flex items-center justify-between ${
+                className={`w-full px-4 py-2.5 rounded-operateMd text-xs font-bold border transition-colors flex items-center justify-between ${
                   formData.featured
                     ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'
                     : 'bg-gray-100 text-gray-500 border-gray-200'
@@ -570,7 +570,7 @@ export const ManageProjectsPage: React.FC = () => {
               value={formData.tagline}
               onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
               placeholder="e.g. Next-gen digital banking for 2M+ active users"
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -582,7 +582,7 @@ export const ManageProjectsPage: React.FC = () => {
               value={formData.heroImage}
               onChange={(e) => setFormData({ ...formData, heroImage: e.target.value })}
               placeholder="https://images.unsplash.com/..."
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -594,7 +594,7 @@ export const ManageProjectsPage: React.FC = () => {
               value={formData.summary}
               onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
               placeholder="Brief overview of project goals and scope..."
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -607,7 +607,7 @@ export const ManageProjectsPage: React.FC = () => {
                 value={formData.challenge}
                 onChange={(e) => setFormData({ ...formData, challenge: e.target.value })}
                 placeholder="What legacy problems did the client face?"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
             <div>
@@ -618,7 +618,7 @@ export const ManageProjectsPage: React.FC = () => {
                 value={formData.solution}
                 onChange={(e) => setFormData({ ...formData, solution: e.target.value })}
                 placeholder="How did our engineering team solve it?"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
           </div>
@@ -631,7 +631,7 @@ export const ManageProjectsPage: React.FC = () => {
               value={formData.technicalArchitecture}
               onChange={(e) => setFormData({ ...formData, technicalArchitecture: e.target.value })}
               placeholder="System design, microservices, cloud infrastructure details..."
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -642,7 +642,7 @@ export const ManageProjectsPage: React.FC = () => {
               value={techStackInput}
               onChange={(e) => setTechStackInput(e.target.value)}
               placeholder="React, TypeScript, Node.js, GraphQL, PostgreSQL"
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -670,7 +670,7 @@ export const ManageProjectsPage: React.FC = () => {
             <img
               src={viewProject.heroImage}
               alt={viewProject.title}
-              className="w-full h-64 object-cover rounded-2xl border border-dark/10"
+              className="w-full h-64 object-cover rounded-operateLg border border-dark/10"
             />
 
             <div>
@@ -683,7 +683,7 @@ export const ManageProjectsPage: React.FC = () => {
               <p className="text-sm leading-relaxed">{viewProject.summary}</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-2xl bg-background border border-dark/5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-operateLg bg-background border border-dark/5">
               <div>
                 <h4 className="font-bold text-xs uppercase text-slateText mb-1">Challenge</h4>
                 <p className="text-sm">{viewProject.challenge}</p>

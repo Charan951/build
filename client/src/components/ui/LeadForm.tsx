@@ -116,7 +116,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({
 
   if (successDisplay === 'replace' && submitted) {
     return (
-      <div className="p-4 rounded-form bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold text-center">
+      <div role="status" aria-live="polite" className="p-4 rounded-form bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold text-center">
         {successReplaceMessage}
       </div>
     );
@@ -125,13 +125,13 @@ export const LeadForm: React.FC<LeadFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className={variant === 'full' ? 'space-y-6' : 'space-y-3'}>
       {successDisplay === 'banner' && successMsg && (
-        <div className="p-4 rounded-form bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3">
+        <div role="status" aria-live="polite" className="p-4 rounded-form bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
           <span className="text-sm font-semibold">{successMsg}</span>
         </div>
       )}
       {successDisplay === 'banner' && errorMsg && (
-        <div className="p-4 rounded-form bg-rose-50 border border-rose-200 text-rose-800 flex items-center gap-3">
+        <div role="alert" aria-live="assertive" className="p-4 rounded-form bg-rose-50 border border-rose-200 text-rose-800 flex items-center gap-3">
           <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
           <span className="text-sm font-semibold">{errorMsg}</span>
         </div>

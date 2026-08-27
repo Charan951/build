@@ -146,7 +146,7 @@ export const ProjectFormPage: React.FC = () => {
       </div>
 
       {error && (
-        <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+        <div className="p-3 rounded-operateMd bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
           {error}
         </div>
       )}
@@ -165,7 +165,7 @@ export const ProjectFormPage: React.FC = () => {
               placeholder="e.g., Website Redesign"
               value={form.projectName}
               onChange={(e) => setForm({ ...form, projectName: e.target.value })}
-              className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm focus:outline-none focus:border-dark"
+              className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-sm focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -176,7 +176,7 @@ export const ProjectFormPage: React.FC = () => {
               placeholder="Brief description of the project..."
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm resize-none focus:outline-none focus:border-dark"
+              className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-sm resize-none focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -186,7 +186,7 @@ export const ProjectFormPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setForm({ ...form, projectType: 'one_off' })}
-                className={`p-3 rounded-xl border text-left transition-all ${
+                className={`p-3 rounded-operateMd border text-left transition-all ${
                   form.projectType === 'one_off' ? 'border-primary bg-lime-50/50' : 'border-dark/10 hover:border-dark/20'
                 }`}
               >
@@ -196,7 +196,7 @@ export const ProjectFormPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setForm({ ...form, projectType: 'retainer' })}
-                className={`p-3 rounded-xl border text-left transition-all ${
+                className={`p-3 rounded-operateMd border text-left transition-all ${
                   form.projectType === 'retainer' ? 'border-primary bg-lime-50/50' : 'border-dark/10 hover:border-dark/20'
                 }`}
               >
@@ -215,7 +215,7 @@ export const ProjectFormPage: React.FC = () => {
                 required
                 value={form.clientId}
                 onChange={(e) => setForm({ ...form, clientId: e.target.value })}
-                className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm font-semibold"
+                className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-sm font-semibold"
               >
                 <option value="">Select client</option>
                 {clients.map((c) => (
@@ -230,7 +230,7 @@ export const ProjectFormPage: React.FC = () => {
               <select
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
-                className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm font-semibold"
+                className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-sm font-semibold"
               >
                 {STATUS_OPTIONS.map((s) => (
                   <option key={s.value} value={s.value}>
@@ -251,7 +251,7 @@ export const ProjectFormPage: React.FC = () => {
               placeholder="0.00"
               value={form.budget}
               onChange={(e) => setForm({ ...form, budget: e.target.value })}
-              className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
+              className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-sm"
             />
           </div>
 
@@ -262,7 +262,7 @@ export const ProjectFormPage: React.FC = () => {
                 type="date"
                 value={form.startDate}
                 onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
+                className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-sm"
               />
             </div>
             <div>
@@ -271,7 +271,7 @@ export const ProjectFormPage: React.FC = () => {
                 type="date"
                 value={form.targetDeliveryDate}
                 onChange={(e) => setForm({ ...form, targetDeliveryDate: e.target.value })}
-                className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
+                className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-sm"
               />
             </div>
           </div>
@@ -300,7 +300,7 @@ export const ProjectFormPage: React.FC = () => {
                     placeholder="example.com"
                     value={form.domainName}
                     onChange={(e) => setForm({ ...form, domainName: e.target.value })}
-                    className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
+                    className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-sm"
                   />
                 </div>
                 <div>
@@ -310,7 +310,7 @@ export const ProjectFormPage: React.FC = () => {
                     placeholder="e.g., GoDaddy"
                     value={form.domainRegistrar}
                     onChange={(e) => setForm({ ...form, domainRegistrar: e.target.value })}
-                    className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
+                    className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-sm"
                   />
                 </div>
               </div>
@@ -320,7 +320,7 @@ export const ProjectFormPage: React.FC = () => {
                   type="number"
                   value={form.domainCost}
                   onChange={(e) => setForm({ ...form, domainCost: e.target.value })}
-                  className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
+                  className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-sm"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -331,7 +331,7 @@ export const ProjectFormPage: React.FC = () => {
                     placeholder="e.g., Vercel, AWS"
                     value={form.hostingProvider}
                     onChange={(e) => setForm({ ...form, hostingProvider: e.target.value })}
-                    className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
+                    className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-sm"
                   />
                 </div>
                 <div>
@@ -340,7 +340,7 @@ export const ProjectFormPage: React.FC = () => {
                     type="number"
                     value={form.hostingCost}
                     onChange={(e) => setForm({ ...form, hostingCost: e.target.value })}
-                    className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-sm"
+                    className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-sm"
                   />
                 </div>
               </div>

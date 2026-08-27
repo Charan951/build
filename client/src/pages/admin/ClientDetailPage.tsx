@@ -237,7 +237,7 @@ export const ClientDetailPage: React.FC = () => {
           action={
             <button
               onClick={fetchClient}
-              className="focus-ring px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+              className="focus-ring px-4 py-2 rounded-operateMd bg-dark text-white text-xs font-bold hover:bg-dark/90"
             >
               Retry
             </button>
@@ -309,14 +309,14 @@ export const ClientDetailPage: React.FC = () => {
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => navigate(`/dashboard/client-projects/new?client=${id}`)}
-              className="px-4 py-2.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" /> New Project
             </button>
             <button
               onClick={() => setEditOpen(true)}
               aria-label="Edit Client"
-              className="focus-ring p-2.5 rounded-xl border border-dark/15 text-dark hover:bg-dark/5 transition-colors"
+              className="focus-ring p-2.5 rounded-operateMd border border-dark/15 text-dark hover:bg-dark/5 transition-colors"
               title="Edit Client"
             >
               <Pencil className="w-4 h-4" />
@@ -324,7 +324,7 @@ export const ClientDetailPage: React.FC = () => {
             <button
               onClick={() => setDeleteClientConfirmOpen(true)}
               aria-label="Delete Client"
-              className="focus-ring p-2.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors"
+              className="focus-ring p-2.5 rounded-operateMd border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors"
               title="Delete Client"
             >
               <Trash2 className="w-4 h-4" />
@@ -334,7 +334,7 @@ export const ClientDetailPage: React.FC = () => {
 
         {credsMsg && (
           <div
-            className={`mt-4 p-2.5 rounded-xl text-xs font-semibold ${
+            className={`mt-4 p-2.5 rounded-operateMd text-xs font-semibold ${
               credsMsg.type === 'success'
                 ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
                 : 'bg-rose-50 border border-rose-200 text-rose-700'
@@ -390,12 +390,12 @@ export const ClientDetailPage: React.FC = () => {
           </div>
 
           {client.portalAccessEnabled ? (
-            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 space-y-1">
+            <div className="p-4 rounded-operateMd bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 space-y-1">
               <p className="font-bold">Portal access is enabled for {client.companyName}.</p>
               <p>They can sign in with their billing email to follow projects, view invoices, and sign documents.</p>
             </div>
           ) : (
-            <div className="p-5 rounded-xl bg-primary/10 border border-primary/30 space-y-3">
+            <div className="p-5 rounded-operateMd bg-primary/10 border border-primary/30 space-y-3">
               <p className="text-sm font-bold text-dark">Give {client.companyName} a branded client portal</p>
               <p className="text-xs text-slateText leading-relaxed">
                 Send a portal invite so this client can follow project progress, view invoices, and sign documents
@@ -405,7 +405,7 @@ export const ClientDetailPage: React.FC = () => {
                 onClick={handleSendCredentials}
                 disabled={sendingCreds || !client.billingEmail}
                 title={!client.billingEmail ? 'Add an email first' : 'Send portal login credentials'}
-                className="px-4 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs flex items-center gap-1.5 disabled:opacity-50"
+                className="px-4 py-2 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs flex items-center gap-1.5 disabled:opacity-50"
               >
                 <KeyRound className="w-3.5 h-3.5" /> {sendingCreds ? 'Sending...' : 'Send Portal Invite'}
               </button>
@@ -435,13 +435,13 @@ export const ClientDetailPage: React.FC = () => {
                 placeholder="Search files..."
                 value={fileSearch}
                 onChange={(e) => setFileSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark shadow-sm"
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-dark/10 rounded-operateMd text-xs text-dark focus:outline-none focus:border-dark shadow-sm"
               />
             </div>
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingFile}
-              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50 shrink-0"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50 shrink-0"
             >
               <Plus className="w-3.5 h-3.5" /> {uploadingFile ? 'Uploading...' : 'Upload Files'}
             </button>
@@ -451,7 +451,7 @@ export const ClientDetailPage: React.FC = () => {
           </div>
 
           {uploadError && (
-            <p className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+            <p className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-operateMd px-3 py-2">
               {uploadError}
             </p>
           )}
@@ -472,7 +472,7 @@ export const ClientDetailPage: React.FC = () => {
               ) : filteredClientFiles.length === 0 ? (
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full p-8 rounded-xl border-2 border-dashed border-dark/15 hover:border-dark/30 bg-background/60 flex flex-col items-center justify-center gap-2 text-center transition-colors"
+                  className="w-full p-8 rounded-operateMd border-2 border-dashed border-dark/15 hover:border-dark/30 bg-background/60 flex flex-col items-center justify-center gap-2 text-center transition-colors"
                 >
                   <UploadCloud className="w-6 h-6 text-slateText" />
                   <p className="text-xs font-bold text-dark">Upload files for {client.companyName}</p>
@@ -536,7 +536,7 @@ export const ClientDetailPage: React.FC = () => {
                   {projects.map((p) => {
                     const isExpanded = expandedProjectId === p._id;
                     return (
-                      <div key={p._id} className="rounded-xl border border-dark/10 overflow-hidden">
+                      <div key={p._id} className="rounded-operateMd border border-dark/10 overflow-hidden">
                         <div className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-dark/[0.02] transition-colors">
                           <button
                             onClick={() => setExpandedProjectId(isExpanded ? null : p._id)}
@@ -597,7 +597,7 @@ export const ClientDetailPage: React.FC = () => {
               action={
                 <button
                   onClick={() => navigate(`/dashboard/client-projects/new?client=${id}`)}
-                  className="focus-ring px-4 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs flex items-center gap-1.5"
+                  className="focus-ring px-4 py-2 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs flex items-center gap-1.5"
                 >
                   <Plus className="w-3.5 h-3.5" /> New Project
                 </button>
@@ -609,7 +609,7 @@ export const ClientDetailPage: React.FC = () => {
                 <button
                   key={p._id}
                   onClick={() => navigate(`/dashboard/client-projects/${p._id}`)}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-background border border-dark/10 hover:border-primary transition-colors text-left"
+                  className="w-full flex items-center justify-between p-3 rounded-operateMd bg-background border border-dark/10 hover:border-primary transition-colors text-left"
                 >
                   <div>
                     <p className="font-bold text-xs text-dark">{p.projectName}</p>
@@ -639,7 +639,7 @@ export const ClientDetailPage: React.FC = () => {
       {/* Edit Modal */}
       <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Edit Client" maxWidth="lg">
         {formError && (
-          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+          <div className="p-3 rounded-operateMd bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
             {formError}
           </div>
         )}

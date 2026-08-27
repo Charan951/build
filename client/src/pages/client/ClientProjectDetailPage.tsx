@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Badge } from '../../components/ui/Badge';
 import { StatusPill } from '../../components/ui/StatusPill';
+import { OperateModeProvider } from '../../components/ui/OperateModeContext';
 import {
   ChevronLeft,
   ListChecks,
@@ -115,38 +116,44 @@ export const ClientProjectDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-8 h-8 border-4 border-dark/10 border-t-primary rounded-full animate-spin" />
-      </div>
+      <OperateModeProvider>
+        <div data-operate-mode="true" className="min-h-screen flex items-center justify-center bg-background">
+          <div className="w-8 h-8 border-4 border-dark/10 border-t-primary rounded-full animate-spin" />
+        </div>
+      </OperateModeProvider>
     );
   }
 
   if (loadError) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background px-6 text-center">
-        <p className="text-sm font-semibold text-dark">Couldn't load this project.</p>
-        <p className="text-xs text-slateText">Check your connection and try again.</p>
-        <button
-          onClick={fetchAll}
-          className="focus-ring mt-1 px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
-        >
-          Retry
-        </button>
-      </div>
+      <OperateModeProvider>
+        <div data-operate-mode="true" className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background px-6 text-center">
+          <p className="text-sm font-semibold text-dark">Couldn't load this project.</p>
+          <p className="text-xs text-slateText">Check your connection and try again.</p>
+          <button
+            onClick={fetchAll}
+            className="focus-ring mt-1 px-4 py-2 rounded-operateMd bg-dark text-white text-xs font-bold hover:bg-dark/90"
+          >
+            Retry
+          </button>
+        </div>
+      </OperateModeProvider>
     );
   }
 
   if (!project) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background">
-        <p className="text-sm font-semibold text-slateText">Project not found.</p>
-        <button
-          onClick={() => navigate('/portal')}
-          className="focus-ring px-4 py-2 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
-        >
-          <ChevronLeft className="w-3.5 h-3.5" /> Back to Portal
-        </button>
-      </div>
+      <OperateModeProvider>
+        <div data-operate-mode="true" className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background">
+          <p className="text-sm font-semibold text-slateText">Project not found.</p>
+          <button
+            onClick={() => navigate('/portal')}
+            className="focus-ring px-4 py-2 rounded-operateMd bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" /> Back to Portal
+          </button>
+        </div>
+      </OperateModeProvider>
     );
   }
 
@@ -155,7 +162,8 @@ export const ClientProjectDetailPage: React.FC = () => {
   const balance = (project.budget || 0) - (project.paidAmount || 0);
 
   return (
-    <div className="min-h-screen bg-background">
+    <OperateModeProvider>
+    <div data-operate-mode="true" className="min-h-screen bg-background">
       <SEOHead title={`${project.projectName} | Client Portal`} />
 
       <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
@@ -166,7 +174,7 @@ export const ClientProjectDetailPage: React.FC = () => {
           <ChevronLeft className="w-4 h-4" /> Back to Portal
         </button>
 
-        <div className="bg-white rounded-card border border-dark/10 p-6 sm:p-8">
+        <div className="bg-white rounded-operateLg border border-dark/10 p-6 sm:p-8">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div>
               <h1 className="font-display text-2xl sm:text-3xl font-bold text-dark">{project.projectName}</h1>
@@ -218,14 +226,14 @@ export const ClientProjectDetailPage: React.FC = () => {
 
         {/* Overview */}
         {tab === 'overview' && (
-          <div className="bg-white rounded-card border border-dark/10 p-6 space-y-4">
+          <div className="bg-white rounded-operateLg border border-dark/10 p-6 space-y-4">
             <h3 className="font-display text-sm font-bold text-dark">Progress Updates</h3>
             {(project.progressUpdates || []).length === 0 ? (
               <p className="text-xs text-slateText py-6 text-center">No updates shared yet.</p>
             ) : (
               <div className="space-y-2">
                 {[...project.progressUpdates].reverse().map((u: any) => (
-                  <div key={u._id} className="p-3 rounded-xl bg-background border border-dark/10">
+                  <div key={u._id} className="p-3 rounded-operateMd bg-background border border-dark/10">
                     <div className="flex items-center justify-between gap-3">
                       <p className="font-bold text-xs text-dark">{u.title}</p>
                       <span className="text-[10px] text-slateText shrink-0">
@@ -243,7 +251,7 @@ export const ClientProjectDetailPage: React.FC = () => {
         {/* Tasks / To-do */}
         {tab === 'tasks' && (
           <div className="space-y-4">
-            <div className="bg-white rounded-card border border-dark/10 p-5 space-y-3">
+            <div className="bg-white rounded-operateLg border border-dark/10 p-5 space-y-3">
               <h3 className="font-display text-sm font-bold text-dark">Your To-do List</h3>
               <div className="flex items-center gap-2">
                 <input
@@ -252,12 +260,12 @@ export const ClientProjectDetailPage: React.FC = () => {
                   onChange={(e) => setNewTaskTitle(e.target.value)}
                   placeholder="Add something you need from the team..."
                   onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
-                  className="flex-1 px-3 py-2 bg-background border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark"
+                  className="flex-1 px-3 py-2 bg-background border border-dark/10 rounded-operateMd text-xs text-dark focus:outline-none focus:border-dark"
                 />
                 <button
                   onClick={handleAddTask}
                   disabled={addingTask || !newTaskTitle.trim()}
-                  className="px-3 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5 disabled:opacity-50 shrink-0"
+                  className="px-3 py-2 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5 disabled:opacity-50 shrink-0"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add
                 </button>
@@ -291,7 +299,7 @@ export const ClientProjectDetailPage: React.FC = () => {
               )}
             </div>
 
-            <div className="bg-white rounded-card border border-dark/10 p-5 space-y-3">
+            <div className="bg-white rounded-operateLg border border-dark/10 p-5 space-y-3">
               <h3 className="font-display text-sm font-bold text-dark">Team Task Board</h3>
               {(project.tasks || []).length === 0 ? (
                 <p className="text-xs text-slateText py-4 text-center">No tasks logged yet.</p>
@@ -318,7 +326,7 @@ export const ClientProjectDetailPage: React.FC = () => {
 
         {/* Quotations */}
         {tab === 'quotations' && (
-          <div className="bg-white rounded-card border border-dark/10 p-2">
+          <div className="bg-white rounded-operateLg border border-dark/10 p-2">
             {(project.quotations || []).length === 0 ? (
               <p className="text-xs text-slateText py-8 text-center">No quotations shared yet.</p>
             ) : (
@@ -326,7 +334,7 @@ export const ClientProjectDetailPage: React.FC = () => {
                 {project.quotations.map((q: any) => (
                   <div key={q._id} className="p-4 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-operateMd bg-primary/20 flex items-center justify-center shrink-0">
                         <FileSignature className="w-4.5 h-4.5 text-dark" />
                       </div>
                       <div className="min-w-0">
@@ -352,7 +360,7 @@ export const ClientProjectDetailPage: React.FC = () => {
         {/* Payments & Invoices */}
         {tab === 'payments' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="bg-white rounded-card border border-dark/10 p-5 space-y-3">
+            <div className="bg-white rounded-operateLg border border-dark/10 p-5 space-y-3">
               <h3 className="font-display text-sm font-bold text-dark">Payment History</h3>
               {(project.payments || []).length === 0 ? (
                 <p className="text-xs text-slateText py-6 text-center">No payments recorded yet.</p>
@@ -373,7 +381,7 @@ export const ClientProjectDetailPage: React.FC = () => {
               )}
             </div>
 
-            <div className="bg-white rounded-card border border-dark/10 p-5 space-y-3">
+            <div className="bg-white rounded-operateLg border border-dark/10 p-5 space-y-3">
               <h3 className="font-display text-sm font-bold text-dark">Invoices</h3>
               {invoices.length === 0 ? (
                 <p className="text-xs text-slateText py-6 text-center">No invoices for this project yet.</p>
@@ -410,7 +418,7 @@ export const ClientProjectDetailPage: React.FC = () => {
         {/* Domain & Hosting */}
         {tab === 'domain' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="bg-white rounded-card border border-dark/10 p-5 space-y-3">
+            <div className="bg-white rounded-operateLg border border-dark/10 p-5 space-y-3">
               <div className="flex items-center gap-2">
                 <Globe className="w-4 h-4 text-dark" />
                 <h3 className="font-display text-sm font-bold text-dark">Domain</h3>
@@ -428,7 +436,7 @@ export const ClientProjectDetailPage: React.FC = () => {
               )}
             </div>
 
-            <div className="bg-white rounded-card border border-dark/10 p-5 space-y-3">
+            <div className="bg-white rounded-operateLg border border-dark/10 p-5 space-y-3">
               <div className="flex items-center gap-2">
                 <Server className="w-4 h-4 text-dark" />
                 <h3 className="font-display text-sm font-bold text-dark">Hosting</h3>
@@ -448,5 +456,6 @@ export const ClientProjectDetailPage: React.FC = () => {
         )}
       </div>
     </div>
+    </OperateModeProvider>
   );
 };

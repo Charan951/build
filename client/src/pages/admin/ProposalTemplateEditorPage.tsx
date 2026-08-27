@@ -893,7 +893,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
             value={branding.companyName}
             onChange={(e) => setBrandingField('companyName', e.target.value)}
             maxLength={120}
-            className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
+            className="w-full px-3 py-2 bg-white border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark"
           />
         </div>
         <div>
@@ -902,7 +902,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
             value={branding.companyTagline}
             onChange={(e) => setBrandingField('companyTagline', e.target.value)}
             maxLength={160}
-            className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
+            className="w-full px-3 py-2 bg-white border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark"
           />
         </div>
       </div>
@@ -913,7 +913,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
           value={branding.logoUrl}
           onChange={(e) => setBrandingField('logoUrl', e.target.value)}
           placeholder="https://res.cloudinary.com/.../logo.png"
-          className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
+          className="w-full px-3 py-2 bg-white border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark"
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -923,7 +923,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
             type="color"
             value={branding.headerGradientFrom}
             onChange={(e) => setBrandingField('headerGradientFrom', e.target.value)}
-            className="w-full h-9 bg-white border border-dark/10 rounded-xl cursor-pointer"
+            className="w-full h-9 bg-white border border-dark/10 rounded-operateMd cursor-pointer"
           />
         </div>
         <div>
@@ -932,7 +932,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
             type="color"
             value={branding.headerGradientTo}
             onChange={(e) => setBrandingField('headerGradientTo', e.target.value)}
-            className="w-full h-9 bg-white border border-dark/10 rounded-xl cursor-pointer"
+            className="w-full h-9 bg-white border border-dark/10 rounded-operateMd cursor-pointer"
           />
         </div>
       </div>
@@ -943,7 +943,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
             type="email"
             value={branding.contactEmail}
             onChange={(e) => setBrandingField('contactEmail', e.target.value)}
-            className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
+            className="w-full px-3 py-2 bg-white border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark"
           />
         </div>
         <div>
@@ -952,7 +952,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
             type="tel"
             value={branding.contactPhone}
             onChange={(e) => setBrandingField('contactPhone', e.target.value)}
-            className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
+            className="w-full px-3 py-2 bg-white border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark"
           />
         </div>
       </div>
@@ -961,7 +961,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
         <input
           value={branding.website}
           onChange={(e) => setBrandingField('website', e.target.value)}
-          className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
+          className="w-full px-3 py-2 bg-white border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark"
         />
       </div>
       <div>
@@ -970,7 +970,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
           value={branding.footerAddress}
           onChange={(e) => setBrandingField('footerAddress', e.target.value)}
           maxLength={160}
-          className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
+          className="w-full px-3 py-2 bg-white border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark"
         />
       </div>
       <div>
@@ -979,7 +979,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
           value={branding.footerAddressLine2}
           onChange={(e) => setBrandingField('footerAddressLine2', e.target.value)}
           maxLength={160}
-          className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
+          className="w-full px-3 py-2 bg-white border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark"
         />
       </div>
     </div>
@@ -1007,7 +1007,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
         </span>
 
         {/* Mode toggle */}
-        <div className="flex items-center bg-background rounded-xl p-0.5 ml-2">
+        <div className="flex items-center bg-background rounded-operateMd p-0.5 ml-2">
           <button
             onClick={() => setRenderMode('document')}
             className={`px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1.5 ${
@@ -1032,7 +1032,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setContentEditorOpen((v) => !v)}
-              className="focus-ring px-3 py-1.5 rounded-xl bg-dark text-white font-bold text-xs shadow-sm flex items-center gap-1.5"
+              className="focus-ring px-3 py-1.5 rounded-operateMd bg-dark text-white font-bold text-xs shadow-sm flex items-center gap-1.5"
             >
               <Wand2 className="w-3.5 h-3.5" /> {contentHtml ? 'Edit / Regenerate' : 'Generate with AI'}
             </button>
@@ -1044,7 +1044,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
               <button
                 onClick={syncCanvasFromDocument}
                 title="Rebuild the canvas from the current Document content"
-                className="focus-ring px-3 py-1.5 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
+                className="focus-ring px-3 py-1.5 rounded-operateMd bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
               >
                 <FileText className="w-3.5 h-3.5" /> Sync from Document
               </button>
@@ -1052,12 +1052,12 @@ export const ProposalTemplateEditorPage: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setCanvasAiOpen((v) => !v)}
-              className="focus-ring px-3 py-1.5 rounded-xl bg-dark text-white font-bold text-xs shadow-sm flex items-center gap-1.5"
+              className="focus-ring px-3 py-1.5 rounded-operateMd bg-dark text-white font-bold text-xs shadow-sm flex items-center gap-1.5"
             >
               <Wand2 className="w-3.5 h-3.5" /> Generate with AI
             </button>
             {canvasAiOpen && (
-              <div className="absolute right-0 top-10 w-80 bg-white rounded-2xl shadow-2xl border border-dark/10 p-3 space-y-2 z-50">
+              <div className="absolute right-0 top-10 w-80 bg-white rounded-operateLg shadow-2xl border border-dark/10 p-3 space-y-2 z-50">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-dark">Describe the proposal content</p>
                 <textarea
                   rows={4}
@@ -1066,7 +1066,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                   onChange={(e) => setCanvasAiInstruction(e.target.value)}
                   placeholder="e.g., Write a project estimation for an HRMS web app with payroll and attendance modules, two pricing plans"
                   maxLength={2000}
-                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark resize-none"
+                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark resize-none"
                 />
                 {canvasAiError && <p className="text-[10px] font-semibold text-rose-600">{canvasAiError}</p>}
                 <p className="text-[10px] text-slateText">This replaces the current pages with a freshly laid-out draft.</p>
@@ -1094,7 +1094,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
           href={downloadUrl}
           target="_blank"
           rel="noreferrer"
-          className={`focus-ring px-3 py-1.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-sm flex items-center gap-1.5 ${!resolvedId ? 'pointer-events-none opacity-50' : ''}`}
+          className={`focus-ring px-3 py-1.5 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-sm flex items-center gap-1.5 ${!resolvedId ? 'pointer-events-none opacity-50' : ''}`}
         >
           <Download className="w-3.5 h-3.5" /> Download
         </a>
@@ -1110,7 +1110,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                 <select
                   value={meta.type}
                   onChange={(e) => setMeta((m) => ({ ...m, type: e.target.value }))}
-                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark font-semibold"
+                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark font-semibold"
                 >
                   <option value="website">Website</option>
                   <option value="app">App</option>
@@ -1124,7 +1124,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                   value={meta.currency}
                   onChange={(e) => setMeta((m) => ({ ...m, currency: e.target.value }))}
                   maxLength={60}
-                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
+                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
               <div>
@@ -1134,7 +1134,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                   onChange={(e) => setMeta((m) => ({ ...m, preparedFor: e.target.value }))}
                   placeholder="Client or company name"
                   maxLength={120}
-                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
+                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
               <div>
@@ -1144,7 +1144,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                   onChange={(e) => setMeta((m) => ({ ...m, projectType: e.target.value }))}
                   placeholder="e.g., Web + Mobile App"
                   maxLength={120}
-                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
+                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
               <div>
@@ -1154,7 +1154,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                   onChange={(e) => setMeta((m) => ({ ...m, docRef: e.target.value }))}
                   placeholder="SPW/EST/PROJECT/2026"
                   maxLength={80}
-                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
+                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
               <div>
@@ -1163,7 +1163,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                   value={meta.validityText}
                   onChange={(e) => setMeta((m) => ({ ...m, validityText: e.target.value }))}
                   maxLength={120}
-                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark"
+                  className="w-full px-3 py-2 bg-background border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
             </div>
@@ -1171,14 +1171,14 @@ export const ProposalTemplateEditorPage: React.FC = () => {
             {/* AI content prompt */}
             <div>
               <label className="block text-[10px] font-bold text-dark mb-1 uppercase tracking-wider">Describe the proposal content</label>
-              <div className="p-3 rounded-2xl bg-lime-50 border border-primary/30 space-y-2">
+              <div className="p-3 rounded-operateLg bg-lime-50 border border-primary/30 space-y-2">
                 <textarea
                   rows={3}
                   value={docAiInstruction}
                   onChange={(e) => setDocAiInstruction(e.target.value)}
                   placeholder="e.g., Write a project estimation for an HRMS web app with payroll and attendance modules, two pricing plans (web only and web + mobile)"
                   maxLength={2000}
-                  className="w-full px-3 py-2 bg-white border border-dark/10 rounded-xl text-sm text-dark focus:outline-none focus:border-dark resize-none"
+                  className="w-full px-3 py-2 bg-white border border-dark/10 rounded-operateMd text-sm text-dark focus:outline-none focus:border-dark resize-none"
                 />
                 {docAiError && <p className="text-[10px] font-semibold text-rose-600">{docAiError}</p>}
                 <div className="flex items-center justify-between gap-2">
@@ -1203,7 +1203,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
             </div>
 
             {/* Editable, section-aware content editor */}
-            <div className="rounded-2xl bg-background border border-dark/10 overflow-hidden">
+            <div className="rounded-operateLg bg-background border border-dark/10 overflow-hidden">
               <button type="button" onClick={() => setContentEditorOpen((v) => !v)} className="w-full flex items-center justify-between p-4">
                 <div>
                   <h3 className="text-xs font-bold text-dark uppercase tracking-wider">Edit content</h3>
@@ -1225,7 +1225,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
             </div>
 
             {/* Branding panel */}
-            <div className="rounded-2xl bg-background border border-dark/10 overflow-hidden">
+            <div className="rounded-operateLg bg-background border border-dark/10 overflow-hidden">
               <button type="button" onClick={() => setBrandingOpen((v) => !v)} className="w-full flex items-center justify-between p-4">
                 <h3 className="text-xs font-bold text-dark uppercase tracking-wider">Branding &amp; Details</h3>
                 {brandingOpen ? <ChevronUp className="w-4 h-4 text-dark" /> : <ChevronDown className="w-4 h-4 text-dark" />}
@@ -1254,12 +1254,12 @@ export const ProposalTemplateEditorPage: React.FC = () => {
             </div>
 
             {previewError && (
-              <div role="alert" className="mb-2 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold shrink-0">
+              <div role="alert" className="mb-2 p-2.5 rounded-operateMd bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold shrink-0">
                 {previewError}
               </div>
             )}
 
-            <div className="flex-1 min-h-[420px] rounded-xl border border-dark/10 overflow-hidden bg-white relative">
+            <div className="flex-1 min-h-[420px] rounded-operateMd border border-dark/10 overflow-hidden bg-white relative">
               {previewUrl ? (
                 <iframe title="Proposal PDF Preview" src={previewUrl} className="w-full h-full" />
               ) : (
@@ -1280,13 +1280,13 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                 aria-label="Add element"
                 aria-expanded={addMenuOpen}
                 aria-haspopup="menu"
-                className="focus-ring w-10 h-10 rounded-xl bg-primary hover:bg-[#bce63b] text-dark flex items-center justify-center shadow-sm"
+                className="focus-ring w-10 h-10 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark flex items-center justify-center shadow-sm"
                 title="Add element"
               >
                 <Plus className="w-5 h-5" />
               </button>
               {addMenuOpen && (
-                <div role="menu" className="absolute left-12 top-0 w-40 bg-white rounded-xl shadow-2xl border border-dark/10 py-1.5 z-50">
+                <div role="menu" className="absolute left-12 top-0 w-40 bg-white rounded-operateMd shadow-2xl border border-dark/10 py-1.5 z-50">
                   <button role="menuitem" onClick={() => addElement('text')} className="focus-ring w-full px-3 py-2 text-left text-xs font-bold text-dark hover:bg-lime-50 flex items-center gap-2">
                     <Type className="w-3.5 h-3.5" /> Text
                   </button>
@@ -1296,10 +1296,10 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                 </div>
               )}
             </div>
-            <button onClick={undo} aria-label="Undo" className="focus-ring w-10 h-10 rounded-xl hover:bg-dark/5 text-dark flex items-center justify-center" title="Undo (Ctrl+Z)">
+            <button onClick={undo} aria-label="Undo" className="focus-ring w-10 h-10 rounded-operateMd hover:bg-dark/5 text-dark flex items-center justify-center" title="Undo (Ctrl+Z)">
               <Undo2 className="w-4 h-4" />
             </button>
-            <button onClick={redo} aria-label="Redo" className="focus-ring w-10 h-10 rounded-xl hover:bg-dark/5 text-dark flex items-center justify-center" title="Redo (Ctrl+Y)">
+            <button onClick={redo} aria-label="Redo" className="focus-ring w-10 h-10 rounded-operateMd hover:bg-dark/5 text-dark flex items-center justify-center" title="Redo (Ctrl+Y)">
               <Redo2 className="w-4 h-4" />
             </button>
           </div>
@@ -1440,7 +1440,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                       value={meta.fontFamily}
                       onChange={(e) => setMeta((m) => ({ ...m, fontFamily: e.target.value }))}
                       aria-label="Font family"
-                      className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                      className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-operateMd text-xs"
                     >
                       {FONT_OPTIONS.map((f) => (
                         <option key={f} value={f}>
@@ -1531,7 +1531,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                   </div>
                   <button
                     onClick={() => deleteElement(selectedElement.id)}
-                    className="focus-ring w-full mt-2 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center gap-1.5"
+                    className="focus-ring w-full mt-2 px-3 py-2 rounded-operateMd bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center gap-1.5"
                   >
                     <Trash2 className="w-3.5 h-3.5" /> Delete element
                   </button>
@@ -1547,7 +1547,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                         rows: [...(selectedElement.rows || []), (selectedElement.rows?.[0] || ['']).map(() => '')],
                       })
                     }
-                    className="focus-ring w-full px-3 py-2 rounded-xl bg-background border border-dark/10 text-dark font-bold text-xs"
+                    className="focus-ring w-full px-3 py-2 rounded-operateMd bg-background border border-dark/10 text-dark font-bold text-xs"
                   >
                     + Add row
                   </button>
@@ -1557,13 +1557,13 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                         rows: (selectedElement.rows || []).map((r) => [...r, '']),
                       })
                     }
-                    className="focus-ring w-full px-3 py-2 rounded-xl bg-background border border-dark/10 text-dark font-bold text-xs"
+                    className="focus-ring w-full px-3 py-2 rounded-operateMd bg-background border border-dark/10 text-dark font-bold text-xs"
                   >
                     + Add column
                   </button>
                   <button
                     onClick={() => deleteElement(selectedElement.id)}
-                    className="focus-ring w-full mt-2 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center gap-1.5"
+                    className="focus-ring w-full mt-2 px-3 py-2 rounded-operateMd bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center gap-1.5"
                   >
                     <Trash2 className="w-3.5 h-3.5" /> Delete table
                   </button>
@@ -1578,7 +1578,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                     <select
                       value={meta.type}
                       onChange={(e) => setMeta((m) => ({ ...m, type: e.target.value }))}
-                      className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                      className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-operateMd text-xs"
                     >
                       <option value="website">Website</option>
                       <option value="app">App</option>
@@ -1592,7 +1592,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                       value={meta.preparedFor}
                       onChange={(e) => setMeta((m) => ({ ...m, preparedFor: e.target.value }))}
                       maxLength={120}
-                      className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                      className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-operateMd text-xs"
                     />
                   </div>
                   <div>
@@ -1602,7 +1602,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                       onChange={(e) => setMeta((m) => ({ ...m, projectType: e.target.value }))}
                       placeholder="e.g., Web + Mobile App"
                       maxLength={120}
-                      className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                      className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-operateMd text-xs"
                     />
                   </div>
                   <div>
@@ -1611,7 +1611,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                       value={meta.currency}
                       onChange={(e) => setMeta((m) => ({ ...m, currency: e.target.value }))}
                       maxLength={60}
-                      className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                      className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-operateMd text-xs"
                     />
                   </div>
                   <div>
@@ -1621,7 +1621,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                       onChange={(e) => setMeta((m) => ({ ...m, docRef: e.target.value }))}
                       placeholder="SPW/EST/PROJECT/2026"
                       maxLength={80}
-                      className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                      className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-operateMd text-xs"
                     />
                   </div>
                   <div>
@@ -1630,7 +1630,7 @@ export const ProposalTemplateEditorPage: React.FC = () => {
                       value={meta.validityText}
                       onChange={(e) => setMeta((m) => ({ ...m, validityText: e.target.value }))}
                       maxLength={120}
-                      className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                      className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-operateMd text-xs"
                     />
                   </div>
 

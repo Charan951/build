@@ -427,13 +427,13 @@ export const ManageServicesPage: React.FC = () => {
       </div>
 
       {errorMsg && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-sm font-medium">
+        <div className="p-4 rounded-operateMd bg-rose-50 border border-rose-200 text-rose-600 text-sm font-medium">
           {errorMsg}
         </div>
       )}
 
       {successMsg && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 text-sm font-medium">
+        <div className="p-4 rounded-operateMd bg-emerald-50 border border-emerald-200 text-emerald-600 text-sm font-medium">
           {successMsg}
         </div>
       )}
@@ -452,11 +452,11 @@ export const ManageServicesPage: React.FC = () => {
                   aria-label="Search service categories"
                   value={catSearch}
                   onChange={(e) => setCatSearch(e.target.value)}
-                  className="focus-ring w-full pl-11 pr-4 py-2.5 rounded-2xl bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
+                  className="focus-ring w-full pl-11 pr-4 py-2.5 rounded-operateLg bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
 
-              <button onClick={fetchCategories} className="focus-ring p-2.5 rounded-2xl border border-dark/10 hover:bg-background text-dark flex items-center gap-2 text-xs font-bold">
+              <button onClick={fetchCategories} className="focus-ring p-2.5 rounded-operateLg border border-dark/10 hover:bg-background text-dark flex items-center gap-2 text-xs font-bold">
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Refresh Categories
               </button>
             </div>
@@ -467,7 +467,7 @@ export const ManageServicesPage: React.FC = () => {
               <Card key={cat._id} className="p-6 hover:shadow-lg transition-all space-y-4">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-dark/10 pb-4">
                   <div className="flex items-center gap-4">
-                    <span className="font-mono text-lg font-black text-primary bg-dark px-3 py-1 rounded-xl">
+                    <span className="font-mono text-lg font-black text-primary bg-dark px-3 py-1 rounded-operateMd">
                       {cat.num}
                     </span>
                     <div>
@@ -479,21 +479,21 @@ export const ManageServicesPage: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleAddSubServiceToCategory(cat)}
-                      className="focus-ring px-4 py-2 rounded-xl bg-primary/20 text-dark hover:bg-primary font-bold text-xs flex items-center gap-1.5 transition-colors"
+                      className="focus-ring px-4 py-2 rounded-operateMd bg-primary/20 text-dark hover:bg-primary font-bold text-xs flex items-center gap-1.5 transition-colors"
                     >
                       <Plus className="w-3.5 h-3.5" /> Add Service to {cat.title}
                     </button>
                     <button
                       onClick={() => handleOpenEditCategory(cat)}
                       aria-label="Edit Category & Services"
-                      className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
+                      className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-operateMd transition-colors"
                       title="Edit Category & Services"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setDeleteCategoryTarget(cat._id)}
-                      className="focus-ring p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                      className="focus-ring p-2 text-rose-600 hover:bg-rose-50 rounded-operateMd transition-colors"
                       title="Delete Category"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -509,7 +509,7 @@ export const ManageServicesPage: React.FC = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {cat.subServices?.map((sub: any, idx: number) => (
-                      <div key={idx} className="p-3 rounded-2xl bg-background border border-dark/10 flex items-center justify-between">
+                      <div key={idx} className="p-3 rounded-operateLg bg-background border border-dark/10 flex items-center justify-between">
                         <div className="truncate pr-2">
                           <span className="text-[10px] font-mono font-bold text-primary mr-2">#{sub.num}</span>
                           <span className="text-xs font-bold text-dark uppercase">{sub.title}</span>
@@ -545,11 +545,11 @@ export const ManageServicesPage: React.FC = () => {
                   aria-label="Search service pages"
                   value={srvSearch}
                   onChange={(e) => setSrvSearch(e.target.value)}
-                  className="focus-ring w-full pl-11 pr-4 py-2.5 rounded-2xl bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
+                  className="focus-ring w-full pl-11 pr-4 py-2.5 rounded-operateLg bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
                 />
               </div>
 
-              <button onClick={fetchSingleServices} className="focus-ring p-2.5 rounded-2xl border border-dark/10 hover:bg-background text-dark flex items-center gap-2 text-xs font-bold">
+              <button onClick={fetchSingleServices} className="focus-ring p-2.5 rounded-operateLg border border-dark/10 hover:bg-background text-dark flex items-center gap-2 text-xs font-bold">
                 <RefreshCw className="w-4 h-4" /> Refresh Pages
               </button>
             </div>
@@ -563,7 +563,7 @@ export const ManageServicesPage: React.FC = () => {
                     <th className="py-3 px-4">Service Page Title</th>
                     <th className="py-3 px-4">Category</th>
                     <th className="py-3 px-4">URL Slug</th>
-                    <th className="py-3 px-4 text-right sticky right-0 bg-white border-l border-dark/10">Actions</th>
+                    <th className="py-3 px-4 text-right sticky right-0 bg-white border-l border-dark/10 shadow-[-6px_0_8px_-4px_rgba(0,0,0,0.08)]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-dark/5 text-sm font-medium">
@@ -574,12 +574,12 @@ export const ManageServicesPage: React.FC = () => {
                         <Badge variant="lime">{srv.category}</Badge>
                       </td>
                       <td className="py-4 px-4 font-mono text-xs text-slateText">/services/{srv.slug}</td>
-                      <td className="py-4 px-4 text-right sticky right-0 bg-white group-hover:bg-background/50 border-l border-dark/10 transition-colors">
+                      <td className="py-4 px-4 text-right sticky right-0 bg-white group-hover:bg-background/50 border-l border-dark/10 shadow-[-6px_0_8px_-4px_rgba(0,0,0,0.08)] transition-colors">
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleOpenEditServiceDetail(srv)}
                             aria-label="Edit Service Page Content"
-                            className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
+                            className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-operateMd transition-colors"
                             title="Edit Service Page Content"
                           >
                             <Edit className="w-4 h-4" />
@@ -587,12 +587,12 @@ export const ManageServicesPage: React.FC = () => {
                           <button
                             onClick={() => setDeleteServiceTarget(srv._id)}
                             aria-label="Delete Service Page"
-                            className="focus-ring p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                            className="focus-ring p-2 text-rose-600 hover:bg-rose-50 rounded-operateMd transition-colors"
                             title="Delete Service Page"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
-                          <Link to={`/services/${srv.slug}`} target="_blank" className="px-3 py-1.5 rounded-xl bg-dark text-white text-xs font-bold inline-flex items-center gap-1">
+                          <Link to={`/services/${srv.slug}`} target="_blank" className="px-3 py-1.5 rounded-operateMd bg-dark text-white text-xs font-bold inline-flex items-center gap-1">
                             View ↗
                           </Link>
                         </div>
@@ -622,7 +622,7 @@ export const ManageServicesPage: React.FC = () => {
                 value={catFormData.num}
                 onChange={(e) => setCatFormData({ ...catFormData, num: e.target.value })}
                 placeholder="e.g. 01, 02"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark font-mono"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark font-mono"
               />
             </div>
 
@@ -631,7 +631,7 @@ export const ManageServicesPage: React.FC = () => {
               <select
                 value={catFormData.icon}
                 onChange={(e) => setCatFormData({ ...catFormData, icon: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm font-semibold text-dark focus:outline-none"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm font-semibold text-dark focus:outline-none"
               >
                 <option value="Code">Code</option>
                 <option value="Layout">Layout</option>
@@ -657,7 +657,7 @@ export const ManageServicesPage: React.FC = () => {
                 setCatFormData({ ...catFormData, title, slug });
               }}
               placeholder="e.g. UI/UX & Product Design"
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark font-bold"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark font-bold"
             />
           </div>
 
@@ -669,7 +669,7 @@ export const ManageServicesPage: React.FC = () => {
               value={catFormData.description}
               onChange={(e) => setCatFormData({ ...catFormData, description: e.target.value })}
               placeholder="Brief overview of this service category..."
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -682,14 +682,14 @@ export const ManageServicesPage: React.FC = () => {
 
             <div className="space-y-3">
               {subServices.map((sub, idx) => (
-                <div key={idx} className="p-3 rounded-2xl bg-background border border-dark/10 space-y-2">
+                <div key={idx} className="p-3 rounded-operateLg bg-background border border-dark/10 space-y-2">
                   <div className="flex gap-2 items-center">
                     <input
                       type="text"
                       value={sub.num}
                       onChange={(e) => handleSubServiceChange(idx, 'num', e.target.value)}
                       placeholder="#"
-                      className="w-14 px-2 py-1.5 rounded-xl bg-white border border-dark/10 text-xs font-mono font-bold text-center"
+                      className="w-14 px-2 py-1.5 rounded-operateMd bg-white border border-dark/10 text-xs font-mono font-bold text-center"
                     />
 
                     <input
@@ -697,7 +697,7 @@ export const ManageServicesPage: React.FC = () => {
                       value={sub.title}
                       onChange={(e) => handleSubServiceChange(idx, 'title', e.target.value)}
                       placeholder={`Service name #${idx + 1} (e.g. MOBILE APP UI DESIGN)`}
-                      className="flex-1 px-3 py-1.5 rounded-xl bg-white border border-dark/10 text-xs font-bold uppercase focus:outline-none"
+                      className="flex-1 px-3 py-1.5 rounded-operateMd bg-white border border-dark/10 text-xs font-bold uppercase focus:outline-none"
                     />
 
                     {subServices.length > 1 && (
@@ -753,7 +753,7 @@ export const ManageServicesPage: React.FC = () => {
                 setSrvFormData({ ...srvFormData, title, slug });
               }}
               placeholder="e.g. Static HTML Website Design"
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark font-bold"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark font-bold"
             />
           </div>
 
@@ -765,7 +765,7 @@ export const ManageServicesPage: React.FC = () => {
               value={srvFormData.slug}
               onChange={(e) => setSrvFormData({ ...srvFormData, slug: e.target.value })}
               placeholder="e.g. static-html-website-design"
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark font-mono"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark font-mono"
             />
           </div>
 
@@ -774,7 +774,7 @@ export const ManageServicesPage: React.FC = () => {
             <select
               value={srvFormData.category}
               onChange={(e) => setSrvFormData({ ...srvFormData, category: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm font-bold text-dark"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm font-bold text-dark"
             >
               {categories.map((c) => (
                 <option key={c._id} value={c.title}>{c.title}</option>
@@ -790,7 +790,7 @@ export const ManageServicesPage: React.FC = () => {
               value={srvFormData.shortDescription}
               onChange={(e) => setSrvFormData({ ...srvFormData, shortDescription: e.target.value })}
               placeholder="Overview of this specific service..."
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -802,7 +802,7 @@ export const ManageServicesPage: React.FC = () => {
               value={srvFormData.fullDescription}
               onChange={(e) => setSrvFormData({ ...srvFormData, fullDescription: e.target.value })}
               placeholder="Detailed explanation..."
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -813,7 +813,7 @@ export const ManageServicesPage: React.FC = () => {
               value={srvFormData.featuresStr}
               onChange={(e) => setSrvFormData({ ...srvFormData, featuresStr: e.target.value })}
               placeholder="e.g. Custom Architecture, Speed Optimization, Security Hardening"
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-xs font-semibold focus:outline-none"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-xs font-semibold focus:outline-none"
             />
           </div>
 
@@ -824,7 +824,7 @@ export const ManageServicesPage: React.FC = () => {
               value={srvFormData.techStackStr}
               onChange={(e) => setSrvFormData({ ...srvFormData, techStackStr: e.target.value })}
               placeholder="e.g. React 19, TypeScript, Node.js, TailwindCSS, Figma"
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-xs font-semibold focus:outline-none"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-xs font-semibold focus:outline-none"
             />
           </div>
 

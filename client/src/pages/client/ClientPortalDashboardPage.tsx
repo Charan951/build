@@ -4,6 +4,7 @@ import { SEOHead } from '../../components/seo/SEOHead';
 import { Badge } from '../../components/ui/Badge';
 import { StatusPill } from '../../components/ui/StatusPill';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { OperateModeProvider } from '../../components/ui/OperateModeContext';
 import {
   Receipt,
   LayoutGrid,
@@ -163,36 +164,41 @@ export const ClientPortalDashboardPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-8 h-8 border-4 border-dark/10 border-t-primary rounded-full animate-spin" />
-      </div>
+      <OperateModeProvider>
+        <div data-operate-mode="true" className="min-h-screen flex items-center justify-center bg-background">
+          <div className="w-8 h-8 border-4 border-dark/10 border-t-primary rounded-full animate-spin" />
+        </div>
+      </OperateModeProvider>
     );
   }
 
   if (loadError) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background px-6 text-center">
-        <p className="text-dark text-sm font-semibold">Couldn't load your dashboard.</p>
-        <p className="text-slateText text-xs">Check your connection and try again.</p>
-        <button
-          onClick={fetchAll}
-          className="focus-ring mt-1 px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
-        >
-          Retry
-        </button>
-      </div>
+      <OperateModeProvider>
+        <div data-operate-mode="true" className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background px-6 text-center">
+          <p className="text-dark text-sm font-semibold">Couldn't load your dashboard.</p>
+          <p className="text-slateText text-xs">Check your connection and try again.</p>
+          <button
+            onClick={fetchAll}
+            className="focus-ring mt-1 px-4 py-2 rounded-operateMd bg-dark text-white text-xs font-bold hover:bg-dark/90"
+          >
+            Retry
+          </button>
+        </div>
+      </OperateModeProvider>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <OperateModeProvider>
+    <div data-operate-mode="true" className="min-h-screen bg-background">
       <SEOHead title="Client Portal | Build Your Thoughts" />
 
       {/* Top bar */}
       <div className="sticky top-0 z-20 bg-dark text-white border-b border-white/10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-dark shrink-0">
+            <div className="w-9 h-9 rounded-operateMd bg-primary flex items-center justify-center text-dark shrink-0">
               <Sparkles className="w-4.5 h-4.5" />
             </div>
             <div className="min-w-0">
@@ -210,7 +216,7 @@ export const ClientPortalDashboardPage: React.FC = () => {
             <button
               onClick={handleLogout}
               aria-label="Log out"
-              className="focus-ring-inverse p-2 rounded-xl border border-white/15 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+              className="focus-ring-inverse p-2 rounded-operateMd border border-white/15 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
               title="Log out"
             >
               <LogOut className="w-4 h-4" />
@@ -232,8 +238,8 @@ export const ClientPortalDashboardPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white rounded-card border border-dark/10 p-5 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+          <div className="bg-white rounded-operateLg border border-dark/10 p-5 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-operateMd bg-primary/20 flex items-center justify-center shrink-0">
               <FolderKanban className="w-4.5 h-4.5 text-dark" />
             </div>
             <div>
@@ -241,8 +247,8 @@ export const ClientPortalDashboardPage: React.FC = () => {
               <p className="font-display text-xl font-bold text-dark">{activeProjectsCount}</p>
             </div>
           </div>
-          <div className="bg-white rounded-card border border-dark/10 p-5 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+          <div className="bg-white rounded-operateLg border border-dark/10 p-5 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-operateMd bg-primary/20 flex items-center justify-center shrink-0">
               <Paperclip className="w-4.5 h-4.5 text-dark" />
             </div>
             <div>
@@ -250,8 +256,8 @@ export const ClientPortalDashboardPage: React.FC = () => {
               <p className="font-display text-xl font-bold text-dark">{files.length}</p>
             </div>
           </div>
-          <div className="bg-white rounded-card border border-dark/10 p-5 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center shrink-0">
+          <div className="bg-white rounded-operateLg border border-dark/10 p-5 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-operateMd bg-rose-50 flex items-center justify-center shrink-0">
               <IndianRupee className="w-4.5 h-4.5 text-rose-600" />
             </div>
             <div>
@@ -286,7 +292,7 @@ export const ClientPortalDashboardPage: React.FC = () => {
         {tab === 'overview' && (
           <div>
             {projects.length === 0 ? (
-              <div className="bg-white rounded-card border border-dark/10 p-10 text-center">
+              <div className="bg-white rounded-operateLg border border-dark/10 p-10 text-center">
                 <FolderKanban className="w-8 h-8 text-slateText/40 mx-auto mb-2" />
                 <p className="text-sm font-semibold text-slateText">No active project workspaces assigned yet.</p>
               </div>
@@ -300,7 +306,7 @@ export const ClientPortalDashboardPage: React.FC = () => {
                     <button
                       key={p._id}
                       onClick={() => navigate(`/portal/projects/${p._id}`)}
-                      className="text-left bg-white rounded-card border border-dark/10 hover:border-primary/50 hover:shadow-hover transition-all p-5 space-y-4"
+                      className="text-left bg-white rounded-operateLg border border-dark/10 hover:border-primary/50 hover:shadow-hover transition-all p-5 space-y-4"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <h3 className="font-display font-bold text-base text-dark leading-tight">{p.projectName}</h3>
@@ -348,7 +354,7 @@ export const ClientPortalDashboardPage: React.FC = () => {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingFile}
-                className="px-4 py-2.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5 disabled:opacity-50"
+                className="px-4 py-2.5 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5 disabled:opacity-50"
               >
                 <Plus className="w-3.5 h-3.5" /> {uploadingFile ? 'Uploading...' : 'Upload File'}
               </button>
@@ -364,7 +370,7 @@ export const ClientPortalDashboardPage: React.FC = () => {
             </div>
 
             {files.length === 0 ? (
-              <div className="bg-white rounded-card border-2 border-dashed border-dark/15 p-12 flex flex-col items-center justify-center gap-2 text-center">
+              <div className="bg-white rounded-operateLg border-2 border-dashed border-dark/15 p-12 flex flex-col items-center justify-center gap-2 text-center">
                 <UploadCloud className="w-6 h-6 text-slateText" />
                 <p className="text-xs font-bold text-dark">No files shared yet</p>
                 <p className="text-[11px] text-slateText max-w-sm">
@@ -373,11 +379,11 @@ export const ClientPortalDashboardPage: React.FC = () => {
                 </p>
               </div>
             ) : (
-              <div className="bg-white rounded-card border border-dark/10 divide-y divide-dark/5">
+              <div className="bg-white rounded-operateLg border border-dark/10 divide-y divide-dark/5">
                 {files.map((f) => (
                   <div key={f._id} className="p-4 flex items-center justify-between gap-3 group">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-operateMd bg-primary/20 flex items-center justify-center shrink-0">
                         <FileIcon className="w-4.5 h-4.5 text-dark" />
                       </div>
                       <div className="min-w-0">
@@ -419,17 +425,17 @@ export const ClientPortalDashboardPage: React.FC = () => {
         {tab === 'invoices' && (
           <div>
             {invoices.length === 0 ? (
-              <div className="bg-white rounded-card border border-dark/10 p-10 text-center">
+              <div className="bg-white rounded-operateLg border border-dark/10 p-10 text-center">
                 <Receipt className="w-8 h-8 text-slateText/40 mx-auto mb-2" />
                 <p className="text-sm font-semibold text-slateText">No billing invoices found.</p>
               </div>
             ) : (
-              <div className="bg-white rounded-card border border-dark/10 divide-y divide-dark/5">
+              <div className="bg-white rounded-operateLg border border-dark/10 divide-y divide-dark/5">
                 {invoices.map((inv) => (
                   <div key={inv._id} className="p-4 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                        className={`w-10 h-10 rounded-operateMd flex items-center justify-center shrink-0 ${
                           inv.status === 'paid' ? 'bg-emerald-50' : 'bg-amber-50'
                         }`}
                       >
@@ -461,16 +467,16 @@ export const ClientPortalDashboardPage: React.FC = () => {
         {tab === 'meetings' && (
           <div>
             {meetings.length === 0 ? (
-              <div className="bg-white rounded-card border border-dark/10 p-10 text-center">
+              <div className="bg-white rounded-operateLg border border-dark/10 p-10 text-center">
                 <CalendarClock className="w-8 h-8 text-slateText/40 mx-auto mb-2" />
                 <p className="text-sm font-semibold text-slateText">No meetings scheduled yet.</p>
               </div>
             ) : (
-              <div className="bg-white rounded-card border border-dark/10 divide-y divide-dark/5">
+              <div className="bg-white rounded-operateLg border border-dark/10 divide-y divide-dark/5">
                 {meetings.map((m) => (
                   <div key={m._id} className="p-4 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-operateMd bg-primary/20 flex items-center justify-center shrink-0">
                         <CalendarClock className="w-4.5 h-4.5 text-dark" />
                       </div>
                       <div className="min-w-0">
@@ -509,5 +515,6 @@ export const ClientPortalDashboardPage: React.FC = () => {
         destructive
       />
     </div>
+    </OperateModeProvider>
   );
 };

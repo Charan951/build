@@ -37,7 +37,7 @@ const reviewsData: Review[] = [
     role: 'Director, HyperMarket',
     rating: 5,
     quote: 'Needed quick launch, which the team quickly delivered. Very professional service and high code quality.',
-    avatarColor: 'bg-gradient-to-tr from-purple-500 to-pink-500',
+    avatarColor: 'bg-gradient-to-tr from-amber-500 to-orange-600',
   },
   {
     name: 'Hassan Mohammad',

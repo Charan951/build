@@ -560,13 +560,13 @@ export const ManageLeadsPage: React.FC = () => {
             placeholder="Search leads by name, company, email, or phone... (press / to focus)"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="focus-ring w-full pl-10 pr-4 py-2.5 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark shadow-sm"
+            className="focus-ring w-full pl-10 pr-4 py-2.5 bg-white border border-dark/10 rounded-operateMd text-xs text-dark focus:outline-none focus:border-dark shadow-sm"
           />
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-2.5 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
+            className="px-3 py-2.5 rounded-operateMd bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
             title="Import leads from Excel (.xlsx, .xls) or CSV"
           >
             <Upload className="w-3.5 h-3.5" /> Import
@@ -577,7 +577,7 @@ export const ManageLeadsPage: React.FC = () => {
               onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
               aria-expanded={isExportDropdownOpen}
               aria-haspopup="menu"
-              className="px-3 py-2.5 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
+              className="px-3 py-2.5 rounded-operateMd bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
               title={
                 searchTerm.trim()
                   ? `Export the ${filteredLeads.length} matching lead(s)`
@@ -589,7 +589,7 @@ export const ManageLeadsPage: React.FC = () => {
             </button>
 
             {isExportDropdownOpen && (
-              <div role="menu" className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-dark/10 py-1.5 z-50 animate-in fade-in zoom-in duration-150">
+              <div role="menu" className="absolute right-0 mt-2 w-48 bg-white rounded-operateMd shadow-2xl border border-dark/10 py-1.5 z-50 animate-in fade-in zoom-in duration-150">
                 <button
                   role="menuitem"
                   onClick={() => handleExport('xlsx')}
@@ -612,7 +612,7 @@ export const ManageLeadsPage: React.FC = () => {
 
           <button
             onClick={() => setIsSelectMode(!isSelectMode)}
-            className={`px-3 py-2.5 rounded-xl font-bold text-xs shadow-sm flex items-center gap-1.5 transition-all ${
+            className={`px-3 py-2.5 rounded-operateMd font-bold text-xs shadow-sm flex items-center gap-1.5 transition-all ${
               isSelectMode ? 'bg-primary text-dark' : 'bg-white border border-dark/15 hover:border-dark/30 text-dark'
             }`}
           >
@@ -622,7 +622,7 @@ export const ManageLeadsPage: React.FC = () => {
 
           <button
             onClick={() => setIsManageStagesOpen(true)}
-            className="px-3 py-2.5 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
+            className="px-3 py-2.5 rounded-operateMd bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
           >
             <Settings className="w-3.5 h-3.5" /> Stages
           </button>
@@ -632,7 +632,7 @@ export const ManageLeadsPage: React.FC = () => {
               setTargetStageForNewLead(stages.length > 0 ? stages[0].name : 'New');
               setIsNewLeadOpen(true);
             }}
-            className="px-4 py-2.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5"
+            className="px-4 py-2.5 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5"
           >
             <Plus className="w-3.5 h-3.5" /> Add Lead
           </button>
@@ -663,7 +663,7 @@ export const ManageLeadsPage: React.FC = () => {
             <p className="text-slateText text-xs">Check your connection and try again.</p>
             <button
               onClick={() => fetchPipelineData()}
-              className="focus-ring px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+              className="focus-ring px-4 py-2 rounded-operateMd bg-dark text-white text-xs font-bold hover:bg-dark/90"
             >
               Retry
             </button>
@@ -717,7 +717,7 @@ export const ManageLeadsPage: React.FC = () => {
                       setTargetStageForNewLead(stage.name);
                       setIsNewLeadOpen(true);
                     }}
-                    className="w-full mt-3 py-2 border border-dashed border-dark/20 hover:border-dark/40 rounded-xl text-xs font-bold text-slateText hover:text-dark hover:bg-dark/5 transition-all flex items-center justify-center gap-1.5"
+                    className="w-full mt-3 py-2 border border-dashed border-dark/20 hover:border-dark/40 rounded-operateMd text-xs font-bold text-slateText hover:text-dark hover:bg-dark/5 transition-all flex items-center justify-center gap-1.5"
                   >
                     <Plus className="w-3.5 h-3.5" /> Add lead
                   </button>
@@ -765,7 +765,7 @@ export const ManageLeadsPage: React.FC = () => {
                                 activateLead();
                               }
                             }}
-                            className={`focus-ring p-4 bg-background rounded-2xl border transition-all cursor-pointer space-y-3 relative group ${
+                            className={`focus-ring p-4 bg-background rounded-operateLg border transition-all cursor-pointer space-y-3 relative group ${
                               isBeingDragged
                                 ? 'opacity-40 border-dashed border-dark'
                                 : isSelectMode && selectedLeadIds.includes(lead._id)

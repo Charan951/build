@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence, useScroll, useTransform, useAnimationFrame, useVelocity, useSpring } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useAnimationFrame, useVelocity, useSpring, useReducedMotion } from 'framer-motion';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -64,6 +64,7 @@ const AutoScrollMarqueeRow: React.FC<AutoMarqueeProps> = ({ children, baseVeloci
   // Plain ref, not state: toggled by IntersectionObserver so scrolling this
   // row off-screen doesn't need a re-render, just skips the per-frame write.
   const isVisibleRef = useRef(true);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const el = wrapperRef.current;
@@ -78,8 +79,11 @@ const AutoScrollMarqueeRow: React.FC<AutoMarqueeProps> = ({ children, baseVeloci
   useAnimationFrame((_, delta) => {
     // This row runs a perpetual JS-driven transform; once it's scrolled out of
     // view there's nothing on screen to update, so skip the work entirely
-    // rather than burning a style write every frame forever.
-    if (!isVisibleRef.current) return;
+    // rather than burning a style write every frame forever. Same treatment
+    // for a reduced-motion preference: this is non-essential, unstoppable
+    // motion exactly like the CSS .animate-marquee rows, so it stays static
+    // rather than perpetually scrolling for a vestibular-sensitive visitor.
+    if (!isVisibleRef.current || prefersReducedMotion) return;
 
     let moveBy = baseVelocity * (delta / 16);
     const vf = velocityFactor.get();

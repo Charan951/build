@@ -294,7 +294,7 @@ export const ManageClientsPage: React.FC = () => {
       <div className="flex items-center justify-end">
         <button
           onClick={openCreateModal}
-          className="px-5 py-2.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md transition-all flex items-center gap-2 shrink-0"
+          className="px-5 py-2.5 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md transition-all flex items-center gap-2 shrink-0"
         >
           <Plus className="w-4 h-4" /> Add Client
         </button>
@@ -302,19 +302,19 @@ export const ManageClientsPage: React.FC = () => {
 
       {/* Stats Row — reflects the active search filter */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl border border-dark/10 p-4">
+        <div className="bg-white rounded-operateLg border border-dark/10 p-4">
           <p className="text-slateText text-[11px] font-semibold">{isFiltering ? 'Matching clients' : 'Total clients'}</p>
           <p className="font-display font-bold text-2xl text-dark mt-1">{filtered.length}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-dark/10 p-4">
+        <div className="bg-white rounded-operateLg border border-dark/10 p-4">
           <p className="text-slateText text-[11px] font-semibold">{isFiltering ? 'Their projects' : 'Total projects'}</p>
           <p className="font-display font-bold text-2xl text-dark mt-1">{totalProjects}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-dark/10 p-4">
+        <div className="bg-white rounded-operateLg border border-dark/10 p-4">
           <p className="text-slateText text-[11px] font-semibold">Ongoing</p>
           <p className="font-display font-bold text-2xl text-emerald-600 mt-1">{ongoingProjects}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-dark/10 p-4">
+        <div className="bg-white rounded-operateLg border border-dark/10 p-4">
           <p className="text-slateText text-[11px] font-semibold">Completed</p>
           <p className="font-display font-bold text-2xl text-blue-600 mt-1">{completedProjects}</p>
         </div>
@@ -343,7 +343,7 @@ export const ManageClientsPage: React.FC = () => {
                 { replace: true }
               );
             }}
-            className="w-full pl-10 pr-10 py-2.5 bg-white border border-dark/10 rounded-xl text-xs text-dark focus:outline-none focus:border-dark shadow-sm"
+            className="w-full pl-10 pr-10 py-2.5 bg-white border border-dark/10 rounded-operateMd text-xs text-dark focus:outline-none focus:border-dark shadow-sm"
           />
           {!searchTerm && (
             <kbd className="hidden sm:flex absolute right-3.5 top-1/2 -translate-y-1/2 items-center justify-center w-4 h-4 rounded border border-dark/15 text-[9px] font-bold text-slateText/70 pointer-events-none">
@@ -356,7 +356,7 @@ export const ManageClientsPage: React.FC = () => {
             onClick={handleExportCsv}
             disabled={filtered.length === 0}
             title={isFiltering ? `Export the ${filtered.length} matching client(s)` : 'Export all clients'}
-            className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
+            className="flex-1 sm:flex-none px-4 py-2.5 rounded-operateMd bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
           >
             <Download className="w-3.5 h-3.5" /> CSV{isFiltering ? ` (${filtered.length})` : ''}
           </button>
@@ -364,14 +364,14 @@ export const ManageClientsPage: React.FC = () => {
             onClick={handleExportJson}
             disabled={filtered.length === 0}
             title={isFiltering ? `Export the ${filtered.length} matching client(s)` : 'Export all clients'}
-            className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
+            className="flex-1 sm:flex-none px-4 py-2.5 rounded-operateMd bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
           >
             <Download className="w-3.5 h-3.5" /> JSON{isFiltering ? ` (${filtered.length})` : ''}
           </button>
           <button
             onClick={toggleSelectMode}
             disabled={clients.length === 0}
-            className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50 transition-all ${
+            className={`flex-1 sm:flex-none px-4 py-2.5 rounded-operateMd font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50 transition-all ${
               isSelectMode ? 'bg-primary text-dark' : 'bg-white border border-dark/15 hover:border-dark/30 text-dark'
             }`}
           >
@@ -384,7 +384,7 @@ export const ManageClientsPage: React.FC = () => {
         <div
           role="status"
           aria-live="polite"
-          className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-dark text-white text-xs font-semibold"
+          className="flex items-center justify-between px-4 py-2.5 rounded-operateMd bg-dark text-white text-xs font-semibold"
         >
           <span>{selectedClientIds.length} client{selectedClientIds.length === 1 ? '' : 's'} selected</span>
           <button
@@ -411,7 +411,7 @@ export const ManageClientsPage: React.FC = () => {
           action={
             <button
               onClick={fetchClients}
-              className="focus-ring px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+              className="focus-ring px-4 py-2 rounded-operateMd bg-dark text-white text-xs font-bold hover:bg-dark/90"
             >
               Retry
             </button>
@@ -453,7 +453,7 @@ export const ManageClientsPage: React.FC = () => {
                     handleActivate();
                   }
                 }}
-                className={`focus-ring text-left bg-white rounded-2xl border transition-all p-5 cursor-pointer group relative ${
+                className={`focus-ring text-left bg-white rounded-operateLg border transition-all p-5 cursor-pointer group relative ${
                   isSelectMode
                     ? isSelected
                       ? 'border-primary ring-2 ring-primary/40'
@@ -568,7 +568,7 @@ export const ManageClientsPage: React.FC = () => {
         maxWidth="lg"
       >
         {formError && (
-          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+          <div className="p-3 rounded-operateMd bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
             {formError}
           </div>
         )}

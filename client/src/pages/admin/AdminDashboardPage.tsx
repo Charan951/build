@@ -97,7 +97,7 @@ export const AdminDashboardPage: React.FC = () => {
         <div
           role="status"
           aria-live="polite"
-          className="fixed top-20 right-6 z-50 max-w-sm p-4 rounded-2xl bg-dark text-white flex items-start gap-3 shadow-2xl animate-in fade-in slide-in-from-top-2"
+          className="fixed top-20 right-6 z-50 max-w-sm p-4 rounded-operateLg bg-dark text-white flex items-start gap-3 shadow-2xl animate-in fade-in slide-in-from-top-2"
         >
           <Bell className="w-4.5 h-4.5 text-primary shrink-0 mt-0.5" />
           <p className="text-xs font-semibold leading-relaxed">{liveNotification}</p>
@@ -121,14 +121,14 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
         <Link
           to="/dashboard/leads"
-          className="px-4 py-2.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark text-xs font-bold shadow-sm flex items-center gap-1.5 self-start sm:self-auto"
+          className="px-4 py-2.5 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark text-xs font-bold shadow-sm flex items-center gap-1.5 self-start sm:self-auto"
         >
           <Plus className="w-3.5 h-3.5" /> Add Lead
         </Link>
       </div>
 
       {statsError && (
-        <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+        <div className="flex items-center gap-2 px-3 py-2.5 rounded-operateMd bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
           Some stats failed to load, so the numbers below may be incomplete.
           <button onClick={fetchStats} className="focus-ring underline shrink-0">Retry</button>
         </div>
@@ -141,7 +141,7 @@ export const AdminDashboardPage: React.FC = () => {
             <Card className="h-full min-h-[128px] p-5 flex flex-col justify-between hover:border-primary/50 transition-colors group">
               <div className="flex items-start justify-between gap-2">
                 <p className="text-[11px] font-bold text-slateText uppercase tracking-wide leading-tight">{tile.label}</p>
-                <div className="w-9 h-9 rounded-xl bg-background flex items-center justify-center text-dark/40 group-hover:text-dark transition-colors shrink-0">
+                <div className="w-9 h-9 rounded-operateMd bg-background flex items-center justify-center text-dark/40 group-hover:text-dark transition-colors shrink-0">
                   <tile.icon className="w-4.5 h-4.5" />
                 </div>
               </div>

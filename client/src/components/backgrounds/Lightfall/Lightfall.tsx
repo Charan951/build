@@ -296,10 +296,15 @@ const Lightfall: React.FC<LightfallProps> = ({
     // Stop rendering when the canvas is scrolled out of view or the tab is
     // backgrounded — this is a decorative backdrop, not something that needs
     // to burn GPU/CPU while the user is reading a different section or tab.
-    const visibility = { inViewport: true, tabVisible: !document.hidden };
+    // The reduce-motion preference gets the same treatment: this is
+    // continuous, non-essential motion (the strongest expression of it on
+    // the site), so a vestibular-sensitive visitor gets a static frame
+    // instead of a perpetually-animating shader.
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const visibility = { inViewport: true, tabVisible: !document.hidden, reducedMotion: reducedMotionQuery.matches };
     const isVisibleRef = { current: true };
     const recomputeVisible = () => {
-      isVisibleRef.current = visibility.inViewport && visibility.tabVisible;
+      isVisibleRef.current = visibility.inViewport && visibility.tabVisible && !visibility.reducedMotion;
     };
 
     const io = new IntersectionObserver(
@@ -316,6 +321,12 @@ const Lightfall: React.FC<LightfallProps> = ({
       recomputeVisible();
     };
     document.addEventListener('visibilitychange', onVisibilityChange);
+
+    const onReducedMotionChange = (e: MediaQueryListEvent) => {
+      visibility.reducedMotion = e.matches;
+      recomputeVisible();
+    };
+    reducedMotionQuery.addEventListener('change', onReducedMotionChange);
 
     const onPointerMove = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -362,6 +373,7 @@ const Lightfall: React.FC<LightfallProps> = ({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (mouseInteraction) canvas.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('visibilitychange', onVisibilityChange);
+      reducedMotionQuery.removeEventListener('change', onReducedMotionChange);
       io.disconnect();
       ro.disconnect();
       if (canvas.parentElement === container) {

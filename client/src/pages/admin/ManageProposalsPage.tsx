@@ -159,14 +159,14 @@ export const ManageProposalsPage: React.FC = () => {
           </div>
           <button
             onClick={() => setIsNewProjectOpen(true)}
-            className="focus-ring px-4 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5 shrink-0 self-start sm:self-auto"
+            className="focus-ring px-4 py-2 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5 shrink-0 self-start sm:self-auto"
           >
             <Plus className="w-3.5 h-3.5" /> New Project
           </button>
         </div>
 
         {errorMsg && (
-          <div className="shrink-0 mt-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center justify-between gap-3">
+          <div className="shrink-0 mt-3 p-3 rounded-operateMd bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center justify-between gap-3">
             {errorMsg}
             <button onClick={() => setErrorMsg('')} className="focus-ring shrink-0 font-bold hover:underline">
               Dismiss
@@ -190,7 +190,7 @@ export const ManageProposalsPage: React.FC = () => {
               action={
                 <button
                   onClick={fetchProjects}
-                  className="focus-ring px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+                  className="focus-ring px-4 py-2 rounded-operateMd bg-dark text-white text-xs font-bold hover:bg-dark/90"
                 >
                   Retry
                 </button>
@@ -209,10 +209,10 @@ export const ManageProposalsPage: React.FC = () => {
                 <div
                   key={p._id}
                   onClick={() => navigate(`/dashboard/proposals/${p._id}`)}
-                  className="py-3 flex items-center justify-between gap-3 cursor-pointer group hover:bg-dark/[0.02] -mx-2 px-2 rounded-xl transition-colors"
+                  className="py-3 flex items-center justify-between gap-3 cursor-pointer group hover:bg-dark/[0.02] -mx-2 px-2 rounded-operateMd transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-operateMd bg-primary/20 flex items-center justify-center shrink-0">
                       <FileText className="w-4 h-4 text-dark" />
                     </div>
                     {renamingId === p._id ? (

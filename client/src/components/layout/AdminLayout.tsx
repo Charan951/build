@@ -147,7 +147,7 @@ export const AdminLayout: React.FC = () => {
   useHotkey('?', () => setShortcutsOpen(true));
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+    `flex items-center gap-3 px-3 py-2.5 rounded-operateMd text-sm font-semibold transition-colors ${
       isActive ? 'bg-primary text-dark shadow-sm' : 'text-dark/70 hover:bg-black/5 hover:text-dark'
     }`;
 
@@ -208,7 +208,7 @@ export const AdminLayout: React.FC = () => {
                 <button
                   onClick={() => (sidebarOpen ? toggleGroup(group.label) : setSidebarOpen(true))}
                   title={sidebarOpen ? undefined : group.label}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide text-gray-500 hover:text-dark hover:bg-black/5 transition-colors"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-operateMd text-xs font-bold uppercase tracking-wide text-gray-500 hover:text-dark hover:bg-black/5 transition-colors"
                 >
                   <GroupIcon className="w-4.5 h-4.5 shrink-0" />
                   <span
@@ -258,7 +258,7 @@ export const AdminLayout: React.FC = () => {
             target="_blank"
             rel="noreferrer"
             title={sidebarOpen ? undefined : 'Client Portal'}
-            className="flex items-center gap-3 px-3 py-2.5 mt-2 rounded-xl text-sm font-medium text-lime-600 hover:bg-black/5 transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 mt-2 rounded-operateMd text-sm font-medium text-dark/70 hover:text-dark hover:bg-black/5 transition-colors"
           >
             <ExternalLink className="w-4.5 h-4.5 shrink-0" />
             {sidebarOpen && <span>Client Portal</span>}
@@ -269,7 +269,7 @@ export const AdminLayout: React.FC = () => {
           <button
             onClick={handleLogout}
             title={sidebarOpen ? undefined : 'Logout'}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-rose-500/10 hover:text-rose-600 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-operateMd text-sm font-medium text-slateText hover:bg-rose-500/10 hover:text-rose-600 transition-colors"
           >
             <LogOut className="w-4.5 h-4.5 shrink-0" />
             {sidebarOpen && <span>Logout</span>}
@@ -283,7 +283,7 @@ export const AdminLayout: React.FC = () => {
           <button
             onClick={() => setSidebarOpen((v) => !v)}
             aria-label="Toggle sidebar"
-            className="p-2 rounded-lg hover:bg-dark/5 transition-colors text-dark"
+            className="p-2 rounded-operateSm hover:bg-dark/5 transition-colors text-dark"
           >
             {sidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>

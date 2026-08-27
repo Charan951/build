@@ -505,7 +505,7 @@ export const QuotationEditorPage: React.FC = () => {
           href={downloadUrl}
           target="_blank"
           rel="noreferrer"
-          className="focus-ring px-3 py-1.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
+          className="focus-ring px-3 py-1.5 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
         >
           <Download className="w-3.5 h-3.5" /> Download
         </a>
@@ -520,13 +520,13 @@ export const QuotationEditorPage: React.FC = () => {
               aria-label="Add element"
               aria-expanded={addMenuOpen}
               aria-haspopup="menu"
-              className="focus-ring w-10 h-10 rounded-xl bg-primary hover:bg-[#bce63b] text-dark flex items-center justify-center shadow-sm"
+              className="focus-ring w-10 h-10 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark flex items-center justify-center shadow-sm"
               title="Add element"
             >
               <Plus className="w-5 h-5" />
             </button>
             {addMenuOpen && (
-              <div role="menu" className="absolute left-12 top-0 w-40 bg-white rounded-xl shadow-2xl border border-dark/10 py-1.5 z-50">
+              <div role="menu" className="absolute left-12 top-0 w-40 bg-white rounded-operateMd shadow-2xl border border-dark/10 py-1.5 z-50">
                 <button
                   role="menuitem"
                   onClick={() => addElement('text')}
@@ -547,7 +547,7 @@ export const QuotationEditorPage: React.FC = () => {
           <button
             onClick={undo}
             aria-label="Undo"
-            className="focus-ring w-10 h-10 rounded-xl hover:bg-dark/5 text-dark flex items-center justify-center"
+            className="focus-ring w-10 h-10 rounded-operateMd hover:bg-dark/5 text-dark flex items-center justify-center"
             title="Undo (Ctrl+Z)"
           >
             <Undo2 className="w-4 h-4" />
@@ -555,7 +555,7 @@ export const QuotationEditorPage: React.FC = () => {
           <button
             onClick={redo}
             aria-label="Redo"
-            className="focus-ring w-10 h-10 rounded-xl hover:bg-dark/5 text-dark flex items-center justify-center"
+            className="focus-ring w-10 h-10 rounded-operateMd hover:bg-dark/5 text-dark flex items-center justify-center"
             title="Redo (Ctrl+Y)"
           >
             <Redo2 className="w-4 h-4" />
@@ -692,7 +692,7 @@ export const QuotationEditorPage: React.FC = () => {
                     value={meta.fontFamily}
                     onChange={(e) => setMeta({ ...meta, fontFamily: e.target.value })}
                     aria-label="Font family"
-                    className="focus-ring flex-1 px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="focus-ring flex-1 px-2.5 py-2 bg-background border border-dark/10 rounded-operateMd text-xs"
                   >
                     {FONT_OPTIONS.map((f) => (
                       <option key={f} value={f}>
@@ -782,7 +782,7 @@ export const QuotationEditorPage: React.FC = () => {
                 </div>
                 <button
                   onClick={() => deleteElement(selectedElement.id)}
-                  className="focus-ring w-full mt-2 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center gap-1.5"
+                  className="focus-ring w-full mt-2 px-3 py-2 rounded-operateMd bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center gap-1.5"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete element
                 </button>
@@ -798,7 +798,7 @@ export const QuotationEditorPage: React.FC = () => {
                       rows: [...(selectedElement.rows || []), (selectedElement.rows?.[0] || ['']).map(() => '')],
                     })
                   }
-                  className="focus-ring w-full px-3 py-2 rounded-xl bg-background border border-dark/10 text-dark font-bold text-xs"
+                  className="focus-ring w-full px-3 py-2 rounded-operateMd bg-background border border-dark/10 text-dark font-bold text-xs"
                 >
                   + Add row
                 </button>
@@ -808,13 +808,13 @@ export const QuotationEditorPage: React.FC = () => {
                       rows: (selectedElement.rows || []).map((r) => [...r, '']),
                     })
                   }
-                  className="focus-ring w-full px-3 py-2 rounded-xl bg-background border border-dark/10 text-dark font-bold text-xs"
+                  className="focus-ring w-full px-3 py-2 rounded-operateMd bg-background border border-dark/10 text-dark font-bold text-xs"
                 >
                   + Add column
                 </button>
                 <button
                   onClick={() => deleteElement(selectedElement.id)}
-                  className="focus-ring w-full mt-2 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center gap-1.5"
+                  className="focus-ring w-full mt-2 px-3 py-2 rounded-operateMd bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center gap-1.5"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete table
                 </button>
@@ -828,7 +828,7 @@ export const QuotationEditorPage: React.FC = () => {
                   <input
                     value={meta.agencyName}
                     onChange={(e) => setMeta({ ...meta, agencyName: e.target.value })}
-                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-operateMd text-xs"
                   />
                 </div>
                 <div>
@@ -836,7 +836,7 @@ export const QuotationEditorPage: React.FC = () => {
                   <input
                     value={meta.preparedByName}
                     onChange={(e) => setMeta({ ...meta, preparedByName: e.target.value })}
-                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-operateMd text-xs"
                   />
                 </div>
                 <div>
@@ -844,7 +844,7 @@ export const QuotationEditorPage: React.FC = () => {
                   <input
                     value={meta.clientName}
                     onChange={(e) => setMeta({ ...meta, clientName: e.target.value })}
-                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-operateMd text-xs"
                   />
                 </div>
                 <div>
@@ -852,7 +852,7 @@ export const QuotationEditorPage: React.FC = () => {
                   <input
                     value={meta.clientEmail}
                     onChange={(e) => setMeta({ ...meta, clientEmail: e.target.value })}
-                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-operateMd text-xs"
                   />
                 </div>
                 <div>
@@ -861,7 +861,7 @@ export const QuotationEditorPage: React.FC = () => {
                     type="date"
                     value={meta.validUntil}
                     onChange={(e) => setMeta({ ...meta, validUntil: e.target.value })}
-                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-operateMd text-xs"
                   />
                 </div>
                 <div>
@@ -869,7 +869,7 @@ export const QuotationEditorPage: React.FC = () => {
                   <select
                     value={meta.status}
                     onChange={(e) => setMeta({ ...meta, status: e.target.value })}
-                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="focus-ring w-full px-2.5 py-2 bg-background border border-dark/10 rounded-operateMd text-xs"
                   >
                     <option value="draft">Draft</option>
                     <option value="sent">Sent</option>

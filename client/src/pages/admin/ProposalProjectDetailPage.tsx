@@ -92,7 +92,7 @@ const UploadTemplateModal: React.FC<{
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Upload Ready-Made Proposal" subtitle={projectName} maxWidth="md">
       {errorMsg && (
-        <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+        <div className="p-2.5 rounded-operateMd bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
           {errorMsg}
         </div>
       )}
@@ -106,7 +106,7 @@ const UploadTemplateModal: React.FC<{
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="focus-ring w-full py-6 border-2 border-dashed border-dark/20 hover:border-dark/40 rounded-xl text-xs font-bold text-slateText hover:text-dark hover:bg-dark/5 transition-all flex flex-col items-center justify-center gap-1.5"
+          className="focus-ring w-full py-6 border-2 border-dashed border-dark/20 hover:border-dark/40 rounded-operateMd text-xs font-bold text-slateText hover:text-dark hover:bg-dark/5 transition-all flex flex-col items-center justify-center gap-1.5"
         >
           <Upload className="w-5 h-5" />
           {file ? file.name : 'Click to choose a PDF'}
@@ -284,7 +284,7 @@ export const ProposalProjectDetailPage: React.FC = () => {
         <p className="text-xs text-slateText font-semibold">Couldn't load this proposal project.</p>
         <button
           onClick={fetchProject}
-          className="focus-ring px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+          className="focus-ring px-4 py-2 rounded-operateMd bg-dark text-white text-xs font-bold hover:bg-dark/90"
         >
           Retry
         </button>
@@ -298,7 +298,7 @@ export const ProposalProjectDetailPage: React.FC = () => {
         <p className="text-xs text-slateText font-semibold">Proposal project not found.</p>
         <button
           onClick={() => navigate('/dashboard/proposals')}
-          className="focus-ring px-4 py-2 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
+          className="focus-ring px-4 py-2 rounded-operateMd bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Proposals
         </button>
@@ -328,13 +328,13 @@ export const ProposalProjectDetailPage: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setUploadOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
+            className="px-4 py-2.5 rounded-operateMd bg-white border border-dark/15 hover:border-dark/30 text-dark font-bold text-xs shadow-sm flex items-center gap-1.5"
           >
             <Upload className="w-3.5 h-3.5" /> Upload PDF
           </button>
           <button
             onClick={() => navigate(`/dashboard/proposals/${project._id}/templates/new`)}
-            className="px-4 py-2.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5"
+            className="px-4 py-2.5 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5"
           >
             <Plus className="w-3.5 h-3.5" /> New Template
           </button>
@@ -342,7 +342,7 @@ export const ProposalProjectDetailPage: React.FC = () => {
       </div>
 
       {errorMsg && (
-        <div className="shrink-0 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center justify-between gap-3">
+        <div className="shrink-0 p-3 rounded-operateMd bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center justify-between gap-3">
           {errorMsg}
           <button onClick={() => setErrorMsg('')} className="focus-ring shrink-0 font-bold hover:underline">
             Dismiss

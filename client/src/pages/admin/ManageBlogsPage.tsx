@@ -227,13 +227,13 @@ export const ManageBlogsPage: React.FC = () => {
 
       {/* Messages */}
       {successMsg && (
-        <div role="status" className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold flex items-center justify-between">
+        <div role="status" className="p-4 rounded-operateLg bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold flex items-center justify-between">
           <span>{successMsg}</span>
           <button onClick={() => setSuccessMsg('')} className="focus-ring text-xs text-emerald-600 font-bold rounded">Dismiss</button>
         </div>
       )}
       {errorMsg && (
-        <div role="alert" className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm font-semibold flex items-center justify-between">
+        <div role="alert" className="p-4 rounded-operateLg bg-rose-50 border border-rose-200 text-rose-800 text-sm font-semibold flex items-center justify-between">
           <span>{errorMsg}</span>
           <button onClick={() => setErrorMsg('')} className="focus-ring text-xs text-rose-600 font-bold rounded">Dismiss</button>
         </div>
@@ -251,7 +251,7 @@ export const ManageBlogsPage: React.FC = () => {
               aria-label="Search blogs"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="focus-ring w-full pl-11 pr-4 py-2.5 rounded-2xl bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
+              className="focus-ring w-full pl-11 pr-4 py-2.5 rounded-operateLg bg-background border border-dark/10 text-sm text-dark focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -263,7 +263,7 @@ export const ManageBlogsPage: React.FC = () => {
               id="blog-category-filter"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="focus-ring px-4 py-2 rounded-2xl bg-background border border-dark/10 text-xs font-bold text-dark focus:outline-none"
+              className="focus-ring px-4 py-2 rounded-operateLg bg-background border border-dark/10 text-xs font-bold text-dark focus:outline-none"
             >
               <option value="All">All Categories</option>
               <option value="Engineering">Engineering</option>
@@ -272,7 +272,7 @@ export const ManageBlogsPage: React.FC = () => {
               <option value="DevOps">DevOps</option>
             </select>
 
-            <button onClick={fetchBlogs} aria-label="Refresh" className="focus-ring p-2.5 rounded-2xl border border-dark/10 hover:bg-background text-dark" title="Refresh">
+            <button onClick={fetchBlogs} aria-label="Refresh" className="focus-ring p-2.5 rounded-operateLg border border-dark/10 hover:bg-background text-dark" title="Refresh">
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
           </div>
@@ -289,7 +289,7 @@ export const ManageBlogsPage: React.FC = () => {
           filteredBlogs.map((b) => (
             <Card key={b._id} className="p-6 space-y-4 flex flex-col justify-between hover:border-dark/20 transition-all">
               <div className="space-y-3">
-                <div className="relative aspect-video rounded-2xl overflow-hidden bg-dark/5 border border-dark/10">
+                <div className="relative aspect-video rounded-operateLg overflow-hidden bg-dark/5 border border-dark/10">
                   <img src={b.coverImage} alt={b.title} className="w-full h-full object-cover" />
                   <div className="absolute top-3 left-3">
                     <span className="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-dark/80 text-primary backdrop-blur-sm">
@@ -319,7 +319,7 @@ export const ManageBlogsPage: React.FC = () => {
                   <button
                     onClick={() => handleOpenView(b)}
                     aria-label="Read Post"
-                    className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
+                    className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-operateMd transition-colors"
                     title="Read Post"
                   >
                     <Eye className="w-4 h-4" />
@@ -327,7 +327,7 @@ export const ManageBlogsPage: React.FC = () => {
                   <button
                     onClick={() => handleOpenEdit(b)}
                     aria-label="Edit Post"
-                    className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-xl transition-colors"
+                    className="focus-ring p-2 text-slateText hover:text-dark hover:bg-dark/5 rounded-operateMd transition-colors"
                     title="Edit Post"
                   >
                     <Edit className="w-4 h-4" />
@@ -335,7 +335,7 @@ export const ManageBlogsPage: React.FC = () => {
                   <button
                     onClick={() => setDeleteTarget(b._id)}
                     aria-label="Delete Post"
-                    className="focus-ring p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                    className="focus-ring p-2 text-rose-600 hover:bg-rose-50 rounded-operateMd transition-colors"
                     title="Delete Post"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -365,7 +365,7 @@ export const ManageBlogsPage: React.FC = () => {
                 value={formData.title}
                 onChange={handleTitleChange}
                 placeholder="e.g. Architecting Distributed Systems"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
 
@@ -377,7 +377,7 @@ export const ManageBlogsPage: React.FC = () => {
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                 placeholder="e.g. architecting-distributed-systems"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
 
@@ -389,7 +389,7 @@ export const ManageBlogsPage: React.FC = () => {
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 placeholder="e.g. Engineering"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
 
@@ -401,7 +401,7 @@ export const ManageBlogsPage: React.FC = () => {
                 value={formData.readTime}
                 onChange={(e) => setFormData({ ...formData, readTime: e.target.value })}
                 placeholder="e.g. 5 min read"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
           </div>
@@ -414,7 +414,7 @@ export const ManageBlogsPage: React.FC = () => {
               value={formData.coverImage}
               onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
               placeholder="https://images.unsplash.com/..."
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -426,7 +426,7 @@ export const ManageBlogsPage: React.FC = () => {
               value={formData.excerpt}
               onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
               placeholder="Brief preview text displayed in listing..."
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -438,7 +438,7 @@ export const ManageBlogsPage: React.FC = () => {
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               placeholder="Write technical post body content here..."
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark font-mono text-xs"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark font-mono text-xs"
             />
           </div>
 
@@ -453,7 +453,7 @@ export const ManageBlogsPage: React.FC = () => {
                   setFormData({ ...formData, author: { ...formData.author, name: e.target.value } })
                 }
                 placeholder="e.g. Sarah Jenkins"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
             <div>
@@ -466,7 +466,7 @@ export const ManageBlogsPage: React.FC = () => {
                   setFormData({ ...formData, author: { ...formData.author, role: e.target.value } })
                 }
                 placeholder="e.g. Principal Cloud Architect"
-                className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+                className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
               />
             </div>
           </div>
@@ -478,7 +478,7 @@ export const ManageBlogsPage: React.FC = () => {
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder="Cloud, Microservices, Kubernetes"
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
+              className="w-full px-4 py-2.5 rounded-operateMd bg-background border border-dark/10 text-sm focus:outline-none focus:border-dark"
             />
           </div>
 
@@ -506,7 +506,7 @@ export const ManageBlogsPage: React.FC = () => {
             <img
               src={viewBlog.coverImage}
               alt={viewBlog.title}
-              className="w-full h-64 object-cover rounded-2xl border border-dark/10"
+              className="w-full h-64 object-cover rounded-operateLg border border-dark/10"
             />
 
             <div className="flex items-center gap-3">
@@ -528,7 +528,7 @@ export const ManageBlogsPage: React.FC = () => {
               <p className="text-sm font-semibold italic text-slateText">{viewBlog.excerpt}</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-background border border-dark/5">
+            <div className="p-4 rounded-operateLg bg-background border border-dark/5">
               <h4 className="font-bold text-xs uppercase text-slateText mb-2">Content</h4>
               <div className="text-sm whitespace-pre-wrap text-dark leading-relaxed font-sans">
                 {viewBlog.content}

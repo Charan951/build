@@ -530,13 +530,13 @@ export const ProjectDetailPage: React.FC = () => {
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => setDeleteRequest({ kind: 'project' })}
-              className="px-3 py-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 font-bold text-xs flex items-center gap-1.5"
+              className="px-3 py-2 rounded-operateMd border border-rose-200 text-rose-600 hover:bg-rose-50 font-bold text-xs flex items-center gap-1.5"
             >
               <Trash2 className="w-3.5 h-3.5" /> Move to Trash
             </button>
             <button
               onClick={() => navigate(`/dashboard/client-projects/${id}/edit`)}
-              className="px-3 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs flex items-center gap-1.5"
+              className="px-3 py-2 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs flex items-center gap-1.5"
             >
               <Pencil className="w-3.5 h-3.5" /> Edit Project
             </button>
@@ -545,31 +545,31 @@ export const ProjectDetailPage: React.FC = () => {
 
         {/* Stat cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-6 pt-6 border-t border-dark/10">
-          <div className="p-3 rounded-xl bg-background border border-dark/10">
+          <div className="p-3 rounded-operateMd bg-background border border-dark/10">
             <p className="text-[9px] font-bold text-slateText uppercase flex items-center gap-1">
               <IndianRupee className="w-3 h-3" /> Budget
             </p>
             <p className="font-bold text-sm text-dark mt-1">{formatMoney(budget, client?.currency)}</p>
           </div>
-          <div className="p-3 rounded-xl bg-background border border-dark/10">
+          <div className="p-3 rounded-operateMd bg-background border border-dark/10">
             <p className="text-[9px] font-bold text-slateText uppercase">Paid</p>
             <p className="font-bold text-sm text-emerald-600 mt-1">{formatMoney(paid, client?.currency)}</p>
           </div>
-          <div className="p-3 rounded-xl bg-background border border-dark/10">
+          <div className="p-3 rounded-operateMd bg-background border border-dark/10">
             <p className="text-[9px] font-bold text-slateText uppercase">Remaining</p>
             <p className="font-bold text-sm text-dark mt-1">{formatMoney(remaining, client?.currency)}</p>
           </div>
-          <div className="p-3 rounded-xl bg-background border border-dark/10">
+          <div className="p-3 rounded-operateMd bg-background border border-dark/10">
             <p className="text-[9px] font-bold text-slateText uppercase flex items-center gap-1">
               <Users className="w-3 h-3" /> Team
             </p>
             <p className="font-bold text-sm text-dark mt-1">{project.teamMembers.length}</p>
           </div>
-          <div className="p-3 rounded-xl bg-background border border-dark/10">
+          <div className="p-3 rounded-operateMd bg-background border border-dark/10">
             <p className="text-[9px] font-bold text-slateText uppercase">Expenses</p>
             <p className="font-bold text-sm text-rose-600 mt-1">{formatMoney(expenses, client?.currency)}</p>
           </div>
-          <div className="p-3 rounded-xl bg-background border border-dark/10">
+          <div className="p-3 rounded-operateMd bg-background border border-dark/10">
             <p className="text-[9px] font-bold text-slateText uppercase flex items-center gap-1">
               <TrendingUp className="w-3 h-3" /> Profit
             </p>
@@ -604,18 +604,18 @@ export const ProjectDetailPage: React.FC = () => {
                 placeholder="Title (e.g. Design phase)"
                 value={updateTitle}
                 onChange={(e) => setUpdateTitle(e.target.value)}
-                className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-xs"
+                className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-xs"
               />
               <textarea
                 rows={2}
                 placeholder="What's happening now?"
                 value={updateNote}
                 onChange={(e) => setUpdateNote(e.target.value)}
-                className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-xs resize-none"
+                className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-xs resize-none"
               />
               <button
                 type="submit"
-                className="px-4 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-[10px] flex items-center gap-1.5"
+                className="px-4 py-2 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-[10px] flex items-center gap-1.5"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Update
               </button>
@@ -624,7 +624,7 @@ export const ProjectDetailPage: React.FC = () => {
             {project.progressUpdates.length > 0 && (
               <div className="space-y-2 pt-2">
                 {project.progressUpdates.map((u: any) => (
-                  <div key={u._id} className="p-3 rounded-xl bg-background border border-dark/10">
+                  <div key={u._id} className="p-3 rounded-operateMd bg-background border border-dark/10">
                     <div className="flex items-center justify-between">
                       <p className="font-bold text-xs text-dark">{u.title}</p>
                       <p className="text-[9px] text-slateText">
@@ -807,7 +807,7 @@ export const ProjectDetailPage: React.FC = () => {
               )}
 
               {paymentOpen ? (
-                <form onSubmit={handleAddPayment} className="p-3 rounded-xl bg-background border border-dark/10 space-y-2">
+                <form onSubmit={handleAddPayment} className="p-3 rounded-operateMd bg-background border border-dark/10 space-y-2">
                   <div className="grid grid-cols-2 gap-2">
                     <input
                       type="number"
@@ -855,7 +855,7 @@ export const ProjectDetailPage: React.FC = () => {
               ) : (
                 <button
                   onClick={() => setPaymentOpen(true)}
-                  className="w-full py-2.5 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs flex items-center justify-center gap-1.5"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add Payment
                 </button>
@@ -887,7 +887,7 @@ export const ProjectDetailPage: React.FC = () => {
                     return (
                       <div
                         key={inv._id}
-                        className={`p-3.5 rounded-xl border space-y-1.5 ${
+                        className={`p-3.5 rounded-operateMd border space-y-1.5 ${
                           isPaid
                             ? 'bg-emerald-50/60 border-emerald-200'
                             : overdue
@@ -988,7 +988,7 @@ export const ProjectDetailPage: React.FC = () => {
             )}
 
             {teamPaymentOpen ? (
-              <form onSubmit={handleAddTeamPayment} className="p-3 rounded-xl bg-background border border-dark/10 flex flex-col sm:flex-row gap-2">
+              <form onSubmit={handleAddTeamPayment} className="p-3 rounded-operateMd bg-background border border-dark/10 flex flex-col sm:flex-row gap-2">
                 <select
                   required
                   value={teamPaymentMember}
@@ -1027,7 +1027,7 @@ export const ProjectDetailPage: React.FC = () => {
               <button
                 onClick={() => setTeamPaymentOpen(true)}
                 disabled={project.teamMembers.length === 0}
-                className="px-4 py-2 rounded-xl bg-dark/5 hover:bg-dark/10 text-dark font-bold text-xs flex items-center gap-1.5 disabled:opacity-50"
+                className="px-4 py-2 rounded-operateMd bg-dark/5 hover:bg-dark/10 text-dark font-bold text-xs flex items-center gap-1.5 disabled:opacity-50"
               >
                 <UserPlus className="w-3.5 h-3.5" /> Add Team Payment
               </button>
@@ -1042,7 +1042,7 @@ export const ProjectDetailPage: React.FC = () => {
             <p className="text-[10.5px] text-slateText font-semibold">Internal only — never shown to the client.</p>
             <button
               onClick={() => setTaskModalOpen(true)}
-              className="px-4 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5"
+              className="px-4 py-2 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" /> New Task
             </button>
@@ -1087,7 +1087,7 @@ export const ProjectDetailPage: React.FC = () => {
                             setDraggingTaskId(task._id);
                           }}
                           onDragEnd={() => setDraggingTaskId(null)}
-                          className={`p-3 rounded-xl bg-background border space-y-1.5 transition-all ${
+                          className={`p-3 rounded-operateMd bg-background border space-y-1.5 transition-all ${
                             draggingTaskId === task._id ? 'opacity-40 border-dashed border-dark' : 'border-dark/10'
                           }`}
                         >
@@ -1167,18 +1167,18 @@ export const ProjectDetailPage: React.FC = () => {
               placeholder="Member name"
               value={memberName}
               onChange={(e) => setMemberName(e.target.value)}
-              className="p-2.5 bg-background border border-dark/10 rounded-xl text-xs"
+              className="p-2.5 bg-background border border-dark/10 rounded-operateMd text-xs"
             />
             <input
               type="email"
               placeholder="Email (optional)"
               value={memberEmail}
               onChange={(e) => setMemberEmail(e.target.value)}
-              className="p-2.5 bg-background border border-dark/10 rounded-xl text-xs"
+              className="p-2.5 bg-background border border-dark/10 rounded-operateMd text-xs"
             />
             <button
               type="submit"
-              className="px-4 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs flex items-center gap-1.5 justify-center"
+              className="px-4 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs flex items-center gap-1.5 justify-center"
             >
               <UserPlus className="w-3.5 h-3.5" /> Add
             </button>
@@ -1254,7 +1254,7 @@ export const ProjectDetailPage: React.FC = () => {
             <button
               onClick={handleCreateQuotation}
               disabled={creatingQuotation}
-              className="px-3 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5 disabled:opacity-50"
+              className="px-3 py-2 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md flex items-center gap-1.5 disabled:opacity-50"
             >
               <Plus className="w-3.5 h-3.5" /> {creatingQuotation ? 'Creating...' : 'Create Quote'}
             </button>
@@ -1268,7 +1268,7 @@ export const ProjectDetailPage: React.FC = () => {
                 <div
                   key={q._id}
                   onClick={() => navigate(`/dashboard/client-projects/${id}/quotations/${q._id}`)}
-                  className="flex items-center justify-between p-3 rounded-xl bg-background border border-dark/10 cursor-pointer hover:border-dark/30"
+                  className="flex items-center justify-between p-3 rounded-operateMd bg-background border border-dark/10 cursor-pointer hover:border-dark/30"
                 >
                   <div>
                     <p className="text-xs font-bold text-dark">{q.documentTitle || q.quotationNumber}</p>
@@ -1325,7 +1325,7 @@ export const ProjectDetailPage: React.FC = () => {
                     placeholder="Auto-generated"
                     value={invoiceForm.invoiceNumber}
                     onChange={(e) => setInvoiceForm({ ...invoiceForm, invoiceNumber: e.target.value })}
-                    className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-xs"
                   />
                 </div>
                 <div>
@@ -1334,7 +1334,7 @@ export const ProjectDetailPage: React.FC = () => {
                     type="date"
                     value={invoiceForm.issueDate}
                     onChange={(e) => setInvoiceForm({ ...invoiceForm, issueDate: e.target.value })}
-                    className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-xs"
                   />
                 </div>
                 <div>
@@ -1343,7 +1343,7 @@ export const ProjectDetailPage: React.FC = () => {
                     type="date"
                     value={invoiceForm.dueDate}
                     onChange={(e) => setInvoiceForm({ ...invoiceForm, dueDate: e.target.value })}
-                    className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-xs"
                   />
                 </div>
               </div>
@@ -1356,7 +1356,7 @@ export const ProjectDetailPage: React.FC = () => {
                     placeholder="Your company name"
                     value={invoiceForm.fromName}
                     onChange={(e) => setInvoiceForm({ ...invoiceForm, fromName: e.target.value })}
-                    className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-xs"
                   />
                   <div className="grid grid-cols-2 gap-2">
                     <input
@@ -1364,14 +1364,14 @@ export const ProjectDetailPage: React.FC = () => {
                       placeholder="Email"
                       value={invoiceForm.fromEmail}
                       onChange={(e) => setInvoiceForm({ ...invoiceForm, fromEmail: e.target.value })}
-                      className="p-2.5 bg-background border border-dark/10 rounded-xl text-xs"
+                      className="p-2.5 bg-background border border-dark/10 rounded-operateMd text-xs"
                     />
                     <input
                       type="text"
                       placeholder="Phone"
                       value={invoiceForm.fromPhone}
                       onChange={(e) => setInvoiceForm({ ...invoiceForm, fromPhone: e.target.value })}
-                      className="p-2.5 bg-background border border-dark/10 rounded-xl text-xs"
+                      className="p-2.5 bg-background border border-dark/10 rounded-operateMd text-xs"
                     />
                   </div>
                 </div>
@@ -1382,7 +1382,7 @@ export const ProjectDetailPage: React.FC = () => {
                     placeholder="Client name"
                     value={invoiceForm.billToName}
                     onChange={(e) => setInvoiceForm({ ...invoiceForm, billToName: e.target.value })}
-                    className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-xs"
+                    className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-xs"
                   />
                   <div className="grid grid-cols-2 gap-2">
                     <input
@@ -1390,14 +1390,14 @@ export const ProjectDetailPage: React.FC = () => {
                       placeholder="Client email"
                       value={invoiceForm.billToEmail}
                       onChange={(e) => setInvoiceForm({ ...invoiceForm, billToEmail: e.target.value })}
-                      className="p-2.5 bg-background border border-dark/10 rounded-xl text-xs"
+                      className="p-2.5 bg-background border border-dark/10 rounded-operateMd text-xs"
                     />
                     <input
                       type="text"
                       placeholder="Client phone"
                       value={invoiceForm.billToPhone}
                       onChange={(e) => setInvoiceForm({ ...invoiceForm, billToPhone: e.target.value })}
-                      className="p-2.5 bg-background border border-dark/10 rounded-xl text-xs"
+                      className="p-2.5 bg-background border border-dark/10 rounded-operateMd text-xs"
                     />
                   </div>
                 </div>
@@ -1409,7 +1409,7 @@ export const ProjectDetailPage: React.FC = () => {
                   {lineItems.map((li, idx) => {
                     const amount = (parseFloat(li.qty) || 0) * (parseFloat(li.rate) || 0);
                     return (
-                      <div key={idx} className="p-3 rounded-xl bg-background border border-dark/10 space-y-2">
+                      <div key={idx} className="p-3 rounded-operateMd bg-background border border-dark/10 space-y-2">
                         <div className="flex items-center gap-2">
                           <input
                             type="text"
@@ -1496,10 +1496,10 @@ export const ProjectDetailPage: React.FC = () => {
                     rows={3}
                     value={invoiceForm.notes}
                     onChange={(e) => setInvoiceForm({ ...invoiceForm, notes: e.target.value })}
-                    className="w-full p-2.5 bg-background border border-dark/10 rounded-xl text-xs resize-none"
+                    className="w-full p-2.5 bg-background border border-dark/10 rounded-operateMd text-xs resize-none"
                   />
                 </div>
-                <div className="p-3 rounded-xl bg-background border border-dark/10 space-y-1 text-xs">
+                <div className="p-3 rounded-operateMd bg-background border border-dark/10 space-y-1 text-xs">
                   <div className="flex justify-between text-slateText">
                     <span>Subtotal</span>
                     <span>{formatMoney(invoiceTotals.subtotal, client?.currency)}</span>
@@ -1519,14 +1519,14 @@ export const ProjectDetailPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setInvoiceModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-dark/20 text-dark font-bold text-xs hover:bg-dark/5"
+                  className="px-4 py-2 rounded-operateMd border border-dark/20 text-dark font-bold text-xs hover:bg-dark/5"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={savingInvoice}
-                  className="px-5 py-2 rounded-xl bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md disabled:opacity-50 flex items-center gap-1.5"
+                  className="px-5 py-2 rounded-operateMd bg-primary hover:bg-[#bce63b] text-dark font-bold text-xs shadow-md disabled:opacity-50 flex items-center gap-1.5"
                 >
                   <Save className="w-4 h-4" /> {savingInvoice ? 'Saving...' : 'Create Invoice'}
                 </button>

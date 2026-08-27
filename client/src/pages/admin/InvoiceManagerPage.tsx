@@ -83,7 +83,7 @@ export const InvoiceManagerPage: React.FC = () => {
           action={
             <button
               onClick={fetchInvoices}
-              className="focus-ring px-4 py-2 rounded-xl bg-dark text-white text-xs font-bold hover:bg-dark/90"
+              className="focus-ring px-4 py-2 rounded-operateMd bg-dark text-white text-xs font-bold hover:bg-dark/90"
             >
               Retry
             </button>
@@ -147,7 +147,7 @@ export const InvoiceManagerPage: React.FC = () => {
       >
         <form onSubmit={handleRecordPayment} className="space-y-4">
           {paymentError && (
-            <p className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+            <p className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-operateMd px-3 py-2">
               {paymentError}
             </p>
           )}

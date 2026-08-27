@@ -4,15 +4,18 @@ import { Mail, Phone, MapPin, Instagram, Linkedin, Facebook, Twitter } from 'luc
 import { apiFetch } from '../../services/api';
 
 export const Footer: React.FC = () => {
+  // Social URLs default to unset (not a bare platform domain) - a visitor
+  // clicking "Instagram" should never land on instagram.com's generic
+  // homepage just because the admin hasn't set a real profile URL yet.
   const [settings, setSettings] = useState({
     address: 'Kota, Rajasthan, India',
     phone: '+91 98765 43210',
     email: 'hello@buildyourthougths.in',
-    githubUrl: 'https://github.com',
-    twitterUrl: 'https://twitter.com',
-    linkedinUrl: 'https://linkedin.com',
-    instagramUrl: 'https://instagram.com',
-    facebookUrl: 'https://facebook.com',
+    githubUrl: '',
+    twitterUrl: '',
+    linkedinUrl: '',
+    instagramUrl: '',
+    facebookUrl: '',
   });
 
   useEffect(() => {
@@ -23,23 +26,24 @@ export const Footer: React.FC = () => {
             address: data.data.address || 'Kota, Rajasthan, India',
             phone: data.data.phone || '+91 98765 43210',
             email: data.data.email || 'hello@buildyourthougths.in',
-            githubUrl: data.data.githubUrl || 'https://github.com',
-            twitterUrl: data.data.twitterUrl || 'https://twitter.com',
-            linkedinUrl: data.data.linkedinUrl || 'https://linkedin.com',
-            instagramUrl: data.data.instagramUrl || 'https://instagram.com',
-            facebookUrl: data.data.facebookUrl || 'https://facebook.com',
+            githubUrl: data.data.githubUrl || '',
+            twitterUrl: data.data.twitterUrl || '',
+            linkedinUrl: data.data.linkedinUrl || '',
+            instagramUrl: data.data.instagramUrl || '',
+            facebookUrl: data.data.facebookUrl || '',
           });
         }
       })
       .catch(() => {});
   }, []);
 
+  // Only render an icon for a platform the admin has actually configured.
   const socialLinks = [
-    { name: 'Instagram', icon: Instagram, href: settings.instagramUrl || 'https://instagram.com' },
-    { name: 'LinkedIn', icon: Linkedin, href: settings.linkedinUrl || 'https://linkedin.com' },
-    { name: 'Facebook', icon: Facebook, href: settings.facebookUrl || 'https://facebook.com' },
-    { name: 'Twitter', icon: Twitter, href: settings.twitterUrl || 'https://twitter.com' },
-  ];
+    { name: 'Instagram', icon: Instagram, href: settings.instagramUrl },
+    { name: 'LinkedIn', icon: Linkedin, href: settings.linkedinUrl },
+    { name: 'Facebook', icon: Facebook, href: settings.facebookUrl },
+    { name: 'Twitter', icon: Twitter, href: settings.twitterUrl },
+  ].filter((item) => item.href);
 
   return (
     <footer className="bg-dark text-white pt-12 md:pt-24 pb-12 px-6 border-t border-white/10 rounded-t-[40px] mt-12 md:mt-24">

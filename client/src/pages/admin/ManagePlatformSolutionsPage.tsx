@@ -204,12 +204,12 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
 
       {/* Messages */}
       {errorMsg && (
-        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-semibold">
+        <div className="p-4 rounded-operateLg bg-rose-50 border border-rose-200 text-rose-700 text-sm font-semibold">
           {errorMsg}
         </div>
       )}
       {successMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold">
+        <div className="p-4 rounded-operateLg bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold">
           {successMsg}
         </div>
       )}
@@ -224,7 +224,7 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search solutions by title or description... (press / to focus)"
           aria-label="Search platform solutions"
-          className="focus-ring w-full pl-12 pr-4 py-3 rounded-xl bg-background border border-dark/10 text-dark placeholder:text-mutedOnLight text-sm focus:outline-none focus:border-dark"
+          className="focus-ring w-full pl-12 pr-4 py-3 rounded-operateMd bg-background border border-dark/10 text-dark placeholder:text-mutedOnLight text-sm focus:outline-none focus:border-dark"
         />
       </div>
 
@@ -281,14 +281,14 @@ export const ManagePlatformSolutionsPage: React.FC = () => {
                   <button
                     onClick={() => handleOpenEditModal(sol)}
                     aria-label={`Edit ${sol.title}`}
-                    className="focus-ring p-2 rounded-xl bg-dark/5 hover:bg-dark/10 text-slateText hover:text-dark transition-colors"
+                    className="focus-ring p-2 rounded-operateMd bg-dark/5 hover:bg-dark/10 text-slateText hover:text-dark transition-colors"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setDeleteTarget({ id: sol._id, title: sol.title })}
                     aria-label={`Delete ${sol.title}`}
-                    className="focus-ring p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
+                    className="focus-ring p-2 rounded-operateMd bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

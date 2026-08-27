@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ArrowUpRight } from 'lucide-react';
 import { Button } from '../ui/Button';
 
+const MOBILE_DRAWER_ID = 'mobile-nav-drawer';
+
 export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const menuToggleRef = useRef<HTMLButtonElement>(null);
+  const firstDrawerLinkRef = useRef<HTMLAnchorElement>(null);
+  const hasOpenedRef = useRef(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +21,31 @@ export const Navbar: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Move focus into the drawer on open (first link), back to the toggle
+  // button on close, and let Escape close it - a screen-reader/keyboard
+  // user otherwise has no way to tell the drawer opened at all beyond the
+  // icon swap, and no quick way out of it once inside.
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      hasOpenedRef.current = true;
+      firstDrawerLinkRef.current?.focus();
+    } else if (hasOpenedRef.current) {
+      // Only steal focus back to the toggle if the drawer was actually open
+      // before - otherwise this fires on initial mount and hijacks the
+      // page's default focus for no reason.
+      menuToggleRef.current?.focus();
+    }
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [mobileMenuOpen]);
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -85,9 +115,12 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Hamburger Toggle */}
         <button
+          ref={menuToggleRef}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="focus-ring-inverse md:hidden p-3 -mr-1 text-white hover:text-primary transition-colors rounded-lg"
           aria-label="Toggle menu"
+          aria-expanded={mobileMenuOpen}
+          aria-controls={MOBILE_DRAWER_ID}
         >
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -97,14 +130,19 @@ export const Navbar: React.FC = () => {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
+            id={MOBILE_DRAWER_ID}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             className="fixed inset-x-4 top-24 z-40 bg-dark border border-white/10 rounded-card p-6 shadow-2xl flex flex-col gap-4 md:hidden"
           >
-            {navLinks.map((link) => (
+            {navLinks.map((link, idx) => (
               <Link
                 key={link.path}
+                ref={idx === 0 ? firstDrawerLinkRef : undefined}
                 to={link.path}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`text-lg font-medium px-4 py-2 rounded-lg transition-colors ${

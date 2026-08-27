@@ -212,12 +212,12 @@ export const ManagePricingPlansPage: React.FC = () => {
 
       {/* Messages */}
       {errorMsg && (
-        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-semibold">
+        <div className="p-4 rounded-operateLg bg-rose-50 border border-rose-200 text-rose-700 text-sm font-semibold">
           {errorMsg}
         </div>
       )}
       {successMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold">
+        <div className="p-4 rounded-operateLg bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold">
           {successMsg}
         </div>
       )}
@@ -232,7 +232,7 @@ export const ManagePricingPlansPage: React.FC = () => {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search pricing plans by name or price... (press / to focus)"
           aria-label="Search pricing plans"
-          className="focus-ring w-full pl-12 pr-4 py-3 rounded-xl bg-background border border-dark/10 text-dark placeholder:text-mutedOnLight text-sm focus:outline-none focus:border-dark"
+          className="focus-ring w-full pl-12 pr-4 py-3 rounded-operateMd bg-background border border-dark/10 text-dark placeholder:text-mutedOnLight text-sm focus:outline-none focus:border-dark"
         />
       </div>
 
@@ -310,14 +310,14 @@ export const ManagePricingPlansPage: React.FC = () => {
                   <button
                     onClick={() => handleOpenEditModal(plan)}
                     aria-label={`Edit ${plan.name}`}
-                    className="focus-ring p-2 rounded-xl bg-dark/5 hover:bg-dark/10 text-slateText hover:text-dark transition-colors"
+                    className="focus-ring p-2 rounded-operateMd bg-dark/5 hover:bg-dark/10 text-slateText hover:text-dark transition-colors"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setDeleteTarget({ id: plan._id, name: plan.name })}
                     aria-label={`Delete ${plan.name}`}
-                    className="focus-ring p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
+                    className="focus-ring p-2 rounded-operateMd bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -384,7 +384,7 @@ export const ManagePricingPlansPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={toggleExcludedStatus}
-                      className={`focus-ring px-2.5 py-1.5 rounded-xl text-[11px] font-bold border transition-colors shrink-0 ${
+                      className={`focus-ring px-2.5 py-1.5 rounded-operateMd text-[11px] font-bold border transition-colors shrink-0 ${
                         isExcluded
                           ? 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100'
                           : 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100'

@@ -83,14 +83,14 @@ export const ManageSettingsPage: React.FC = () => {
       </Link>
 
       {successMsg && (
-        <div className="p-4 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-sm flex items-center gap-2">
+        <div className="p-4 rounded-operateMd bg-emerald-50 text-emerald-800 border border-emerald-200 text-sm flex items-center gap-2">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
           <span>{successMsg}</span>
         </div>
       )}
 
       {errorMsg && (
-        <div className="p-4 rounded-xl bg-rose-50 text-rose-800 border border-rose-200 text-sm flex items-center gap-2">
+        <div className="p-4 rounded-operateMd bg-rose-50 text-rose-800 border border-rose-200 text-sm flex items-center gap-2">
           <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
           <span>{errorMsg}</span>
         </div>
@@ -112,7 +112,7 @@ export const ManageSettingsPage: React.FC = () => {
                 required
                 rows={3}
                 placeholder="e.g. 101 Innovation Hub, Kota, Rajasthan, India 324005"
-                className="w-full p-3.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-dark font-medium text-dark bg-slate-50/50"
+                className="w-full p-3.5 rounded-operateMd border border-slate-200 text-sm focus:outline-none focus:border-dark font-medium text-dark bg-slate-50/50"
               />
             </div>
 
@@ -128,7 +128,7 @@ export const ManageSettingsPage: React.FC = () => {
                   onChange={(e) => setPhone(e.target.value)}
                   required
                   placeholder="+91 98765 43210"
-                  className="w-full p-3.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-dark font-medium text-dark bg-slate-50/50"
+                  className="w-full p-3.5 rounded-operateMd border border-slate-200 text-sm focus:outline-none focus:border-dark font-medium text-dark bg-slate-50/50"
                 />
               </div>
 
@@ -143,7 +143,7 @@ export const ManageSettingsPage: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   placeholder="hello@buildyourthougths.in"
-                  className="w-full p-3.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-dark font-medium text-dark bg-slate-50/50"
+                  className="w-full p-3.5 rounded-operateMd border border-slate-200 text-sm focus:outline-none focus:border-dark font-medium text-dark bg-slate-50/50"
                 />
               </div>
             </div>

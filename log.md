@@ -2,6 +2,10 @@
 
 Append-only, reverse-chronological record of shipped features and fixes. Each entry is `YYYY-MM-DD HH:MM (timezone) — Task/Feature Name`, one entry per feature — updated after every feature lands. For current state, engineering decisions, and known issues, see `MEMORY.md` instead; this file is the chronological trail, not the curated summary.
 
+## 2026-08-27 12:28 IST — Set up standard 3-tier CLAUDE.md structure
+
+Moved `CLAUDE.md` from `.claude/CLAUDE.md` back to the repo root (Claude Code's documented auto-load convention), and added an empty, gitignored `CLAUDE.local.md` at the root for personal/machine-local overrides. Completes the standard tier: `~/.claude/CLAUDE.md` (global, untouched) → `./CLAUDE.md` (project) → `./CLAUDE.local.md` (personal). Updated `MEMORY.md`'s cross-references to match.
+
 ## 2026-08-27 12:21 IST — Reformat log.md to date+time+task-name entries
 
 Restructured this file's entries from date-grouped bullet lists to individual `date time — task name` headers, per user request. Also updated `.claude/CLAUDE.md`'s log.md rule to specify this format for future entries.

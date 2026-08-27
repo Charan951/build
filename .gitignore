@@ -17,6 +17,9 @@ server/.cache/
 *.env
 .env.production
 
+# Personal Claude Code overrides - never shared with the team
+CLAUDE.local.md
+
 # IDE & OS files
 .DS_Store
 Thumbs.db

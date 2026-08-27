@@ -1,5 +1,6 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
+import { useOperateMode } from './OperateModeContext';
 
 /** Small spin icon for inline/button-level loading. Replaces the ad hoc
  * `<Loader2 className="animate-spin" />` copies scattered across crm/*Modal.tsx. */
@@ -21,22 +22,27 @@ export const SpinnerSkeleton: React.FC<{
   </div>
 );
 
-/** A single skeleton card matching Card's shape — for grids of cards while loading. */
-export const SpinnerCardSkeleton: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div
-    className={`rounded-card border border-slate-200 bg-white p-8 space-y-4 animate-pulse ${className}`}
-    role="status"
-    aria-label="Loading"
-  >
-    <div className="h-5 w-24 bg-slate-100 rounded-full mx-auto" />
-    <div className="h-8 w-32 bg-slate-100 rounded-lg mx-auto" />
-    <div className="space-y-2 pt-2">
-      <div className="h-3 w-full bg-slate-100 rounded-full" />
-      <div className="h-3 w-full bg-slate-100 rounded-full" />
-      <div className="h-3 w-2/3 bg-slate-100 rounded-full" />
+/** A single skeleton card matching Card's shape — for grids of cards while loading.
+ * Radius follows Operate mode automatically (rounded-operateLg) instead of
+ * always shipping Persuade's 32px rounded-card into /dashboard or /portal. */
+export const SpinnerCardSkeleton: React.FC<{ className?: string }> = ({ className = '' }) => {
+  const isOperate = useOperateMode();
+  return (
+    <div
+      className={`${isOperate ? 'rounded-operateLg' : 'rounded-card'} border border-slate-200 bg-white p-8 space-y-4 animate-pulse ${className}`}
+      role="status"
+      aria-label="Loading"
+    >
+      <div className="h-5 w-24 bg-slate-100 rounded-full mx-auto" />
+      <div className="h-8 w-32 bg-slate-100 rounded-lg mx-auto" />
+      <div className="space-y-2 pt-2">
+        <div className="h-3 w-full bg-slate-100 rounded-full" />
+        <div className="h-3 w-full bg-slate-100 rounded-full" />
+        <div className="h-3 w-2/3 bg-slate-100 rounded-full" />
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export const Spinner = {
   Inline: SpinnerInline,

@@ -4,6 +4,7 @@ import { SEOHead } from '../../components/seo/SEOHead';
 import { Badge } from '../../components/ui/Badge';
 import { StatusPill } from '../../components/ui/StatusPill';
 import { OperateModeProvider } from '../../components/ui/OperateModeContext';
+import { PortalTabs } from '../../components/ui/PortalTabs';
 import {
   ChevronLeft,
   ListChecks,
@@ -190,43 +191,32 @@ export const ClientProjectDetailPage: React.FC = () => {
           <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-dark/10 max-w-md">
             <div>
               <p className="text-[10px] font-bold text-slateText uppercase">Budget</p>
-              <p className="font-bold text-lg text-dark">₹{(project.budget || 0).toLocaleString('en-IN')}</p>
+              <p className="font-bold text-lg text-dark tabular-nums">₹{(project.budget || 0).toLocaleString('en-IN')}</p>
             </div>
             <div>
               <p className="text-[10px] font-bold text-slateText uppercase">Paid</p>
-              <p className="font-bold text-lg text-emerald-600">₹{(project.paidAmount || 0).toLocaleString('en-IN')}</p>
+              <p className="font-bold text-lg text-emerald-600 tabular-nums">₹{(project.paidAmount || 0).toLocaleString('en-IN')}</p>
             </div>
             <div>
               <p className="text-[10px] font-bold text-slateText uppercase">Balance</p>
-              <p className="font-bold text-lg text-rose-600">₹{balance.toLocaleString('en-IN')}</p>
+              <p className="font-bold text-lg text-rose-600 tabular-nums">₹{balance.toLocaleString('en-IN')}</p>
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex items-center gap-1 border-b border-dark/10 overflow-x-auto no-scrollbar">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap ${
-                tab === t.id ? 'border-primary text-dark' : 'border-transparent text-slateText hover:text-dark'
-              }`}
-            >
-              <t.icon className="w-3.5 h-3.5" />
-              {t.label}
-              {t.id === 'tasks' && totalClientTasks > 0 && (
-                <span className="px-1.5 py-0.5 rounded-full bg-dark/5 text-[9px] font-bold text-slateText">
-                  {doneTasks}/{totalClientTasks}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+        <PortalTabs
+          groupId="portal-project"
+          tabs={TABS.map((t) => ({
+            ...t,
+            badge: t.id === 'tasks' && totalClientTasks > 0 ? `${doneTasks}/${totalClientTasks}` : undefined,
+          }))}
+          active={tab}
+          onChange={setTab}
+        />
 
         {/* Overview */}
         {tab === 'overview' && (
-          <div className="bg-white rounded-operateLg border border-dark/10 p-6 space-y-4">
+          <div role="tabpanel" id="portal-project-panel-overview" aria-labelledby="portal-project-tab-overview" className="bg-white rounded-operateLg border border-dark/10 p-6 space-y-4">
             <h3 className="font-display text-sm font-bold text-dark">Progress Updates</h3>
             {(project.progressUpdates || []).length === 0 ? (
               <p className="text-xs text-slateText py-6 text-center">No updates shared yet.</p>
@@ -250,7 +240,7 @@ export const ClientProjectDetailPage: React.FC = () => {
 
         {/* Tasks / To-do */}
         {tab === 'tasks' && (
-          <div className="space-y-4">
+          <div role="tabpanel" id="portal-project-panel-tasks" aria-labelledby="portal-project-tab-tasks" className="space-y-4">
             <div className="bg-white rounded-operateLg border border-dark/10 p-5 space-y-3">
               <h3 className="font-display text-sm font-bold text-dark">Your To-do List</h3>
               <div className="flex items-center gap-2">
@@ -326,7 +316,7 @@ export const ClientProjectDetailPage: React.FC = () => {
 
         {/* Quotations */}
         {tab === 'quotations' && (
-          <div className="bg-white rounded-operateLg border border-dark/10 p-2">
+          <div role="tabpanel" id="portal-project-panel-quotations" aria-labelledby="portal-project-tab-quotations" className="bg-white rounded-operateLg border border-dark/10 p-2">
             {(project.quotations || []).length === 0 ? (
               <p className="text-xs text-slateText py-8 text-center">No quotations shared yet.</p>
             ) : (
@@ -359,7 +349,7 @@ export const ClientProjectDetailPage: React.FC = () => {
 
         {/* Payments & Invoices */}
         {tab === 'payments' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div role="tabpanel" id="portal-project-panel-payments" aria-labelledby="portal-project-tab-payments" className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="bg-white rounded-operateLg border border-dark/10 p-5 space-y-3">
               <h3 className="font-display text-sm font-bold text-dark">Payment History</h3>
               {(project.payments || []).length === 0 ? (
@@ -369,7 +359,7 @@ export const ClientProjectDetailPage: React.FC = () => {
                   {[...project.payments].reverse().map((p: any) => (
                     <div key={p._id} className="py-2.5 flex items-center justify-between gap-3">
                       <div>
-                        <p className="font-bold text-xs text-dark">₹{(p.amount || 0).toLocaleString('en-IN')}</p>
+                        <p className="font-bold text-xs text-dark tabular-nums">₹{(p.amount || 0).toLocaleString('en-IN')}</p>
                         <p className="text-[10px] text-slateText">
                           {p.method} · {p.date ? new Date(p.date).toLocaleDateString() : ''}
                         </p>
@@ -397,7 +387,7 @@ export const ClientProjectDetailPage: React.FC = () => {
                         )}
                         <div className="min-w-0">
                           <p className="font-bold text-xs text-dark truncate">{inv.invoiceNumber}</p>
-                          <p className="text-[10px] text-slateText">₹{inv.totalAmount?.toLocaleString('en-IN')}</p>
+                          <p className="text-[10px] text-slateText tabular-nums">₹{inv.totalAmount?.toLocaleString('en-IN')}</p>
                         </div>
                       </div>
                       <button
@@ -417,7 +407,7 @@ export const ClientProjectDetailPage: React.FC = () => {
 
         {/* Domain & Hosting */}
         {tab === 'domain' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div role="tabpanel" id="portal-project-panel-domain" aria-labelledby="portal-project-tab-domain" className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="bg-white rounded-operateLg border border-dark/10 p-5 space-y-3">
               <div className="flex items-center gap-2">
                 <Globe className="w-4 h-4 text-dark" />

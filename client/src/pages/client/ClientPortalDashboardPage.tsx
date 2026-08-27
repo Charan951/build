@@ -1,10 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { SEOHead } from '../../components/seo/SEOHead';
 import { Badge } from '../../components/ui/Badge';
 import { StatusPill } from '../../components/ui/StatusPill';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { OperateModeProvider } from '../../components/ui/OperateModeContext';
+import { PortalTabs, PortalTabDef } from '../../components/ui/PortalTabs';
+import { Spinner } from '../../components/ui/Spinner';
 import {
   Receipt,
   LayoutGrid,
@@ -14,6 +17,10 @@ import {
   Download,
   Trash2,
   File as FileIcon,
+  FileText,
+  FileImage,
+  FileArchive,
+  FileSpreadsheet,
   Plus,
   LogOut,
   Sparkles,
@@ -25,8 +32,20 @@ import {
   CalendarClock,
   Video,
   ChevronRight,
+  ArrowRight,
 } from 'lucide-react';
 import { apiFetch, getApiUrl } from '../../services/api';
+
+/** Picks a more specific icon than a generic file glyph so the file list is
+ * scannable at a glance instead of every row looking identical regardless
+ * of what it actually is. */
+const iconForMimeType = (mimeType: string): React.ElementType => {
+  if (mimeType?.startsWith('image/')) return FileImage;
+  if (mimeType?.includes('spreadsheet') || mimeType?.includes('excel') || mimeType?.includes('csv')) return FileSpreadsheet;
+  if (mimeType?.includes('zip') || mimeType?.includes('compressed') || mimeType?.includes('archive')) return FileArchive;
+  if (mimeType?.includes('pdf') || mimeType?.startsWith('text/') || mimeType?.includes('document')) return FileText;
+  return FileIcon;
+};
 
 interface ClientFileItem {
   _id: string;
@@ -180,6 +199,24 @@ export const ClientPortalDashboardPage: React.FC = () => {
     .reduce((sum, inv) => sum + (inv.totalAmount || 0), 0);
   const activeProjectsCount = projects.filter((p) => p.status !== 'completed').length;
 
+  // Surfaces the single most time-sensitive thing on the account - the
+  // nearest upcoming meeting and the nearest unpaid invoice due date - so
+  // the dashboard opens with something actually useful instead of only
+  // static counts. Real content driven by real data, not decoration.
+  const nextMeeting = useMemo(() => {
+    const now = Date.now();
+    return meetings
+      .map((m) => ({ ...m, at: new Date(`${m.date}T${m.time || '00:00'}`).getTime() }))
+      .filter((m) => !Number.isNaN(m.at) && m.at >= now)
+      .sort((a, b) => a.at - b.at)[0];
+  }, [meetings]);
+
+  const nextDueInvoice = useMemo(() => {
+    return [...invoices]
+      .filter((inv) => inv.status !== 'paid' && inv.dueDate)
+      .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
+  }, [invoices]);
+
   const initials = (clientInfo.companyName || 'C')
     .split(' ')
     .map((w: string) => w[0])
@@ -190,8 +227,16 @@ export const ClientPortalDashboardPage: React.FC = () => {
   if (loading) {
     return (
       <OperateModeProvider>
-        <div data-operate-mode="true" className="min-h-screen flex items-center justify-center bg-background">
-          <div className="w-8 h-8 border-4 border-dark/10 border-t-primary rounded-full animate-spin" />
+        <div data-operate-mode="true" className="min-h-screen bg-background">
+          <div className="sticky top-0 z-20 h-[68px] bg-dark border-b border-white/10" />
+          <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
+            <div className="h-8 w-64 bg-dark/5 rounded-operateMd animate-pulse" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Spinner.CardSkeleton key={i} className="!p-5" />
+              ))}
+            </div>
+          </div>
         </div>
       </OperateModeProvider>
     );
@@ -299,35 +344,67 @@ export const ClientPortalDashboardPage: React.FC = () => {
             </div>
             <div>
               <p className="text-[10px] font-bold text-slateText uppercase tracking-wide">Outstanding</p>
-              <p className="font-display text-xl font-bold text-rose-600">₹{outstandingTotal.toLocaleString('en-IN')}</p>
+              <p className="font-display text-xl font-bold text-rose-600 tabular-nums">₹{outstandingTotal.toLocaleString('en-IN')}</p>
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex items-center gap-1 border-b border-dark/10 overflow-x-auto no-scrollbar">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap ${
-                tab === t.id ? 'border-primary text-dark' : 'border-transparent text-slateText hover:text-dark'
-              }`}
-            >
-              <t.icon className="w-3.5 h-3.5" />
-              {t.label}
-              {t.id === 'files' && files.length > 0 && (
-                <span className="px-1.5 py-0.5 rounded-full bg-dark/5 text-[9px] font-bold text-slateText">
-                  {files.length}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+        {/* Up Next: the single most time-sensitive thing on the account, if any */}
+        {(nextMeeting || nextDueInvoice) && (
+          <div className="flex flex-col sm:flex-row gap-3">
+            {nextMeeting && (
+              <button
+                onClick={() => setTab('meetings')}
+                className="focus-ring flex-1 flex items-center gap-3 p-3.5 rounded-operateLg bg-white border border-dark/10 hover:border-primary/40 transition-colors text-left"
+              >
+                <div className="w-8 h-8 rounded-operateSm bg-primary/20 flex items-center justify-center shrink-0">
+                  <CalendarClock className="w-4 h-4 text-dark" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[9px] font-bold text-slateText uppercase tracking-wide">Next meeting</p>
+                  <p className="text-xs font-bold text-dark truncate">
+                    {nextMeeting.title} · {new Date(nextMeeting.at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} at {nextMeeting.time}
+                  </p>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-slateText/40 shrink-0" />
+              </button>
+            )}
+            {nextDueInvoice && (
+              <button
+                onClick={() => setTab('invoices')}
+                className="focus-ring flex-1 flex items-center gap-3 p-3.5 rounded-operateLg bg-white border border-dark/10 hover:border-primary/40 transition-colors text-left"
+              >
+                <div className="w-8 h-8 rounded-operateSm bg-rose-50 flex items-center justify-center shrink-0">
+                  <IndianRupee className="w-4 h-4 text-rose-600" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[9px] font-bold text-slateText uppercase tracking-wide">
+                    {new Date(nextDueInvoice.dueDate).getTime() < Date.now() ? 'Overdue invoice' : 'Invoice due soon'}
+                  </p>
+                  <p className="text-xs font-bold text-dark truncate tabular-nums">
+                    {nextDueInvoice.invoiceNumber} · ₹{nextDueInvoice.totalAmount?.toLocaleString('en-IN')} due{' '}
+                    {new Date(nextDueInvoice.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </p>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-slateText/40 shrink-0" />
+              </button>
+            )}
+          </div>
+        )}
+
+        <PortalTabs
+          groupId="portal-dashboard"
+          tabs={TABS.map((t): PortalTabDef<PortalTab> => ({
+            ...t,
+            badge: t.id === 'files' && files.length > 0 ? files.length : undefined,
+          }))}
+          active={tab}
+          onChange={setTab}
+        />
 
         {/* Projects */}
         {tab === 'overview' && (
-          <div>
+          <div role="tabpanel" id="portal-dashboard-panel-overview" aria-labelledby="portal-dashboard-tab-overview">
             {projects.length === 0 ? (
               <div className="bg-white rounded-operateLg border border-dark/10 p-10 text-center">
                 <FolderKanban className="w-8 h-8 text-slateText/40 mx-auto mb-2" />
@@ -360,9 +437,11 @@ export const ClientPortalDashboardPage: React.FC = () => {
                           <span>{progress}%</span>
                         </div>
                         <div className="h-1.5 rounded-full bg-dark/5 overflow-hidden">
-                          <div
-                            className="h-full bg-primary rounded-full transition-all"
-                            style={{ width: `${progress}%` }}
+                          <motion.div
+                            className="h-full bg-primary rounded-full"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progress}%` }}
+                            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                           />
                         </div>
                       </div>
@@ -386,7 +465,7 @@ export const ClientPortalDashboardPage: React.FC = () => {
 
         {/* Files */}
         {tab === 'files' && (
-          <div className="space-y-4">
+          <div role="tabpanel" id="portal-dashboard-panel-files" aria-labelledby="portal-dashboard-tab-files" className="space-y-4">
             <div className="flex items-center justify-end">
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -417,11 +496,13 @@ export const ClientPortalDashboardPage: React.FC = () => {
               </div>
             ) : (
               <div className="bg-white rounded-operateLg border border-dark/10 divide-y divide-dark/5">
-                {files.map((f) => (
+                {files.map((f) => {
+                  const Icon = iconForMimeType(f.mimeType);
+                  return (
                   <div key={f._id} className="p-4 flex items-center justify-between gap-3 group">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div className="w-10 h-10 rounded-operateMd bg-primary/20 flex items-center justify-center shrink-0">
-                        <FileIcon className="w-4.5 h-4.5 text-dark" />
+                        <Icon className="w-4.5 h-4.5 text-dark" />
                       </div>
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-dark truncate">{f.fileName}</p>
@@ -452,7 +533,8 @@ export const ClientPortalDashboardPage: React.FC = () => {
                       )}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -460,7 +542,7 @@ export const ClientPortalDashboardPage: React.FC = () => {
 
         {/* Invoices */}
         {tab === 'invoices' && (
-          <div>
+          <div role="tabpanel" id="portal-dashboard-panel-invoices" aria-labelledby="portal-dashboard-tab-invoices">
             {invoices.length === 0 ? (
               <div className="bg-white rounded-operateLg border border-dark/10 p-10 text-center">
                 <Receipt className="w-8 h-8 text-slateText/40 mx-auto mb-2" />
@@ -488,7 +570,7 @@ export const ClientPortalDashboardPage: React.FC = () => {
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="font-bold text-dark text-sm">₹{inv.totalAmount?.toLocaleString('en-IN')}</p>
+                      <p className="font-bold text-dark text-sm tabular-nums">₹{inv.totalAmount?.toLocaleString('en-IN')}</p>
                       <Badge variant={inv.status === 'paid' ? 'lime' : 'dark'} className="mt-0.5">
                         {inv.status}
                       </Badge>
@@ -502,7 +584,7 @@ export const ClientPortalDashboardPage: React.FC = () => {
 
         {/* Meetings */}
         {tab === 'meetings' && (
-          <div>
+          <div role="tabpanel" id="portal-dashboard-panel-meetings" aria-labelledby="portal-dashboard-tab-meetings">
             {meetings.length === 0 ? (
               <div className="bg-white rounded-operateLg border border-dark/10 p-10 text-center">
                 <CalendarClock className="w-8 h-8 text-slateText/40 mx-auto mb-2" />
